@@ -52,6 +52,14 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '5432',
+    },
+    'ade': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ade',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '5432',
     }
 }
 
@@ -239,6 +247,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
+    'schedulesy.apps.ade_legacy',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -328,3 +337,5 @@ REST_FRAMEWORK = {
 ADE_WEB_API = {'USER': '',
                'PASSWORD': '',
                'HOST':''}
+
+DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']

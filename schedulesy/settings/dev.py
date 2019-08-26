@@ -29,10 +29,15 @@ DATABASES['default']['USER'] = environ.get('DB_USER')
 DATABASES['default']['PASSWORD'] = environ.get('DB_PWD')
 DATABASES['default']['NAME'] = environ.get('DB_NAME')
 
+DATABASES['ade']['HOST'] = environ.get('ADE_DB_HOST')
+DATABASES['ade']['USER'] = environ.get('ADE_DB_USER')
+DATABASES['ade']['PASSWORD'] = environ.get('ADE_DB_PWD')
+DATABASES['ade']['NAME'] = environ.get('ADE_DB_NAME')
 
-ADE_WEB_API['USER'] = environ.get('ADE_USER')
-ADE_WEB_API['PASSWORD'] = environ.get('ADE_PASSWORD')
-ADE_WEB_API['HOST'] = environ.get('ADE_HOST')
+
+ADE_WEB_API['USER'] = environ.get('ADE_WS_USER')
+ADE_WEB_API['PASSWORD'] = environ.get('ADE_WS_PASSWORD')
+ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')
 
 
 ############################

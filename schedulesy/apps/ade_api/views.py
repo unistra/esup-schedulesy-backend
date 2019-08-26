@@ -8,7 +8,7 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 
 from schedulesy.apps.ade_api.refresh import Refresh
 from schedulesy.apps.ade_api.serializers import ResourceSerializer
-from schedulesy.models import Resource
+from schedulesy.apps.ade_api.models import Resource
 
 
 def refresh(request):
