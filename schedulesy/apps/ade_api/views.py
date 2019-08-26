@@ -2,6 +2,7 @@ import json
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse
+from rest_framework import permissions
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
@@ -20,13 +21,12 @@ def refresh(request):
 class ResourceDetail(RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
+    permission_classes = (permissions.AllowAny, )
 
     def get(self, request, *args, **kwargs):
-        try :
+        try:
             obj = self.queryset.get(ext_id=self.kwargs['ext_id'])
         except ObjectDoesNotExist:
             return Response(status=HTTP_404_NOT_FOUND, data={'error':'not found'})
-
-        print("{} ({}) : {}".format(self.kwargs['ext_id'], type(self.kwargs['ext_id']), obj))
         serializer = ResourceSerializer(obj, context={'request': request})
         return Response(serializer.data)

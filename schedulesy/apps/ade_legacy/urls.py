@@ -6,7 +6,7 @@ from . import views
 app_name = "legacy"
 
 urlpatterns = [
-    url(r'^customization/(?P<pk>\w+)$', views.CustomizationDetail.as_view(), name='customization-detail'),
+    url(r'^customization/(?P<username>(\w|.)+)$', views.CustomizationDetail.as_view(), name='customization-detail'),
     url(r'^customization$', views.CustomizationList.as_view(), name='customization-list'),
 ]
 
