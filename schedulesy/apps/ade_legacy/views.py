@@ -1,13 +1,14 @@
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
+
 from . import models
 from . import serializers
-from rest_framework import generics, filters
 
 
-class WEdtpersoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Edtperso.objects.all()
+class CustomizationDetail(RetrieveUpdateDestroyAPIView):
+    queryset = models.Customization.objects.all()
     serializer_class = serializers.WEdtpersoSerializer
 
 
-class WEdtpersoList(generics.ListCreateAPIView):
-    queryset = models.Edtperso.objects.all()
+class CustomizationList(ListCreateAPIView):
+    queryset = models.Customization.objects.all()
     serializer_class = serializers.WEdtpersoSerializer

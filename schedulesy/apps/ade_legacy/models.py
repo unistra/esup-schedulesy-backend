@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class Edtperso(models.Model):
+class Customization(models.Model):
     id = models.IntegerField(primary_key=True, db_column='id')
     display_configuration = models.CharField(max_length=60, db_column='configuration_affichage', blank=True)
     resources = models.CharField(max_length=300, db_column='ressources', blank=True)
