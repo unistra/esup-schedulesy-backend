@@ -1,6 +1,8 @@
 import json
 import time
 
+from django.conf import settings
+
 from schedulesy.models import Resource, Fingerprint
 from .ade import ADEWebAPI, Config
 
@@ -41,7 +43,9 @@ class Flatten:
 
 class Refresh:
     def __init__(self):
-        config = Config.create(url='https://adeweb.unistra.fr/jsp/webapi', login='toto', password='toto')
+        config = Config.create(url=settings.ADE_WEB_API['HOST'],
+                               login=settings.ADE_WEB_API['USER'],
+                               password=settings.ADE_WEB_API['PASSWORD'])
         myade = ADEWebAPI(**config)
         myade.connect()
         myade.setProject(5)
