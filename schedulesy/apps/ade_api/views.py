@@ -1,7 +1,7 @@
 import json
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
@@ -14,7 +14,7 @@ from schedulesy.models import Resource
 def refresh(request):
     if request.method == "GET":
         data = Refresh().data
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
 class ResourceDetail(RetrieveAPIView):

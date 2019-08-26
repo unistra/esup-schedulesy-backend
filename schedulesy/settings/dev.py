@@ -30,6 +30,11 @@ DATABASES['default']['PASSWORD'] = environ.get('DB_PWD')
 DATABASES['default']['NAME'] = environ.get('DB_NAME')
 
 
+ADE_WEB_API['USER'] = environ.get('ADE_USER')
+ADE_WEB_API['PASSWORD'] = environ.get('ADE_PASSWORD')
+ADE_WEB_API['HOST'] = environ.get('ADE_HOST')
+
+
 ############################
 # Allowed hosts & Security #
 ############################

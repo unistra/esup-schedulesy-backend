@@ -15,6 +15,10 @@ DATABASES['default']['USER'] = '{{ default_db_user }}'
 DATABASES['default']['PASSWORD'] = '{{ default_db_password }}'
 DATABASES['default']['NAME'] = '{{ default_db_name }}'
 
+ADE_WEB_API['USER'] = '{{ ade_web_user }}'
+ADE_WEB_API['PASSWORD'] = '{{ ade_web_password }}'
+ADE_WEB_API['HOST'] = '{{ ade_web_host }}'
+
 
 ############################
 # Allowed hosts & Security #
