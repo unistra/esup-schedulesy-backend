@@ -13,7 +13,7 @@ from . import models
 
 
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):
-    queryset = models.Customization.objects.all()
+    queryset = models.Customization.objects
     serializer_class = CustomizationSerializer
     lookup_field = 'username'
 
@@ -43,14 +43,17 @@ class CustomizationDetail(RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-class CustomizationDetailAdmin(RetrieveUpdateDestroyAPIView):
-    queryset = models.Customization.objects.all()
-    serializer_class = CustomizationSerializer
-    lookup_field = 'username'
-    permission_classes = (permissions.IsAdminUser,)
-
-
 class CustomizationList(ListCreateAPIView):
-    queryset = models.Customization.objects.all()
+    queryset = models.Customization.objects
     serializer_class = CustomizationSerializer
     permission_classes = (permissions.IsAdminUser,)
+
+    def list(self, request, *args, **kwargs):
+        user = self.request.user
+        if user.is_superuser:
+            queryset = self.queryset
+        else:
+            queryset = self.queryset.filter(username=user.username)
+        serializer = CustomizationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
