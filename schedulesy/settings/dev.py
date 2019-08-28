@@ -35,11 +35,6 @@ DATABASES['ade']['PASSWORD'] = environ.get('ADE_DB_PWD')
 DATABASES['ade']['NAME'] = environ.get('ADE_DB_NAME')
 
 
-ADE_WEB_API['USER'] = environ.get('ADE_WS_USER')
-ADE_WEB_API['PASSWORD'] = environ.get('ADE_WS_PASSWORD')
-ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')
-
-
 ############################
 # Allowed hosts & Security #
 ############################
@@ -85,3 +80,12 @@ MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
+
+
+################
+# ADE settings #
+################
+
+ADE_WEB_API['USER'] = environ.get('ADE_WS_USER')
+ADE_WEB_API['PASSWORD'] = environ.get('ADE_WS_PASSWORD')
+ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')

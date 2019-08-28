@@ -105,7 +105,15 @@ def test():
     env.goal = 'test'
     env.socket_port = ''
     env.socket_host = '127.0.0.1'
-    env.map_settings = {}
+    env.map_settings = {
+        'ade_db_host': "DATABASES['ade']['HOST']",
+        'ade_db_user': "DATABASES['ade']['USER']",
+        'ade_db_password': "DATABASES['ade']['PASSWORD']",
+        'ade_db_name': "DATABASES['ade']['NAME']",
+        'ade_ws_user': "ADE_WEB_API['USER']",
+        'ade_ws_password': "ADE_WEB_API['PASSWORD']",
+        'ade_ws_host': "ADE_WEB_API['HOST']",
+    }
     execute(build_env)
 
 
@@ -133,7 +141,14 @@ def preprod():
         'default_db_user': "DATABASES['default']['USER']",
         'default_db_password': "DATABASES['default']['PASSWORD']",
         'default_db_name': "DATABASES['default']['NAME']",
+        'ade_db_host': "DATABASES['ade']['HOST']",
+        'ade_db_user': "DATABASES['ade']['USER']",
+        'ade_db_password': "DATABASES['ade']['PASSWORD']",
+        'ade_db_name': "DATABASES['ade']['NAME']",
         'secret_key': "SECRET_KEY",
+        'ade_ws_user': "ADE_WEB_API['USER']",
+        'ade_ws_password': "ADE_WEB_API['PASSWORD']",
+        'ade_ws_host': "ADE_WEB_API['HOST']",
     }
     execute(build_env)
 
@@ -162,7 +177,14 @@ def prod():
         'default_db_user': "DATABASES['default']['USER']",
         'default_db_password': "DATABASES['default']['PASSWORD']",
         'default_db_name': "DATABASES['default']['NAME']",
+        'ade_db_host': "DATABASES['ade']['HOST']",
+        'ade_db_user': "DATABASES['ade']['USER']",
+        'ade_db_password': "DATABASES['ade']['PASSWORD']",
+        'ade_db_name': "DATABASES['ade']['NAME']",
         'secret_key': "SECRET_KEY",
+        'ade_ws_user': "ADE_WEB_API['USER']",
+        'ade_ws_password': "ADE_WEB_API['PASSWORD']",
+        'ade_ws_host': "ADE_WEB_API['HOST']",
     }
     execute(build_env)
 

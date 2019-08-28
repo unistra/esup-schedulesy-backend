@@ -62,6 +62,8 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']
+
 
 ######################
 # Site configuration #
@@ -332,7 +334,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'schedulesy.libs.authentication.CustomJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -340,16 +342,22 @@ REST_FRAMEWORK = {
 
 }
 
-ADE_WEB_API = {'USER': '',
-               'PASSWORD': '',
-               'HOST':''}
-
-DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']
-
 AUTHENTICATION_BACKENDS = (
     'django_cas.backends.CASBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+
+################
+# ADE settings #
+################
+
+ADE_WEB_API = {
+    'USER': '',
+    'PASSWORD': '',
+    'HOST': ''
+}
+
 
 ########
 # CAS #
@@ -373,6 +381,7 @@ CORS_ALLOW_CREDENTIALS = True
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'username',
     'ALGORITHM': 'RS256',
+    'CREATE_USER': True,  # CustomJWTAuthentication parameter
 }
 
 
