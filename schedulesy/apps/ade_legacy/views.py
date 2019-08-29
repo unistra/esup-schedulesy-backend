@@ -1,38 +1,40 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import permissions
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND
+from rest_framework.settings import api_settings
 
 from schedulesy.apps.ade_legacy.serializers import CustomizationSerializer
 from . import models
 
 
+class IsOwnerPermission(permissions.BasePermission):
+    """Object-level permission to only allow owners of an object to edit it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        return obj.username == request.user.username
+
+
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):
-    queryset = models.Customization.objects
+
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES +\
+        [IsOwnerPermission]
+    queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
     lookup_field = 'username'
 
-    def get(self, request, *args, **kwargs):
-        try:
-            obj = self.queryset.get(username=request.user.username)
-        except ObjectDoesNotExist:
-            return Response(status=HTTP_404_NOT_FOUND, data={'error': 'not found'})
-        serializer = CustomizationSerializer(obj, context={'request': request})
-        return Response(serializer.data)
-
 
 class CustomizationList(ListCreateAPIView):
-    queryset = models.Customization.objects
+    queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
     permission_classes = (permissions.IsAdminUser,)
 
     def list(self, request, *args, **kwargs):
         user = self.request.user
-        if user.is_superuser:
-            queryset = self.queryset
-        else:
-            queryset = self.queryset.filter(username=user.username)
+        filters = {}
+        if not user.is_superuser:
+            filters = {'username': user.username}
+        queryset = self.get_queryset().filter(**filters)
         serializer = CustomizationSerializer(queryset, many=True)
         return Response(serializer.data)
