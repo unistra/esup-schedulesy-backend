@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class Customization(models.Model):
-    id = models.IntegerField(primary_key=True, db_column='id')
+    id = models.AutoField(primary_key=True, db_column='id')
     display_configuration = models.CharField(max_length=60, db_column='configuration_affichage', blank=True)
     resources = models.CharField(max_length=300, db_column='ressources', blank=True)
     directory_id = models.CharField(max_length=32, db_column='uds_directory_id')
