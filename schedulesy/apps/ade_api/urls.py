@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'refresh/$', views.refresh, name='refresh'),
     # url(r'resources/$', views.ResourceList.as_view(), name='resources'),
     path('resource/<str:ext_id>', views.ResourceDetail.as_view(), name='resource'),
+    path('display_types', views.DisplayTypeList.as_view(), name='display_types'),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(urlpatterns, suffix_required=True)

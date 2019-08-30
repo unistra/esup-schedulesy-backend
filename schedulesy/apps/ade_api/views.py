@@ -1,15 +1,10 @@
-import json
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, JsonResponse
-from rest_framework import permissions
-from rest_framework.generics import RetrieveAPIView
+from django.http import JsonResponse
+from rest_framework import generics, permissions
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND
 
-from schedulesy.apps.ade_api.refresh import Refresh
-from schedulesy.apps.ade_api.serializers import ResourceSerializer
-from schedulesy.apps.ade_api.models import Resource
+from .models import DisplayType, Resource
+from .refresh import Refresh
+from .serializers import ResourceSerializer
 
 
 def refresh(request):
@@ -18,15 +13,16 @@ def refresh(request):
         return JsonResponse(data)
 
 
-class ResourceDetail(RetrieveAPIView):
+class ResourceDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     permission_classes = (permissions.AllowAny, )
+    lookup_field = 'ext_id'
 
-    def get(self, request, *args, **kwargs):
-        try:
-            obj = self.queryset.get(ext_id=self.kwargs['ext_id'])
-        except ObjectDoesNotExist:
-            return Response(status=HTTP_404_NOT_FOUND, data={'error':'not found'})
-        serializer = ResourceSerializer(obj, context={'request': request})
-        return Response(serializer.data)
+
+class DisplayTypeList(generics.ListAPIView):
+    queryset = DisplayType.objects.all()
+    permission_classes = (permissions.AllowAny, )
+
+    def list(self, request, *args, **kwargs):
+        return Response(self.get_queryset().values_list('name', flat=True))

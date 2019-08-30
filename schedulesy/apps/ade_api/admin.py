@@ -1,9 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
-from schedulesy.apps.ade_api.models import Resource, Fingerprint
+from .models import DisplayType, Fingerprint, Resource
 
 
-@admin.register(Resource, Fingerprint)
+@admin.register(DisplayType, Fingerprint, Resource)
 class APIAdmin(admin.ModelAdmin):
     pass

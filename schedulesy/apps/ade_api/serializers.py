@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from schedulesy.apps.ade_api.models import Resource
+from .models import Resource
 
 
 class ResourceSerializer(serializers.ModelSerializer):

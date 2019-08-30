@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-30 09:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: schedulesy/apps/ade_api/models.py:18
+msgid "Name"
+msgstr "Nom"
+
+#: schedulesy/apps/ade_api/models.py:21
+msgid "Display type"
+msgstr "Type d'affichage"
+
+#: schedulesy/apps/ade_api/models.py:22
+msgid "Display types"
+msgstr "Types d'affichage"
+
+#: schedulesy/libs/authentication.py:22
+msgid "Token contained no recognizable user identification"
+msgstr ""
+
+#: schedulesy/libs/authentication.py:32
+msgid "User not found"
+msgstr ""
+
+#: schedulesy/libs/authentication.py:36
+msgid "User is inactive"
+msgstr ""
+
+#: schedulesy/templates/404.html:6
+msgid "Page not found"
+msgstr ""
+
+#: schedulesy/templates/500.html:6
+msgid "Error"
+msgstr ""

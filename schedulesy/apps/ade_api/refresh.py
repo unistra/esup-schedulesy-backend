@@ -3,8 +3,9 @@ import time
 
 from django.conf import settings
 
-from schedulesy.apps.ade_api.models import Resource, Fingerprint
 from .ade import ADEWebAPI, Config
+from .models import Resource, Fingerprint
+
 
 class Flatten:
     def __init__(self, data):
