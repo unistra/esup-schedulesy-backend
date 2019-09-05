@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 # Create your models here.
@@ -15,3 +16,8 @@ class Customization(models.Model):
     class Meta:
         managed = False
         db_table = 'w_edtperso'
+        verbose_name = _('Customization')
+        verbose_name_plural = _('Customizations')
+
+    def __str__(self):
+        return '{0.username}'.format(self)
