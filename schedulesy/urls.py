@@ -11,6 +11,7 @@ urlpatterns = [
     path('', home, name='home'),
     # path('app/', include('apps.app.urls')),
     path('api/', include('schedulesy.apps.ade_api.urls', namespace='api')),
+    path('legacy/', include('schedulesy.apps.ade_legacy.urls', namespace='legacy')),
 
     path('admin/', admin.site.urls),
 ]

@@ -46,3 +46,4 @@ htmlcov/
 *.db
 
 .idea
+keys/

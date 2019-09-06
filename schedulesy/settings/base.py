@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from os.path import abspath, basename, dirname, join, normpath
-
+from os.path import abspath, basename, dirname, join, normpath, isfile
 
 ######################
 # Path configuration #
@@ -52,8 +51,18 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '5432',
+    },
+    'ade': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ade',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '5432',
     }
 }
+
+DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']
 
 
 ######################
@@ -190,6 +199,7 @@ TEMPLATES = [
 ############################
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -232,6 +242,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'django_cas',
     'corsheaders',
     'rest_framework',
 ]
@@ -239,6 +250,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
+    'schedulesy.apps.ade_legacy',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -318,13 +330,66 @@ LOGGING = {
 }
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'schedulesy.libs.authentication.CustomJWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+
 }
 
-ADE_WEB_API = {'USER': '',
-               'PASSWORD': '',
-               'HOST':''}
+AUTHENTICATION_BACKENDS = (
+    'django_cas.backends.CASBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+################
+# ADE settings #
+################
+
+ADE_WEB_API = {
+    'USER': '',
+    'PASSWORD': '',
+    'HOST': ''
+}
+
+
+########
+# CAS #
+########
+
+CAS_SERVER_URL = "https://cas.unistra.fr:443/cas/login"
+CAS_LOGOUT_COMPLETELY = True
+CAS_LOGOUT_REQUEST_ALLOWED = ('cas1.di.unistra.fr', 'cas2.di.unistra.fr')
+CAS_USER_CREATION = True
+CAS_ADMIN_AUTH = True
+#CAS_CUSTOM_FORBIDDEN = 'forbidden-view'
+CAS_USERNAME_FORMAT = lambda username: username.lower().strip()
+CAS_REDIRECT_URL = '/'
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = ('http://localhost:8080',)
+
+CORS_ALLOW_CREDENTIALS = True
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'username',
+    'ALGORITHM': 'RS256',
+    'CREATE_USER': True,  # CustomJWTAuthentication parameter
+}
+
+
+def check_key(filename, key_type):
+    full_path = join(dirname(abspath(__file__)), "../../keys", filename)
+    if isfile(full_path):
+        SIMPLE_JWT[key_type] = open(full_path, 'rb').read()
+
+
+check_key('myPublic.pem', 'VERIFYING_KEY')

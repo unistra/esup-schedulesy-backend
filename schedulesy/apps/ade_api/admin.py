@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import DisplayType, Fingerprint, Resource
+
+
+@admin.register(DisplayType, Fingerprint, Resource)
+class APIAdmin(admin.ModelAdmin):
+    pass

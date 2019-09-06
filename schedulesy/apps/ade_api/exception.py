@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf8 -*-
-
 """
     ADE Web API Exceptions
 

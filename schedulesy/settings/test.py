@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from os import environ
 from os.path import normpath
 from .base import *
 
@@ -20,9 +19,11 @@ DATABASES['default']['USER'] = '{{ default_db_user }}'
 DATABASES['default']['PASSWORD'] = '{{ default_db_password }}'
 DATABASES['default']['NAME'] = '{{ default_db_name }}'
 
-ADE_WEB_API['USER'] = environ.get('ADE_USER')
-ADE_WEB_API['PASSWORD'] = environ.get('ADE_PASSWORD')
-ADE_WEB_API['HOST'] = environ.get('ADE_HOST')
+DATABASES['ade']['HOST'] = '{{ ade_db_host}}'
+DATABASES['ade']['USER'] = '{{ ade_db_user }}'
+DATABASES['ade']['PASSWORD'] = '{{ ade_db_password }}'
+DATABASES['ade']['NAME'] = '{{ ade_db_name }}'
+
 
 ############################
 # Allowed hosts & Security #
@@ -49,3 +50,12 @@ for logger in LOGGING['loggers']:
 
 DIPSTRAP_VERSION = '{{ dipstrap_version }}'
 DIPSTRAP_STATIC_URL += '%s/' % DIPSTRAP_VERSION
+
+
+################
+# ADE settings #
+################
+
+ADE_WEB_API['USER'] = '{{ ade_ws_user }}'
+ADE_WEB_API['PASSWORD'] = '{{ ade_ws_password }}'
+ADE_WEB_API['HOST'] = '{{ ade_ws_host }}'

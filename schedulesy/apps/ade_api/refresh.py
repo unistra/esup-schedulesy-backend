@@ -3,8 +3,9 @@ import time
 
 from django.conf import settings
 
-from schedulesy.models import Resource, Fingerprint
 from .ade import ADEWebAPI, Config
+from .models import Resource, Fingerprint
+
 
 class Flatten:
     def __init__(self, data):
@@ -33,10 +34,12 @@ class Flatten:
                 print("Double key {}".format(key))
             else:
                 tmp = item.copy()
-                # if len(children_ref) > 0:
-                tmp['children'] = children_ref
+                if len(children_ref) > 0:
+                    tmp['children'] = children_ref
                 self.f_data[key] = tmp
-            return {'id': key, 'name': item['name']}
+            result = {'id': key, 'name': item['name']}
+            result['has_children'] = len(children_ref) > 0
+            return result
 
         return None
 
