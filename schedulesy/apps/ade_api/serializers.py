@@ -25,11 +25,7 @@ class AdeConfigSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         return {
             'base_url': obj.ade_url,
-            'params': {
-                'projectId': obj.project_id,
-                'calType': obj.calendar_type,
-                'nbWeeks': obj.weeks_number,
-            }
+            'params': obj.parameters
         }
 
     class Meta:

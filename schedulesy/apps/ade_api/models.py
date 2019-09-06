@@ -42,13 +42,7 @@ class DisplayType(models.Model):
 class AdeConfig(models.Model):
 
     ade_url = models.URLField(_('ADE URL'))
-    project_id = models.IntegerField(
-        _('Project ID'), help_text=_('projectId parameter'))
-    calendar_type = models.CharField(
-        _('Calendar type'), max_length=50, default='ical',
-        help_text=_('calType parameter'))
-    weeks_number = models.IntegerField(
-        _('Weeks number'), help_text=_('nbWeeks paramater'))
+    parameters = JSONField(_('Parameters'))
 
     class Meta:
         verbose_name = _('ADE config')
