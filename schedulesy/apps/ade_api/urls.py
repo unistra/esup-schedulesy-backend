@@ -14,6 +14,7 @@ ws_urlpatterns = [
     # url(r'resources/$', views.ResourceList.as_view(), name='resources'),
     path('resource/<str:ext_id>', views.ResourceDetail.as_view(), name='resource'),
     path('display_types', views.DisplayTypeList.as_view(), name='display_types'),
+    path('ade_config', views.AdeConfigDetail.as_view(), name='ade_config'),
 ]
 
 urlpatterns += format_suffix_patterns(ws_urlpatterns, suffix_required=True)

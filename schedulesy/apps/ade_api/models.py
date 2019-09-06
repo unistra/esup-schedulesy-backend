@@ -37,3 +37,23 @@ class DisplayType(models.Model):
 
     def __str__(self):
         return '{0.name}'.format(self)
+
+
+class AdeConfig(models.Model):
+
+    ade_url = models.URLField(_('ADE URL'))
+    parameters = JSONField(_('Parameters'))
+
+    class Meta:
+        verbose_name = _('ADE config')
+        verbose_name_plural = _('ADE config')
+
+    def __str__(self):
+        return str(_('ADE config'))
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
