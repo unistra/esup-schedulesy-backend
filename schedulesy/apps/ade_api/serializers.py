@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from .models import Resource
+from .models import AdeConfig, Resource
 
 
 class ResourceSerializer(serializers.ModelSerializer):
@@ -19,3 +19,18 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
+
+
+class AdeConfigSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        return {
+            'base_url': obj.ade_url,
+            'params': {
+                'projectId': obj.project_id,
+                'calType': obj.calendar_type,
+                'nbWeeks': obj.weeks_number,
+            }
+        }
+
+    class Meta:
+        model = AdeConfig

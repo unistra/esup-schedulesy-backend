@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import DisplayType, Fingerprint, Resource
+from .models import AdeConfig, DisplayType, Fingerprint, Resource
 
 
-@admin.register(DisplayType, Fingerprint, Resource)
+@admin.register(AdeConfig, DisplayType, Fingerprint, Resource)
 class APIAdmin(admin.ModelAdmin):
     pass

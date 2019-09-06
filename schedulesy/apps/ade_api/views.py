@@ -1,10 +1,11 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
-from .models import DisplayType, Resource
+from .models import AdeConfig, DisplayType, Resource
 from .refresh import Refresh
-from .serializers import ResourceSerializer
+from .serializers import AdeConfigSerializer, ResourceSerializer
 
 
 def refresh(request):
@@ -26,3 +27,14 @@ class DisplayTypeList(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         return Response(self.get_queryset().values_list('name', flat=True))
+
+
+class AdeConfigDetail(generics.RetrieveAPIView):
+    queryset = AdeConfig.objects.all()
+    serializer_class = AdeConfigSerializer
+    permission_classes = (permissions.AllowAny, )
+
+    def get_object(self):
+        obj = get_object_or_404(self.get_queryset(), pk=1)
+        self.check_object_permissions(self.request, obj)
+        return obj

@@ -37,3 +37,29 @@ class DisplayType(models.Model):
 
     def __str__(self):
         return '{0.name}'.format(self)
+
+
+class AdeConfig(models.Model):
+
+    ade_url = models.URLField(_('ADE URL'))
+    project_id = models.IntegerField(
+        _('Project ID'), help_text=_('projectId parameter'))
+    calendar_type = models.CharField(
+        _('Calendar type'), max_length=50, default='ical',
+        help_text=_('calType parameter'))
+    weeks_number = models.IntegerField(
+        _('Weeks number'), help_text=_('nbWeeks paramater'))
+
+    class Meta:
+        verbose_name = _('ADE config')
+        verbose_name_plural = _('ADE config')
+
+    def __str__(self):
+        return str(_('ADE config'))
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
