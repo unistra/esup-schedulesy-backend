@@ -62,4 +62,4 @@ ADE_WEB_API['HOST'] = '{{ ade_ws_host }}'
 ##########
 # Sentry #
 ##########
-sentry_init('pprd')
+sentry_init('preprod')

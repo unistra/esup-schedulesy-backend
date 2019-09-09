@@ -19,12 +19,12 @@ env.application_name = 'schedulesy'   # name of webapp
 env.root_package_name = 'schedulesy'  # name of app in webapp
 
 env.remote_home = '/home/django'  # remote home root
-env.remote_python_version = ''  # python version
+env.remote_python_version = '3.6'  # python version
 env.remote_virtualenv_root = join(env.remote_home, '.virtualenvs')  # venv root
 env.remote_virtualenv_dir = join(env.remote_virtualenv_root,
                                  env.application_name)  # venv for webapp dir
 # git repository url
-env.remote_repo_url = 'git@git.net:schedulesy.git'
+env.remote_repo_url = 'git@git.unistra.fr:di/schedulesy.git'
 env.local_tmp_dir = '/tmp'  # tmp dir
 env.remote_static_root = '/var/www/static/'  # root of static files
 env.locale = 'fr_FR.UTF-8'  # locale to use on remote
@@ -91,23 +91,27 @@ def dev():
 def test():
     """Define test stage"""
     env.roledefs = {
-        'web': ['schedulesy-test.net'],
-        'lb': ['lb.schedulesy-test.net'],
+        'web': ['schedulesy-test.app.unistra.fr'],
+        'lb': ['schedulesy-test.app.unistra.fr'],
     }
     # env.user = 'root'  # user for ssh
     env.backends = ['127.0.0.1']
-    env.server_name = 'schedulesy-test.net'
+    env.server_name = 'schedulesy-test.app.unistra.fr'
     env.short_server_name = 'schedulesy-test'
     env.static_folder = '/site_media/'
     env.server_ip = ''
     env.no_shared_sessions = False
     env.server_ssl_on = True
-    env.path_to_cert = '/etc/ssl/certs/schedulesy.net.pem'
-    env.path_to_cert_key = '/etc/ssl/private/schedulesy.net.key'
+    env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
+    env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'test'
-    env.socket_port = ''
+    env.socket_port = '8048'
     env.socket_host = '127.0.0.1'
     env.map_settings = {
+        'default_db_host': "DATABASES['default']['HOST']",
+        'default_db_user': "DATABASES['default']['USER']",
+        'default_db_password': "DATABASES['default']['PASSWORD']",
+        'default_db_name': "DATABASES['default']['NAME']",
         'ade_db_host': "DATABASES['ade']['HOST']",
         'ade_db_user': "DATABASES['ade']['USER']",
         'ade_db_password': "DATABASES['ade']['PASSWORD']",
