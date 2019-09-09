@@ -393,3 +393,19 @@ def check_key(filename, key_type):
 
 
 check_key('myPublic.pem', 'VERIFYING_KEY')
+
+
+##########
+# Sentry #
+##########
+def sentry_init(environment):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from os import path
+
+    sentry_sdk.init(
+        dsn="https://8a0f03ff2a9842c69b195a63c57335f7@sentry-test.app.unistra.fr/20",
+        integrations=[DjangoIntegration()],
+        environment=environment,
+        release=open(path.join(dirname(abspath(__file__)), "../../", "build.txt"), 'r').read()
+    )

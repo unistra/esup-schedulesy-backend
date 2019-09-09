@@ -8,6 +8,8 @@ from os.path import join
 
 import pydiploy
 
+import sentry
+
 # edit config here !
 
 env.remote_owner = 'django'  # remote server user
@@ -227,7 +229,8 @@ def pre_install_frontend():
 def deploy(update_pkg=False):
     """Deploy code on server"""
     execute(deploy_backend, update_pkg)
-    execute(deploy_frontend)
+    execute(declare_release_to_sentry)
+    # execute(deploy_frontend)
 
 
 @roles('web')
@@ -286,6 +289,9 @@ def reload():
     execute(reload_frontend)
     execute(reload_backend)
 
+@task
+def declare_release_to_sentry():
+    execute(sentry.declare_release)
 
 @roles('lb')
 @task
