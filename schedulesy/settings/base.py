@@ -242,7 +242,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # 'django_cas',
+    'django_cas',
     'corsheaders',
     'rest_framework',
 ]
@@ -344,7 +344,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    # 'django_cas.backends.CASBackend',
+    'django_cas.backends.CASBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
