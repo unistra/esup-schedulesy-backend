@@ -234,7 +234,7 @@ def deploy(update_pkg=False):
     """Deploy code on server"""
     execute(deploy_backend, update_pkg)
     execute(declare_release_to_sentry)
-    # execute(deploy_frontend)
+    execute(deploy_frontend)
 
 
 @roles('web')
