@@ -33,7 +33,7 @@ recursive_requirements('requirements.txt', libraries, dependency_links)
 
 setup(
     name='schedulesy',
-    version='0.1.0',
+    version='1.0.0',
     packages=find_packages(),
     install_requires=libraries,
     dependency_links=dependency_links,
@@ -46,6 +46,6 @@ setup(
     url='',
     download_url='',
     license='PSF',
-    keywords=['django', 'Université de Strasbourg'],
+    keywords=['django', 'Université de Strasbourg', 'ADE'],
     include_package_data=True,
 )

@@ -58,3 +58,8 @@ DIPSTRAP_STATIC_URL += '%s/' % DIPSTRAP_VERSION
 ADE_WEB_API['USER'] = '{{ ade_ws_user }}'
 ADE_WEB_API['PASSWORD'] = '{{ ade_ws_password }}'
 ADE_WEB_API['HOST'] = '{{ ade_ws_host }}'
+
+##########
+# Sentry #
+##########
+sentry_init('preprod')
