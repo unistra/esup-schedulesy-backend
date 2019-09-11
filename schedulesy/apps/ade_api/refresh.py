@@ -68,20 +68,27 @@ class Refresh:
 
             if not o_fp or o_fp.fingerprint != n_fp:
                 start = time.clock()
-                Resource.objects.all().filter(fields__category=r_type).delete()
+                resources = Resource.objects.all().filter(fields__category=r_type)
                 test = Flatten(tree['data']).f_data
 
-                count = 0
+                nb_created = 0
+                nb_updated = 0
                 for k, v in test.items():
-                    resource = Resource(ext_id=k, fields=v)
-                    resource.save()
-                    count += 1
+                    resource, created = resources.get_or_create(ext_id=k, defaults={'fields': v})
+                    if not created:
+                        if resource.fields != v:
+                            resource.fields = v
+                            resource.save()
+                            nb_updated += 1
+                    else:
+                        nb_created += 1
                 if o_fp:
                     o_fp.fingerprint = n_fp
                 else:
                     o_fp=Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
                 o_fp.save()
                 elapsed = time.clock() - start
-                self.data[key]['status'] = 'updated'
-                self.data[key]['count'] = count
+                self.data[key]['status'] = 'modified'
+                self.data[key]['updated'] = nb_updated
+                self.data[key]['created'] = nb_created
                 self.data[key]['elapsed'] = elapsed
