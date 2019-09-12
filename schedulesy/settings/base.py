@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from os.path import abspath, basename, dirname, join, normpath, isfile
 
 ######################
@@ -393,7 +392,6 @@ def check_key(filename, key_type):
 
 
 check_key('myPublic.pem', 'VERIFYING_KEY')
-
 
 ##########
 # Sentry #
