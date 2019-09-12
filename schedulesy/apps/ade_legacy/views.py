@@ -3,6 +3,7 @@ from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.status import HTTP_409_CONFLICT
 
 from schedulesy.apps.ade_legacy.serializers import CustomizationSerializer
 from . import models
@@ -28,7 +29,7 @@ class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 class CustomizationList(ListCreateAPIView):
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (IsOwnerPermission,)
 
     def list(self, request, *args, **kwargs):
         user = self.request.user
@@ -38,3 +39,11 @@ class CustomizationList(ListCreateAPIView):
         queryset = self.get_queryset().filter(**filters)
         serializer = CustomizationSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        filters = {'username': self.request.user}
+        queryset = self.get_queryset().filter(**filters)
+        if queryset.exists():
+            return Response({'detail':'Object already exists'},
+                            status=HTTP_409_CONFLICT)
+        return super().post(request, *args, **kwargs)
