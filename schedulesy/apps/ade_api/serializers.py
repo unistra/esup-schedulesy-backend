@@ -18,8 +18,8 @@ class ResourceSerializer(serializers.ModelSerializer):
                         'format': self.context['format']
                     },
                     request=self.context['request']))
-            newlist = sorted(obj.fields['children'], key=itemgetter('name'))
-            obj.fields['children'] = newlist
+            new_list = sorted(obj.fields['children'], key=lambda k: k['name'].lower())
+            obj.fields['children'] = new_list
         return obj.fields
 
     class Meta:
