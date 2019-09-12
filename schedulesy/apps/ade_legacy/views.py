@@ -28,7 +28,7 @@ class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 class CustomizationList(ListCreateAPIView):
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (IsOwnerPermission,)
 
     def list(self, request, *args, **kwargs):
         user = self.request.user
