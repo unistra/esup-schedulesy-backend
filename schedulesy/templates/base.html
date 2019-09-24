@@ -1,141 +1,37 @@
 <!DOCTYPE html>
 {% load static %}
-{% load dipstrapfiles %}
-<html>
+<html lang=fr>
   <head>
-    <title>{% block title %}schedulesy{% endblock %}</title>
-<meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="author" content='Direction Informatique - Université de Strasbourg'/>
-    <link rel="stylesheet" type="text/css"
-          href="https://support.unistra.fr/assets/web/cdn/unistra-font/1.0.0/css/unistra-font.css" media="all">
-    <link rel="stylesheet" type="text/css"
-          href="https://support.unistra.fr/assets/web/cdn/unistra-symbol/1.0.1/css/unistra-symbol.css" media="all">
-    <link rel="stylesheet" type="text/css"
-          href="https://support.unistra.fr/assets/web/cdn/nova-icons/1.0.1/css/nova-icons.css" media="all">
-    <link rel="stylesheet" type="text/css"
-          href="https://support.unistra.fr/assets/web/cdn/fontawesome-x-height/4.7.0/css/font-awesome.css" media="all">
-
-    <script src="{% dipstrap 'js/vendor/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
-
-    <link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
-    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css>
-    <link rel=stylesheet href="https://s3.unistra.fr/master/common/assets/fonts/unistra-font/1.0.0/css/unistra-font.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=Ros22u4Tp0Dy106qr0rRkGBPoJM=&Expires=1870971370">
-    <link href="https://support.unistra.fr/assets/web/css/styles.css" type="text/css" rel="stylesheet">
-    <link href=/site_media/css/configurator.css rel=prefetch>           
-    <link href=/site_media/css/resource-selector.css rel=prefetch>      
-    <link href=/site_media/js/configurator.js rel=prefetch>             
-    <link href=/site_media/js/resource-remover.js rel=prefetch>         
-    <link href=/site_media/js/resource-selector.js rel=prefetch>        
-    <link href=/site_media/css/chunk-vendors.css rel=preload as=style>  
-    <link href=/site_media/js/chunk-vendors.js rel=preload as=script>   
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <link rel=icon href=/site_media/favicon.ico>
+    <title>unistra-schedule</title>
+    <link rel=stylesheet
+          href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+    <link rel=stylesheet
+          href=https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css>
+    <link rel=stylesheet
+          href="https://s3.unistra.fr/master/common/assets/fonts/unistra-font/1.0.0/css/unistra-font.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=Ros22u4Tp0Dy106qr0rRkGBPoJM=&Expires=1870971370">
+    <link rel=stylesheet
+          href="https://s3.unistra.fr/master/common/assets/fonts/unistra-symbol/1.0.4/css/unistra-symbol.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=lfTwAVnRXjgZc9ryRpAcWhiMbCA%3D&Expires=1876298241">
+    <script src=https://code.jquery.com/jquery-3.4.1.min.js></script>
+    <script src="https://s3.unistra.fr/master/common/assets/fonts/unistra-signature/3.0.0/js/sun.js?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=RJ2Dzzi5jIjlYerK1jr6FFOhXsw%3D&Expires=1876297616"></script>
+    <link href=/site_media/css/configurator.css rel=prefetch>
+    <link href=/site_media/js/configurator.js rel=prefetch>
+    <link href=/site_media/css/chunk-vendors.css rel=preload as=style>
+    <link href=/site_media/css/unistra-schedule.css rel=preload as=style>
+    <link href=/site_media/js/chunk-vendors.js rel=preload as=script>
     <link href=/site_media/js/unistra-schedule.js rel=preload as=script>
-    <link href=/site_media/css/chunk-vendors.css rel=stylesheet>        
-
-    {% block head-javascript %}{% endblock %}
-  <style>
-      header#page-header {
-    background: transparent url('/site_media/img/business.jpg') no-repeat center/cover;
-    max-height: 200px;
-}
-      .container {
-          max-width: 1170px;
-      }
-  </style>
+    <link href=/site_media/css/chunk-vendors.css rel=stylesheet>
+    <link href=/site_media/css/unistra-schedule.css rel=stylesheet>
   </head>
-
-<body id="top" data-spy="scroll" data-target="#navbar">
-<div id="nav-mobile" class="nav-mobile collapsed"></div>
-<div id="body-container">
-    <header id="page-header" class="header-mh-xs">
-        <nav class="navbar navbar-default navbar-fixed-top" id="navbar">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-target="#nav-mobile"
-                            aria-expanded="false">
-                        <span class="sr-only">Afficher / Masquer le menu</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                </div>
-
-                <ul id="nav-main" class="nav-main nav navbar-nav">
-                    <li><a href="#" title="Accueil"><i
-                            class="nv nv-home hidden-sm hidden-xs"></i> <span
-                            class="sr-only hidden-sm hidden-xs">Accueil</span><span
-                            class="hidden-md hidden-lg">Accueil</span></a></li>
-                    <li><a href="#">Personnaliser</a></li>
-                </ul>
-                <ul id="nav-second" class="nav-second nav navbar-nav navbar-right hidden">
-                    <li><a href="#" data-target="#about" data-toggle="modal">À propos</a></li>
-                </ul>
-            </div>
-        </nav>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 col-md-11 col-md-offset-1">
-                    <div id="signature-unistra">
-                        <div class="sun sun-gray">
-                                <span class="sun-row sun-offset-3">
-                                    <span class="sun-cell sun-text-primary">
-                                        <span class="sun-inner-cell"><i class="us us-wifi"></i> <i
-                                                class="us us-meeting"></i> <i class="us us-windows"></i></span>
-                                    </span>
-                                    <a href="#" class="sun-cell sun-primary"
-                                       data-sun-link="structure" title="Emploi du temps">
-                                        <h1 class="sun-inner-cell">
-                                            <strong>Emploi du temps</strong><span class="sr-only"> de la Direction du numérique</span>
-                                        </h1>
-                                    </a>
-                                    <span class="sun-cell sun-empty-9"></span>
-                                    <span class="sun-cell sun-empty-1"></span>
-                                </span>
-                            <span class="sun-row">
-                                    <a href="#" class="sun-cell sun-primary"
-                                       data-sun-link="structure" title="Emploi du temps" aria-hidden="true">
-                                        <span class="sun-inner-cell">
-                                            Direction
-                                        </span>
-                                    </a>
-                                    <a href="#" class="sun-cell sun-primary"
-                                       data-sun-link="structure" title="Emploi du temps" aria-hidden="true">
-                                        <span class="sun-inner-cell">
-                                            du numérique
-                                        </span>
-                                    </a>
-                                    <span class="sun-cell sun-empty-20"></span>
-                                </span>
-                            <span class="sun-row sun-offset-5">
-                                    <span class="sun-cell sun-empty-12"></span>
-                                    <span class="sun-cell sun-empty-1"></span>
-                                    <span class="sun-cell sun-empty-1"></span>
-                                    <a href="http://www.unistra.fr" class="sun-cell sun-gray" data-sun-link="unistra"
-                                       title="Université de Strasbourg">
-                                        <span class="sun-inner-cell">Université de Strasbourg</span>
-                                    </a>
-                                    <span class="sun-cell sun-empty-5"></span>
-                                </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main id="main-container">
-      {% block content %}
-      <div class="container">
-          <div id="unistra-schedule-container"></div>
-          </div>
-      {% endblock %}
-    </main></div>
-    <script src=/site_media/js/chunk-vendors.js></script>   
+  <body>
+    <noscript>
+      <strong>We're sorry but unistra-schedule doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id=unistra-schedule-container></div>
+    <script src=/site_media/js/chunk-vendors.js></script>
     <script src=/site_media/js/unistra-schedule.js></script>
-    <script src="{% dipstrap 'js/vendor/jquery-1.11.0.min.js' %}"></script>
-    <script src="{% dipstrap 'js/vendor/bootstrap.min.js' %}"></script>
-    {% block foot-javascript %}
-    {% endblock %}
   </body>
 </html>
