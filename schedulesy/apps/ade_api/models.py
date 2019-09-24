@@ -57,3 +57,20 @@ class AdeConfig(models.Model):
 
     def delete(self, *args, **kwargs):
         pass
+
+
+class LocalCustomization(models.Model):
+    """
+    Local customization. It contains mirror data from the ADE model for standalone usage.
+    """
+    customization_id = models.IntegerField(db_column='customization_id', unique=True)
+    directory_id = models.CharField(max_length=32, db_column='uds_directory_id')
+    username = models.CharField(max_length=32, db_column='uid', blank=True, unique=True)
+    resources = models.ManyToManyField(Resource)
+
+    class Meta:
+        verbose_name = _('Local Customization')
+        verbose_name_plural = _('Local Customizations')
+
+    def __str__(self):
+        return '{0.username}'.format(self)
