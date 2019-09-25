@@ -28,8 +28,8 @@ class Customization(models.Model):
         for resource in [x for x in lc.resources.all() if x.ext_id not in resource_ids]:
             lc.resources.remove(resource)
         # Adding missing resources
-        for id in [x for x in resource_ids if x not in [x.ext_id for x in lc.resources.all()]]:
-            resource = Resource.objects.get(ext_id=id)
+        for resource_id in [x for x in resource_ids if x not in [x.ext_id for x in lc.resources.all()]]:
+            resource = Resource.objects.get(ext_id=resource_id)
             lc.resources.add(resource)
         lc.save()
 
