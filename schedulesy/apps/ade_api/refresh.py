@@ -1,5 +1,6 @@
 import json
 import time
+from collections import OrderedDict
 
 from django.conf import settings
 
@@ -10,10 +11,10 @@ from .models import Resource, Fingerprint
 class Flatten:
     def __init__(self, data):
         self.data = data
-        self.f_data = {}
+        self.f_data = OrderedDict()
         self._flatten()
 
-    def _flatten(self, item=None):
+    def _flatten(self, item=None, parent=None):
         if not item:
             item = self.data
 
@@ -24,7 +25,8 @@ class Flatten:
         children_ref = []
         if 'children' in item:
             for child in item['children']:
-                ref = self._flatten(child)
+                me = item['id'] if 'id' in item else None
+                ref = self._flatten(child, me)
                 if ref:
                     children_ref.append(ref)
 
@@ -34,6 +36,8 @@ class Flatten:
                 print("Double key {}".format(key))
             else:
                 tmp = item.copy()
+                if parent:
+                    tmp['parent'] = parent
                 if len(children_ref) > 0:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
@@ -92,7 +96,8 @@ class Refresh:
             start = time.clock()
             resources = Resource.objects.all().filter(fields__category=r_type)
             indexed_resources = {r.ext_id: r for r in resources}
-            test = Flatten(tree['data']).f_data
+            # Dict id reversed to preserve links of parenthood
+            test = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
 
             nb_created = 0
             nb_updated = 0
@@ -100,7 +105,10 @@ class Refresh:
             # Non existing elements
             for k, v in {key: value for key, value in test.items() if key not in indexed_resources.keys()}.items():
                 resource = Resource(ext_id=k, fields=v)
+                if "parent" in v:
+                    resource.parent = indexed_resources[v["parent"]]
                 resource.save()
+                indexed_resources[k] = resource
                 nb_created += 1
 
             # Existing elements
@@ -108,7 +116,10 @@ class Refresh:
                 resource = indexed_resources[k]
                 if resource.fields != v:
                     resource.fields = v
+                    if "parent" in v:
+                        resource.parent = indexed_resources[v["parent"]]
                     resource.save()
+                    indexed_resources[k] = resource
                     nb_updated += 1
             if o_fp:
                 o_fp.fingerprint = n_fp
