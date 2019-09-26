@@ -1,6 +1,14 @@
 stages:
   - test
 
+services:
+  - postgres:9.5
+
+variables:
+  POSTGRES_DB: schedulesy
+  POSTGRES_USER: schedulesy
+  POSTGRES_PASSWORD: schedulesy
+
 unittest:
   stage: test
   tags:

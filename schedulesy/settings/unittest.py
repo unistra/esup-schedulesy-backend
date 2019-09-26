@@ -15,8 +15,16 @@ DEBUG = True
 # Database configuration #
 ##########################
 
-DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
-DATABASES['default']['NAME'] = environ.get('DEFAULT_DB_NAME', 'schedulesy.db')
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': environ.get('DEFAULT_DB_TEST_NAME', 'schedulesy'),
+        'USER': environ.get('DEFAULT_DB_TEST_USER', 'schedulesy'),
+        'PASSWORD': environ.get('DEFAULT_DB_TEST_PASSWORD', 'schedulesy'),
+        'HOST': environ.get('DEFAULT_DB_TEST_HOST', 'postgres'),
+        'PORT': environ.get('DEFAULT_DB_TEST_PORT', ''),
+    }
+}
 
 ############################
 # Allowed hosts & Security #
