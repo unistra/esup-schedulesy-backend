@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
+from schedulesy.apps.refresh.tasks import test as task
 from .models import AdeConfig, DisplayType, Resource
 from .refresh import Refresh
 from .serializers import AdeConfigSerializer, ResourceSerializer
@@ -12,6 +13,11 @@ def refresh(request):
     if request.method == "GET":
         data = Refresh().data
         return JsonResponse(data)
+
+
+def test(request):
+    task.delay("toto")
+    return JsonResponse({})
 
 
 class ResourceDetail(generics.RetrieveAPIView):

@@ -250,6 +250,7 @@ LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
     'schedulesy.apps.ade_legacy',
+    'schedulesy.apps.refresh',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -407,3 +408,11 @@ def sentry_init(environment):
         environment=environment,
         release=open(path.join(dirname(abspath(__file__)), "../../", "build.txt"), 'r').read()
     )
+
+##########
+# CELERY #
+##########
+
+CELERY_NAME = "schedulesy"
+CELERY_RESULT_BACKEND = "rpc://"
+BROKER_URL = ""

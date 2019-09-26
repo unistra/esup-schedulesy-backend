@@ -95,3 +95,14 @@ ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')
 #########
 
 STAGE = 'dev'
+
+##########
+# CELERY #
+##########
+RABBITMQ_USER = environ.get('RABBITMQ_USER')
+RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD')
+RABBITMQ_SERVER = environ.get('RABBITMQ_SERVER')
+RABBITMQ_VHOST = environ.get('RABBITMQ_VHOST')
+BROKER_URL = "amqp://{}:{}@{}/".format(
+    RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
+)

@@ -8,6 +8,7 @@ app_name = "api"
 
 urlpatterns = [
     url(r'refresh/$', views.refresh, name='refresh'),
+    url(r'test/$', views.test, name='test'),
 ]
 
 ws_urlpatterns = [
