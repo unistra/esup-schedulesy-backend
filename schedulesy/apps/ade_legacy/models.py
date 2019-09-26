@@ -30,15 +30,16 @@ class Customization(models.Model):
             }
         )
         resource_ids = set(self.resources.split(","))
-        existing_ids = set(lc.resources.values_list('ext_id'))
+        existing_ids = set(lc.resources.values_list('ext_id', flat=True))
 
         # Removing unselected resources
         lc.resources.remove(
             *(lc.resources.filter(ext_id__in=(existing_ids - resource_ids))))
 
         # Adding missing resources
-        lc.resources.add(*map(lambda x: Resource.objects.create(ext_id=x),
-                              (resource_ids - existing_ids)))
+        lc.resources.add(*(
+            Resource.objects.get_or_create(ext_id=x)[0] for x in
+            (resource_ids - existing_ids)))
 
     class Meta:
         managed = True

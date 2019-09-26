@@ -64,7 +64,7 @@ class LocalCustomization(models.Model):
     Local customization. It contains mirror data from the ADE model for
     standalone usage.
     """
-    customization_id = models.IntegerField(db_column='customization_id', unique=True)
+    customization_id = models.IntegerField(unique=True)
     directory_id = models.CharField(max_length=32, db_column='uds_directory_id')
     username = models.CharField(max_length=32, db_column='uid', blank=True, unique=True)
     resources = models.ManyToManyField(Resource)
