@@ -14,7 +14,7 @@ class Flatten:
         self.f_data = OrderedDict()
         self._flatten()
 
-    def _flatten(self, item=None, parent=None):
+    def _flatten(self, item=None, genealogy=None):
         if not item:
             item = self.data
 
@@ -25,7 +25,10 @@ class Flatten:
         children_ref = []
         if 'children' in item:
             for child in item['children']:
-                me = item['id'] if 'id' in item else None
+                me = None
+                if 'id' in item:
+                    me = list(genealogy) if genealogy is not None else []
+                    me.append({'id': item['id'], 'name': item['name']})
                 ref = self._flatten(child, me)
                 if ref:
                     children_ref.append(ref)
@@ -36,8 +39,9 @@ class Flatten:
                 print("Double key {}".format(key))
             else:
                 tmp = item.copy()
-                if parent:
-                    tmp['parent'] = parent
+                if genealogy:
+                    tmp['parent'] = genealogy[-1]['id']
+                    tmp['genealogy'] = genealogy
                 if len(children_ref) > 0:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
