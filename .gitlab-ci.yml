@@ -1,0 +1,10 @@
+stages:
+  - test
+
+unittest:
+  stage: test
+  tags:
+    - python3.6
+  script:
+    - pip3 install tox
+    - tox
