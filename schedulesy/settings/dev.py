@@ -89,6 +89,7 @@ INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
 ADE_WEB_API['USER'] = environ.get('ADE_WS_USER')
 ADE_WEB_API['PASSWORD'] = environ.get('ADE_WS_PASSWORD')
 ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')
+ADE_WEB_API['PROJECT_ID'] = environ.get('ADE_PROJECT_ID')
 
 #########
 # STAGE #

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
-from schedulesy.apps.refresh.tasks import test as task
+from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all
 from .models import AdeConfig, DisplayType, Resource
 from .refresh import Refresh
 from .serializers import AdeConfigSerializer, ResourceSerializer
@@ -11,12 +11,15 @@ from .serializers import AdeConfigSerializer, ResourceSerializer
 
 def refresh(request):
     if request.method == "GET":
-        data = Refresh().data
-        return JsonResponse(data)
+        # refresh_agent = Refresh()
+        # refresh_agent.refresh_all()
+        # return JsonResponse(refresh_agent.data)
+        result = refresh_all.delay()
+        return JsonResponse(result.get())
 
 
-def test(request):
-    task.delay("toto")
+def refresh_resource(request, ext_id):
+    resource_task.delay(ext_id)
     return JsonResponse({})
 
 

@@ -45,50 +45,74 @@ class Flatten:
 
 
 class Refresh:
+    METHOD_GET_RESOURCE = "getResources"
+
     def __init__(self):
         config = Config.create(url=settings.ADE_WEB_API['HOST'],
                                login=settings.ADE_WEB_API['USER'],
                                password=settings.ADE_WEB_API['PASSWORD'])
-        myade = ADEWebAPI(**config)
-        myade.connect()
-        myade.setProject(5)
-        method = 'getResources'
+        self.myade = ADEWebAPI(**config)
+        self.myade.connect()
+        self.myade.setProject(settings.ADE_WEB_API['PROJECT_ID'])
         self.data = {}
+
+    def refresh_resource(self, ext_id):
+        try:
+            resource = Resource.objects.get(ext_id=ext_id)
+            print("{}".format(resource.fields))
+            print("pouet")
+            fingerprint = Fingerprint.objects.get(ext_id=resource.fields['category'])
+            # May seems brutal but ADE API doesn't give children if object is called individually
+            fingerprint.fingerprint = "toRefresh"
+            fingerprint.save()
+            self.refresh_category(resource.fields['category'])
+        except Resource.DoesNotExist:
+            for fingerprint in Fingerprint.objects.all():
+                fingerprint.fingerprint = "toRefresh"
+                fingerprint.save()
+                self.refresh_all()
+
+    def refresh_all(self):
         for r_type in ['classroom', 'instructor', 'trainee', 'category5']:
-            tree = myade.getResources(category=r_type, detail=3, tree=True, hash=True)
-            n_fp = tree['hash']
+            self.refresh_category(r_type)
 
-            try:
-                o_fp = Fingerprint.objects.all().get(ext_id=r_type, method=method)
-            except:
-                o_fp = None
+    def refresh_category(self, r_type):
+        method = Refresh.METHOD_GET_RESOURCE
 
-            key = "{}-{}".format(method, r_type)
-            self.data[key] = {'status': 'unchanged', 'fingerprint': n_fp}
+        tree = self.myade.getResources(category=r_type, detail=3, tree=True, hash=True)
+        n_fp = tree['hash']
 
-            if not o_fp or o_fp.fingerprint != n_fp:
-                start = time.clock()
-                resources = Resource.objects.all().filter(fields__category=r_type)
-                test = Flatten(tree['data']).f_data
+        try:
+            o_fp = Fingerprint.objects.all().get(ext_id=r_type, method=method)
+        except:
+            o_fp = None
 
-                nb_created = 0
-                nb_updated = 0
-                for k, v in test.items():
-                    resource, created = resources.get_or_create(ext_id=k, defaults={'fields': v})
-                    if not created:
-                        if resource.fields != v:
-                            resource.fields = v
-                            resource.save()
-                            nb_updated += 1
-                    else:
-                        nb_created += 1
-                if o_fp:
-                    o_fp.fingerprint = n_fp
+        key = "{}-{}".format(method, r_type)
+        self.data[key] = {'status': 'unchanged', 'fingerprint': n_fp}
+
+        if not o_fp or o_fp.fingerprint != n_fp:
+            start = time.clock()
+            resources = Resource.objects.all().filter(fields__category=r_type)
+            test = Flatten(tree['data']).f_data
+
+            nb_created = 0
+            nb_updated = 0
+            for k, v in test.items():
+                resource, created = resources.get_or_create(ext_id=k, defaults={'fields': v})
+                if not created:
+                    if resource.fields != v:
+                        resource.fields = v
+                        resource.save()
+                        nb_updated += 1
                 else:
-                    o_fp=Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
-                o_fp.save()
-                elapsed = time.clock() - start
-                self.data[key]['status'] = 'modified'
-                self.data[key]['updated'] = nb_updated
-                self.data[key]['created'] = nb_created
-                self.data[key]['elapsed'] = elapsed
+                    nb_created += 1
+            if o_fp:
+                o_fp.fingerprint = n_fp
+            else:
+                o_fp=Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
+            o_fp.save()
+            elapsed = time.clock() - start
+            self.data[key]['status'] = 'modified'
+            self.data[key]['updated'] = nb_updated
+            self.data[key]['created'] = nb_created
+            self.data[key]['elapsed'] = elapsed
