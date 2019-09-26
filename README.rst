@@ -2,8 +2,34 @@
 Schedulesy
 ==========
 
+Health
+------
+
+Master
+++++++
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/master/pipeline.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/master
+   :alt: Tests
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/master/coverage.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/master
+   :alt: Coverage
+
+
+Develop
++++++++
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/pipeline.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/develop
+   :alt: Tests
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/coverage.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/develop
+   :alt: Coverage
+
 Installation
-============
+------------
 Création d'une séquence sur la table w_edtperso dans ADE.
 
 Exemple avec l'utilisateur **ade** :
