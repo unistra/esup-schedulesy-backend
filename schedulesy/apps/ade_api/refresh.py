@@ -59,8 +59,6 @@ class Refresh:
     def refresh_resource(self, ext_id):
         try:
             resource = Resource.objects.get(ext_id=ext_id)
-            print("{}".format(resource.fields))
-            print("pouet")
             fingerprint = Fingerprint.objects.get(ext_id=resource.fields['category'])
             # May seems brutal but ADE API doesn't give children if object is called individually
             fingerprint.fingerprint = "toRefresh"
@@ -93,19 +91,25 @@ class Refresh:
         if not o_fp or o_fp.fingerprint != n_fp:
             start = time.clock()
             resources = Resource.objects.all().filter(fields__category=r_type)
+            indexed_resources = {r.ext_id: r for r in resources}
             test = Flatten(tree['data']).f_data
 
             nb_created = 0
             nb_updated = 0
-            for k, v in test.items():
-                resource, created = resources.get_or_create(ext_id=k, defaults={'fields': v})
-                if not created:
-                    if resource.fields != v:
-                        resource.fields = v
-                        resource.save()
-                        nb_updated += 1
-                else:
-                    nb_created += 1
+
+            # Non existing elements
+            for k, v in {key: value for key, value in test.items() if key not in indexed_resources.keys()}.items():
+                resource = Resource(ext_id=k, fields=v)
+                resource.save()
+                nb_created += 1
+
+            # Existing elements
+            for k, v in {key: value for key, value in test.items() if key in indexed_resources.keys()}.items():
+                resource = indexed_resources[k]
+                if resource.fields != v:
+                    resource.fields = v
+                    resource.save()
+                    nb_updated += 1
             if o_fp:
                 o_fp.fingerprint = n_fp
             else:
