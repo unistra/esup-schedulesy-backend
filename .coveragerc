@@ -2,3 +2,5 @@
 source = schedulesy/
 omit = schedulesy/settings/*
        schedulesy/wsgi.py
+       */tests/*
+       */migrations/*
