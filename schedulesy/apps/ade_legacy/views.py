@@ -44,6 +44,6 @@ class CustomizationList(ListCreateAPIView):
         filters = {'username': self.request.user}
         queryset = self.get_queryset().filter(**filters)
         if queryset.exists():
-            return Response({'detail':'Object already exists'},
+            return Response({'detail': 'Object already exists'},
                             status=HTTP_409_CONFLICT)
         return super().post(request, *args, **kwargs)

@@ -13,12 +13,10 @@ class DBRouter:
         return 'default'
 
     def allow_relation(self, obj1, obj2, **hints):
-        if obj1._meta.app_label == self._alias or \
-           obj2._meta.app_label == self._alias:
+        db_list = ('default', 'ade')
+        if obj1._state.db in db_list and obj2._state.db in db_list:
             return True
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if app_label == self._alias:
-            return db == 'ade'
-        return None
+        return True

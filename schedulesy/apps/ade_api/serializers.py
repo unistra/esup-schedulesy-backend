@@ -1,5 +1,3 @@
-from operator import itemgetter
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -18,7 +16,8 @@ class ResourceSerializer(serializers.ModelSerializer):
                         'format': self.context['format']
                     },
                     request=self.context['request']))
-            new_list = sorted(obj.fields['children'], key=lambda k: k['name'].lower())
+            new_list = sorted(
+                obj.fields['children'], key=lambda k: k['name'].lower())
             obj.fields['children'] = new_list
         return obj.fields
 

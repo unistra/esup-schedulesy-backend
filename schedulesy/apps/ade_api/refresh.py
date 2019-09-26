@@ -1,4 +1,3 @@
-import json
 import time
 
 from django.conf import settings
@@ -55,12 +54,14 @@ class Refresh:
         method = 'getResources'
         self.data = {}
         for r_type in ['classroom', 'instructor', 'trainee', 'category5']:
-            tree = myade.getResources(category=r_type, detail=3, tree=True, hash=True)
+            tree = myade.getResources(category=r_type, detail=3, tree=True,
+                                      hash=True)
             n_fp = tree['hash']
 
             try:
-                o_fp = Fingerprint.objects.all().get(ext_id=r_type, method=method)
-            except:
+                o_fp = Fingerprint.objects.all()\
+                    .get(ext_id=r_type, method=method)
+            except Exception:
                 o_fp = None
 
             key = "{}-{}".format(method, r_type)
@@ -68,13 +69,15 @@ class Refresh:
 
             if not o_fp or o_fp.fingerprint != n_fp:
                 start = time.clock()
-                resources = Resource.objects.all().filter(fields__category=r_type)
+                resources = Resource.objects.all()\
+                    .filter(fields__category=r_type)
                 test = Flatten(tree['data']).f_data
 
                 nb_created = 0
                 nb_updated = 0
                 for k, v in test.items():
-                    resource, created = resources.get_or_create(ext_id=k, defaults={'fields': v})
+                    resource, created = resources.get_or_create(
+                        ext_id=k, defaults={'fields': v})
                     if not created:
                         if resource.fields != v:
                             resource.fields = v
@@ -85,10 +88,13 @@ class Refresh:
                 if o_fp:
                     o_fp.fingerprint = n_fp
                 else:
-                    o_fp=Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
+                    o_fp = Fingerprint(ext_id=r_type, method=method,
+                                       fingerprint=n_fp)
                 o_fp.save()
                 elapsed = time.clock() - start
-                self.data[key]['status'] = 'modified'
-                self.data[key]['updated'] = nb_updated
-                self.data[key]['created'] = nb_created
-                self.data[key]['elapsed'] = elapsed
+                self.data[key].update({
+                    'status': 'modified',
+                    'updated': nb_updated,
+                    'created': nb_created,
+                    'elapsed': elapsed
+                })

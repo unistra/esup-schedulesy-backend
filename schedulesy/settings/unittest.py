@@ -23,6 +23,14 @@ DATABASES = {
         'PASSWORD': environ.get('DEFAULT_DB_TEST_PASSWORD', 'schedulesy'),
         'HOST': environ.get('DEFAULT_DB_TEST_HOST', 'postgres'),
         'PORT': environ.get('DEFAULT_DB_TEST_PORT', ''),
+    },
+    'ade': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/ade.db',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': ''
     }
 }
 
