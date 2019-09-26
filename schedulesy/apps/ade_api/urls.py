@@ -8,6 +8,7 @@ app_name = "api"
 
 urlpatterns = [
     url(r'refresh/$', views.refresh, name='refresh'),
+    path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
 ]
 
 ws_urlpatterns = [
