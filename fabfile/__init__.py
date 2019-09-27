@@ -8,7 +8,7 @@ from os.path import join
 
 import pydiploy
 
-import sentry
+from . import sentry
 
 # edit config here !
 
@@ -119,6 +119,7 @@ def test():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
     }
@@ -157,6 +158,7 @@ def preprod():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
     }
@@ -195,6 +197,7 @@ def prod():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
     }
