@@ -79,7 +79,7 @@ class Refresh:
                 self.refresh_all()
         r = self.myade.getEvents(resources=ext_id, detail=0, attribute_filter=['id', 'activityId', 'name', 'endHour', 'startHour', 'date', 'duration', 'lastUpdate', 'category', 'color'])
         events = self._reformat_events(r['data'])
-        print("{}".format(json.dumps(events, indent=4)))
+        # print("{}".format(json.dumps(events, indent=4)))
         open("/tmp/{}.json".format(ext_id), "w").write(json.dumps(events, indent=4))
 
     def _reformat_events(self, data):
@@ -94,7 +94,11 @@ class Refresh:
                     c_name = resource['category'] + 's'
                     if c_name not in resources:
                         resources[c_name] = []
-                    resources[c_name].append({'id': resource['id'], 'name': resource['name']})
+                    result = {'id': resource['id'], 'name': resource['name']}
+                    # Adding building to resource
+                    if c_name == 'classrooms':
+                        result['genealogy'] = [x['name'] for x in Resource.objects.get(ext_id=resource['id']).fields['genealogy']][1:]
+                    resources[c_name].append(result)
                 element = {**element, **resources}
                 element.pop('children')
             events.append(element)
