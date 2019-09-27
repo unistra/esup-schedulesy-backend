@@ -56,6 +56,16 @@ for logger in LOGGING['loggers']:
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 
+################
+# ADE settings #
+################
+
+ADE_WEB_API['USER'] = 'schedulesy'
+ADE_WEB_API['PASSWORD'] = 'pass'
+ADE_WEB_API['HOST'] = 'https://ade-test.unistra.fr/jsp/webapi'
+ADE_WEB_API['PROJECT_ID'] = 5
+
+
 ######
 # S3 #
 ######

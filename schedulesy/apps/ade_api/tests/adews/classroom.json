@@ -1,0 +1,51 @@
+{
+    "data": {
+        "tag": "tree",
+        "children": [
+            {
+                "tag": "category",
+                "category": "classroom",
+                "children": [
+                    {
+                        "tag": "branch",
+                        "id": "30622",
+                        "name": "COL  -SITE COLMAR",
+                        "path": "",
+                        "category": "classroom",
+                        "children": [
+                            {
+                                "tag": "branch",
+                                "id": "30628",
+                                "name": "ESPE COLMAR BATIMENT PRINCIPAL",
+                                "path": "COL  -SITE COLMAR.",
+                                "category": "classroom",
+                                "children": [
+                                    {
+                                        "tag": "leaf",
+                                        "id": "1616",
+                                        "name": "BCD Media",
+                                        "path": "COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.",
+                                        "category": "classroom"
+                                    }, {
+                                        "tag": "leaf",
+                                        "id": "1359",
+                                        "name": "209",
+                                        "path": "COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.",
+                                        "category": "classroom"
+                                    }, {
+                                        "tag": "leaf",
+                                        "id": "1325",
+                                        "name": "208",
+                                        "path": "COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.",
+                                        "category": "classroom"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "hash": "a6f1e303c34464ada3f67f01deda0343"
+}
