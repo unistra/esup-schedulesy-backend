@@ -7,6 +7,7 @@ class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
     fields = JSONField(blank=True, null=True)
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children', on_delete=models.CASCADE)
+    events = JSONField(blank=True, null=True)
 
     class Meta:
         verbose_name = _('Resource')
