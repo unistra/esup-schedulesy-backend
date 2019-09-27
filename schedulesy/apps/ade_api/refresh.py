@@ -78,7 +78,28 @@ class Refresh:
                 fingerprint.save()
                 self.refresh_all()
         r = self.myade.getEvents(resources=ext_id, detail=0, attribute_filter=['id', 'activityId', 'name', 'endHour', 'startHour', 'date', 'duration', 'lastUpdate', 'category', 'color'])
-        print("{}".format(json.dumps(r['data'], indent=4)))
+        events = self._reformat_events(r['data'])
+        print("{}".format(json.dumps(events, indent=4)))
+        open("/tmp/{}.json".format(ext_id), "w").write(json.dumps(events, indent=4))
+
+    def _reformat_events(self, data):
+        events = []
+        for element in data['children']:
+            element.pop('tag', None)
+            element['color'] = '#' + ''.join([format(int(x), '02x') for x in element['color'].split(',')])
+            if 'children' in element:
+                resources = {}
+                for resource in element['children'][0]['children']:
+                    # TODO improve plural
+                    c_name = resource['category'] + 's'
+                    if c_name not in resources:
+                        resources[c_name] = []
+                    resources[c_name].append({'id': resource['id'], 'name': resource['name']})
+                element = {**element, **resources}
+                element.pop('children')
+            events.append(element)
+        return events
+
 
     def refresh_all(self):
         for r_type in ['classroom', 'instructor', 'trainee', 'category5']:
