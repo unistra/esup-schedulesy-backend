@@ -1,3 +1,4 @@
+import json
 import time
 from collections import OrderedDict
 
@@ -76,6 +77,8 @@ class Refresh:
                 fingerprint.fingerprint = "toRefresh"
                 fingerprint.save()
                 self.refresh_all()
+        r = self.myade.getEvents(resources=ext_id, detail=0, attribute_filter=['id', 'activityId', 'name', 'endHour', 'startHour', 'date', 'duration', 'lastUpdate', 'category', 'color'])
+        print("{}".format(json.dumps(r['data'], indent=4)))
 
     def refresh_all(self):
         for r_type in ['classroom', 'instructor', 'trainee', 'category5']:

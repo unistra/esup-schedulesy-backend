@@ -250,7 +250,7 @@ class ADEWebAPI():
                                   'capacity', 'duration', 'repetition', 'code', 'timezone', 'codeX', \
                                   'codeY', 'codeZ', 'maxSeats', 'seatseLeft', 'info']),
             'getEvents': set(['eventId', 'activities', 'name', 'resources', \
-                              'weeks', 'days', 'date', 'detail']),
+                              'weeks', 'days', 'date', 'detail', 'attribute_filter']),
             'getCosts': set(['id', 'name']),
             'getCaracteristics': set(['id', 'name']),
             'getDate': set([]),
@@ -287,8 +287,6 @@ class ADEWebAPI():
         start = time.clock()
         response = requests.get(self.url, params=params)
         elapsed_rq = time.clock() - start
-        # self.logger.debug(response)
-        # self.logger.debug(response.text)
 
         response.encoding = 'UTF-8'
         data = response.text
@@ -368,12 +366,12 @@ class ADEWebAPI():
         tree = self._tree(response['element'])
         return {'data': tree, 'hash': response['hash']}
 
-    def _tree(self, element):
+    def _tree(self, element, **kwargs):
         d = {'tag': element.tag}
-        d.update(element.attrib)
+        d.update(element.attrib if 'attribute_filter' not in kwargs else {k: v for (k,v) in element.attrib.items() if k in kwargs['attribute_filter']})
         children = []
-        for child in element:
-            children.append(self._tree(child))
+        for child in [x for x in element if len(x) > 0 or len(x.attrib) > 0]:
+            children.append(self._tree(child, **kwargs))
         if len(children) > 0:
             d['children'] = children
         return d
@@ -392,11 +390,9 @@ class ADEWebAPI():
         """Returns event(s) from several optional arguments"""
         function = 'getEvents'
         self._test_opt_params(kwargs, function)
-        typ = 'event'
         element = self._send_request(function, **kwargs)
-        lst_events = element.findall(typ)
-        lst_events = self._create_list_of(typ, lst_events)
-        return (lst_events)
+        tree = self._tree(element, **kwargs)
+        return {'data': tree}
 
     def getCosts(self, **kwargs):
         """Returns cost(s) from several optional arguments"""

@@ -15,7 +15,7 @@ def refresh_all():
 
 
 @shared_task()
-def refresh_resource(ext_id):
+def refresh_resource(ext_id, batch_size):
     refresh_agent = Refresh()
     refresh_agent.refresh_resource(ext_id)
     return None

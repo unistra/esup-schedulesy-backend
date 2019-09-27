@@ -19,7 +19,7 @@ def refresh(request):
 
 
 def refresh_resource(request, ext_id):
-    resource_task.delay(ext_id)
+    resource_task.delay(ext_id, 1)
     return JsonResponse({})
 
 
