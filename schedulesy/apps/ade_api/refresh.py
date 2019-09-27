@@ -84,6 +84,7 @@ class Refresh:
 
     def _reformat_events(self, data):
         events = []
+        classrooms = {}
         for element in data['children']:
             element.pop('tag', None)
             element['color'] = '#' + ''.join([format(int(x), '02x') for x in element['color'].split(',')])
@@ -97,7 +98,9 @@ class Refresh:
                     result = {'id': resource['id'], 'name': resource['name']}
                     # Adding building to resource
                     if c_name == 'classrooms':
-                        result['genealogy'] = [x['name'] for x in Resource.objects.get(ext_id=resource['id']).fields['genealogy']][1:]
+                        if resource['id'] not in classrooms:
+                            classrooms[resource['id']] = Resource.objects.get(ext_id=resource['id'])
+                        result['genealogy'] = [x['name'] for x in classrooms[resource['id']].fields['genealogy']][1:]
                     resources[c_name].append(result)
                 element = {**element, **resources}
                 element.pop('children')
