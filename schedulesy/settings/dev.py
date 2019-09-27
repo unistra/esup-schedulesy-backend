@@ -107,3 +107,12 @@ RABBITMQ_VHOST = environ.get('RABBITMQ_VHOST')
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
+
+
+######
+# S3 #
+######
+
+AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY', '')
+AWS_STORAGE_BUCKET_NAME = 'schedulesy_dev'

@@ -4,3 +4,4 @@ omit = schedulesy/settings/*
        schedulesy/wsgi.py
        */tests/*
        */migrations/*
+       */ade.py

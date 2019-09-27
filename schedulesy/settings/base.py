@@ -387,12 +387,13 @@ SIMPLE_JWT = {
 
 
 def check_key(filename, key_type):
-    full_path = join(dirname(abspath(__file__)), "../../keys", filename)
+    full_path = join(SITE_ROOT, "../../keys", filename)
     if isfile(full_path):
         SIMPLE_JWT[key_type] = open(full_path, 'rb').read()
 
 
 check_key('myPublic.pem', 'VERIFYING_KEY')
+
 
 ##########
 # Sentry #
@@ -406,8 +407,9 @@ def sentry_init(environment):
         dsn="https://8a0f03ff2a9842c69b195a63c57335f7@sentry-test.app.unistra.fr/20",
         integrations=[DjangoIntegration()],
         environment=environment,
-        release=open(path.join(dirname(abspath(__file__)), "../../", "build.txt"), 'r').read()
+        release=open(path.join(SITE_ROOT, "build.txt")).read()
     )
+
 
 ##########
 # CELERY #
@@ -416,3 +418,13 @@ def sentry_init(environment):
 CELERY_NAME = "schedulesy"
 CELERY_RESULT_BACKEND = "rpc://"
 BROKER_URL = ""
+
+
+######
+# S3 #
+######
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_ENDPOINT_URL = 'https://s3.unistra.fr'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
