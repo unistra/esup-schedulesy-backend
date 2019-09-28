@@ -17,6 +17,7 @@ def refresh_all():
 
 @shared_task()
 def refresh_resource(ext_id, batch_size):
+    # TODO improve number of requests with batch size (file with uuid4)
     refresh_agent = Refresh()
     refresh_agent.refresh_resource(ext_id)
     return None

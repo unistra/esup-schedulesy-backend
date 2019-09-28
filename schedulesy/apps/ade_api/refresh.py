@@ -1,3 +1,5 @@
+import json
+import os
 import time
 from collections import OrderedDict
 
@@ -66,11 +68,7 @@ class Refresh:
     def refresh_resource(self, ext_id):
         try:
             resource = Resource.objects.get(ext_id=ext_id)
-            fingerprint = Fingerprint.objects.get(ext_id=resource.fields['category'])
-            # May seems brutal but ADE API doesn't give children if object is called individually
-            fingerprint.fingerprint = "toRefresh"
-            fingerprint.save()
-            self.refresh_category(resource.fields['category'])
+            self._refresh_parents(resource)
         except Resource.DoesNotExist:
             for fingerprint in Fingerprint.objects.all():
                 fingerprint.fingerprint = "toRefresh"
@@ -84,6 +82,34 @@ class Refresh:
         events = self._reformat_events(r['data'])
         resource.events = events
         resource.save()
+
+    def _refresh_parents(self, resource, ade_data=None):
+        """
+        :param Resource resource:
+        :param OrderedDict ade_data:
+        :return:
+        """
+        if ade_data is None:
+            filename = "/tmp/" + resource.fields['category'] + ".json"
+            if not os.path.exists(filename):
+                # May seems brutal but ADE API doesn't give children if object is called individually
+                tree = self.myade.getResources(category=resource.fields['category'], detail=3, tree=True, hash=True)
+                ade_data = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
+                open(filename, 'w').write(json.dumps(ade_data))
+            else:
+                ade_data = json.loads(open(filename, 'r').read())
+        v = ade_data[resource.ext_id]
+        if resource.fields != v:
+            resource.fields = v
+            if "parent" in v:
+                if resource.parent_id is None or resource.parent_id != v["parent"]:
+                    resource.parent = Resource.objects.get(ext_id=v["parent"])
+            else:
+                resource.parent = None
+            resource.save()
+        # if resource.parent_id is None:
+        #     self._refresh_parents(self, resource.parent, ade_data)
+
 
     def _reformat_events(self, data):
         events = []
