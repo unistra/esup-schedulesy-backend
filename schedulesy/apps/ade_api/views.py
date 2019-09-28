@@ -3,9 +3,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
-from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all
+from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all, bulldoze as resource_bulldoze
 from .models import AdeConfig, DisplayType, Resource
-from .refresh import Refresh
 from .serializers import AdeConfigSerializer, ResourceSerializer
 
 
@@ -16,6 +15,12 @@ def refresh(request):
         # return JsonResponse(refresh_agent.data)
         result = refresh_all.delay()
         return JsonResponse(result.get())
+
+
+def bulldoze(request):
+    if request.method == "GET":
+        result = resource_bulldoze.delay()
+        return JsonResponse({})
 
 
 def refresh_resource(request, ext_id):

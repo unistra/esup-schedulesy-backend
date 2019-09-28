@@ -89,29 +89,30 @@ class Refresh:
         events = []
         classrooms = {}
         resources = {}
-        for element in data['children']:
-            element.pop('tag', None)
-            element['color'] = '#' + ''.join([format(int(x), '02x') for x in element['color'].split(',')])
-            if 'children' in element:
-                local_resources = {}
-                for resource in element['children'][0]['children']:
-                    # TODO improve plural
-                    c_name = resource['category'] + 's'
-                    if c_name not in resources:
-                        resources[c_name] = {}
-                    if c_name not in local_resources:
-                        local_resources[c_name] = []
-                    tmp_r = {'name': resource['name']}
-                    # Adding building to resource
-                    if c_name == 'classrooms':
-                        if resource['id'] not in classrooms:
-                            classrooms[resource['id']] = Resource.objects.get(ext_id=resource['id'])
-                        tmp_r['genealogy'] = [x['name'] for x in classrooms[resource['id']].fields['genealogy']][1:]
-                    resources[c_name][resource['id']] = tmp_r
-                    local_resources[c_name].append(resource['id'])
-                element = {**element, **local_resources}
-                element.pop('children')
-            events.append(element)
+        if 'children' in data:
+            for element in data['children']:
+                element.pop('tag', None)
+                element['color'] = '#' + ''.join([format(int(x), '02x') for x in element['color'].split(',')])
+                if 'children' in element and len(element['children']) >= 1 and 'children' in element['children'][0]:
+                    local_resources = {}
+                    for resource in element['children'][0]['children']:
+                        # TODO improve plural
+                        c_name = resource['category'] + 's'
+                        if c_name not in resources:
+                            resources[c_name] = {}
+                        if c_name not in local_resources:
+                            local_resources[c_name] = []
+                        tmp_r = {'name': resource['name']}
+                        # Adding building to resource
+                        if c_name == 'classrooms':
+                            if resource['id'] not in classrooms:
+                                classrooms[resource['id']] = Resource.objects.get(ext_id=resource['id'])
+                            tmp_r['genealogy'] = [x['name'] for x in classrooms[resource['id']].fields['genealogy']][1:]
+                        resources[c_name][resource['id']] = tmp_r
+                        local_resources[c_name].append(resource['id'])
+                    element = {**element, **local_resources}
+                    element.pop('children')
+                events.append(element)
         result = {'events': events}
         result = {**result, **resources}
         return result
