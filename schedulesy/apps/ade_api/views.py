@@ -1,3 +1,5 @@
+import uuid
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
@@ -10,9 +12,6 @@ from .serializers import AdeConfigSerializer, ResourceSerializer
 
 def refresh(request):
     if request.method == "GET":
-        # refresh_agent = Refresh()
-        # refresh_agent.refresh_all()
-        # return JsonResponse(refresh_agent.data)
         result = refresh_all.delay()
         return JsonResponse(result.get())
 
@@ -24,7 +23,7 @@ def bulldoze(request):
 
 
 def refresh_resource(request, ext_id):
-    resource_task.delay(ext_id, 1)
+    resource_task.delay(ext_id, 1, str(uuid.uuid4()))
     return JsonResponse({})
 
 

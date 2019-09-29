@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 
+from schedulesy.decorators import MemoizeWithTimeout
 from .ade import ADEWebAPI, Config
 from .models import Resource, Fingerprint
 
@@ -57,18 +58,13 @@ class Refresh:
     METHOD_GET_RESOURCE = "getResources"
 
     def __init__(self):
-        config = Config.create(url=settings.ADE_WEB_API['HOST'],
-                               login=settings.ADE_WEB_API['USER'],
-                               password=settings.ADE_WEB_API['PASSWORD'])
-        self.myade = ADEWebAPI(**config)
-        self.myade.connect()
-        self.myade.setProject(settings.ADE_WEB_API['PROJECT_ID'])
         self.data = {}
+        self.myade = ade_connection()
 
-    def refresh_resource(self, ext_id):
+    def refresh_resource(self, ext_id, operation_id):
         try:
             resource = Resource.objects.get(ext_id=ext_id)
-            self._refresh_parents(resource)
+            self._simple_resource_refresh(resource, operation_id)
         except Resource.DoesNotExist:
             for fingerprint in Fingerprint.objects.all():
                 fingerprint.fingerprint = "toRefresh"
@@ -83,21 +79,19 @@ class Refresh:
         resource.events = events
         resource.save()
 
-    def _refresh_parents(self, resource, ade_data=None):
+    def _simple_resource_refresh(self, resource, operation_id):
         """
         :param Resource resource:
-        :param OrderedDict ade_data:
         :return:
         """
-        if ade_data is None:
-            filename = "/tmp/" + resource.fields['category'] + ".json"
-            if not os.path.exists(filename):
-                # May seems brutal but ADE API doesn't give children if object is called individually
-                tree = self.myade.getResources(category=resource.fields['category'], detail=3, tree=True, hash=True)
-                ade_data = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
-                open(filename, 'w').write(json.dumps(ade_data))
-            else:
-                ade_data = json.loads(open(filename, 'r').read())
+        filename = "/tmp/{}-{}.json".format(resource.fields['category'], operation_id)
+        if not os.path.exists(filename):
+            # May seems brutal but ADE API doesn't give children if object is called individually
+            tree = ade_resources(resource.fields['category'], operation_id)
+            ade_data = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
+            open(filename, 'w').write(json.dumps(ade_data))
+        else:
+            ade_data = json.loads(open(filename, 'r').read())
         v = ade_data[resource.ext_id]
         if resource.fields != v:
             resource.fields = v
@@ -107,9 +101,6 @@ class Refresh:
             else:
                 resource.parent = None
             resource.save()
-        # if resource.parent_id is None:
-        #     self._refresh_parents(self, resource.parent, ade_data)
-
 
     def _reformat_events(self, data):
         events = []
@@ -150,7 +141,7 @@ class Refresh:
     def refresh_category(self, r_type):
         method = Refresh.METHOD_GET_RESOURCE
 
-        tree = self.myade.getResources(category=r_type, detail=3, tree=True, hash=True)
+        tree = ade_resources(r_type)
         n_fp = tree['hash']
 
         try:
@@ -202,3 +193,19 @@ class Refresh:
                 'created': nb_created,
                 'elapsed': elapsed
             })
+
+
+@MemoizeWithTimeout()
+def ade_connection():
+    config = Config.create(url=settings.ADE_WEB_API['HOST'],
+                           login=settings.ADE_WEB_API['USER'],
+                           password=settings.ADE_WEB_API['PASSWORD'])
+    connection = ADEWebAPI(**config)
+    connection.connect()
+    connection.setProject(settings.ADE_WEB_API['PROJECT_ID'])
+    return connection
+
+
+@MemoizeWithTimeout()
+def ade_resources(category, operation_id='standard'):
+    return ade_connection().getResources(category=category, detail=3, tree=True, hash=True)
