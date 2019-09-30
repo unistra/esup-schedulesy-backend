@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from schedulesy.apps.ade_api.models import LocalCustomization
 from schedulesy.apps.ade_api.utils import force_https
 from .models import AdeConfig, Resource
 
@@ -19,7 +20,7 @@ class ResourceSerializer(serializers.ModelSerializer):
             new_list = sorted(
                 obj.fields['children'], key=lambda k: k['name'].lower())
             obj.fields['children'] = new_list
-        return obj.fields
+        return {**obj.fields, **obj.events}
 
     class Meta:
         model = Resource
@@ -34,3 +35,28 @@ class AdeConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdeConfig
+
+
+class LocalCustomizationSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        """
+        Merges all events
+        :param LocalCustomization obj:
+        :return:
+        """
+        resources = obj.resources.all()
+        if len(resources) == 0:
+            return None
+        if len(resources) == 1:
+            return resources[0].events
+        result = {}
+        events = {l['id']: l for l in
+               [item for sublist in [x.events['events'] for x in resources if 'events' in x.events] for item
+                in sublist]}
+        result['events'] = events.values()
+        for resource_type in ['trainees', 'instructors', 'classrooms']:
+            result[resource_type] = {k: v for d in [x.events[resource_type] for x in resources if resource_type in x.events] for k, v in d.items()}
+        return result
+
+    class Meta:
+        model = LocalCustomization

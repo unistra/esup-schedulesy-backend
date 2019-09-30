@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
+from schedulesy.apps.ade_api.models import LocalCustomization
+from schedulesy.apps.ade_api.serializers import LocalCustomizationSerializer
 from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all, bulldoze as resource_bulldoze
 from .models import AdeConfig, DisplayType, Resource
 from .serializers import AdeConfigSerializer, ResourceSerializer
@@ -51,3 +53,9 @@ class AdeConfigDetail(generics.RetrieveAPIView):
         obj = get_object_or_404(self.get_queryset(), pk=1)
         self.check_object_permissions(self.request, obj)
         return obj
+
+class LocalCustomizationDetail(generics.RetrieveAPIView):
+    queryset = LocalCustomization.objects.all()
+    serializer_class = LocalCustomizationSerializer
+    permission_classes = (permissions.AllowAny, )
+    lookup_field = 'username'
