@@ -20,7 +20,7 @@ class ResourceSerializer(serializers.ModelSerializer):
             new_list = sorted(
                 obj.fields['children'], key=lambda k: k['name'].lower())
             obj.fields['children'] = new_list
-        return {**obj.fields, **obj.events}
+        return obj.fields
 
     class Meta:
         model = Resource
