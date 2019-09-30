@@ -2,6 +2,8 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from .utils import generate_uuid
+
 
 class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
@@ -80,3 +82,22 @@ class LocalCustomization(models.Model):
 
     def __str__(self):
         return '{0.username}'.format(self)
+
+
+class Access(models.Model):
+
+    key = models.CharField(
+        max_length=36, unique=True, default=generate_uuid)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=256)
+    customization = models.ForeignKey(
+        'ade_api.LocalCustomization', related_name='accesses',
+        on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Access')
+        verbose_name_plural = _('Accesses')
+        unique_together = ('name', 'customization')
+
+    def __str__(self):
+        return '{0.key} ({0.name})'.format(self)

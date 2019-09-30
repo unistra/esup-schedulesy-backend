@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 
-from schedulesy.apps.ade_api.models import Access, Customization
-from ..views import IsOwnerPermission
+from schedulesy.apps.ade_api.models import Access, LocalCustomization
+from ..permissions import IsOwnerPermission
 
 
 User = get_user_model()
@@ -18,14 +18,14 @@ class IsOwnerPermissionTestCase(TestCase):
 
     def test_is_owner(self):
         self.request.user = self.user_owner
-        customization = Customization(username=self.user_owner.username)
+        customization = LocalCustomization(username=self.user_owner.username)
 
         self.assertTrue(IsOwnerPermission().has_object_permission(
             self.request, None, customization))
 
     def test_is_not_owner(self):
         self.request.user = self.user_owner
-        customization = Customization(username='not-owner')
+        customization = LocalCustomization(username='not-owner')
 
         self.assertFalse(IsOwnerPermission().has_object_permission(
             self.request, None, customization))
@@ -34,13 +34,13 @@ class IsOwnerPermissionTestCase(TestCase):
         superuser = User.objects.create_superuser(
             'super', 'super@no-reply.com', 'pass')
         self.request.user = superuser
-        customization = Customization(username='not-owner')
+        customization = LocalCustomization(username='not-owner')
 
         self.assertTrue(IsOwnerPermission().has_object_permission(
             self.request, None, customization))
 
     def test_with_other_username_field(self):
-        customization = Customization.objects.create(
+        customization = LocalCustomization.objects.create(
             username=self.user_owner.username)
         access = Access(name='access1', customization=customization)
 
