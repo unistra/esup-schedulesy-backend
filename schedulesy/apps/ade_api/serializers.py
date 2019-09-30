@@ -38,7 +38,15 @@ class AdeConfigSerializer(serializers.ModelSerializer):
 
 class AccessSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        validated_data['customization'] = self.context.get('customization')
+        return super().create(validated_data)
+
     class Meta:
         model = Access
         exclude = ('id',)
-        extra_kwargs = {'customization': {'write_only': True}}
+        extra_kwargs = {
+            'customization': {
+                'write_only': True, 'required': False, 'default': ''
+            }
+        }

@@ -380,7 +380,7 @@ SIMPLE_JWT = {
 
 
 def check_key(filename, key_type):
-    full_path = join(SITE_ROOT, "../../keys", filename)
+    full_path = join(SITE_ROOT, "keys", filename)
     if isfile(full_path):
         SIMPLE_JWT[key_type] = open(full_path, 'rb').read()
 

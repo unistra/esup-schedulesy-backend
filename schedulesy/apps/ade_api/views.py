@@ -84,8 +84,9 @@ class AccessList(generics.ListCreateAPIView):
         return self.queryset\
             .filter(customization__username=self.kwargs['username'])
 
-    def create(self, request, *args, **kwargs):
+    def get_serializer_context(self):
         lc = get_object_or_404(
             LocalCustomization, username=self.kwargs['username'])
-        request.data.update({'customization': lc.pk})
-        return super().create(request, *args, **kwargs)
+        context = super().get_serializer_context()
+        context.update({'customization': lc})
+        return context

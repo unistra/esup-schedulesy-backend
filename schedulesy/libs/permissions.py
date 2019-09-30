@@ -1,3 +1,5 @@
+from functools import reduce
+
 from rest_framework import permissions
 
 
@@ -9,10 +11,6 @@ class IsOwnerPermission(permissions.BasePermission):
         self.username_field = username_field
 
     def has_object_permission(self, request, view, obj):
-        # TODO: timeit user.username vs getattr(user, 'username')
-        return (
-            request.user.is_superuser or
-            obj.username == getattr(request.user, self.username_field)
-        )
-
-    # TODO: def has_permission(self, request, view) ?????
+        value = reduce(
+            lambda a, b: getattr(a, b), self.username_field.split('__'), obj)
+        return request.user.is_superuser or value == request.user.username
