@@ -1,13 +1,20 @@
+from functools import partial
 import uuid
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
-from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all, bulldoze as resource_bulldoze
-from .models import AdeConfig, DisplayType, Resource
-from .serializers import AdeConfigSerializer, ResourceSerializer
+from schedulesy.apps.refresh.tasks import (
+    bulldoze as resource_bulldoze, refresh_all,
+    refresh_resource as resource_task)
+from schedulesy.libs.permissions import IsOwnerPermission
+from .models import (
+    Access, AdeConfig, DisplayType, LocalCustomization, Resource)
+from .serializers import (
+    AccessSerializer, AdeConfigSerializer, ResourceSerializer)
 
 
 def refresh(request):
@@ -51,3 +58,39 @@ class AdeConfigDetail(generics.RetrieveAPIView):
         obj = get_object_or_404(self.get_queryset(), pk=1)
         self.check_object_permissions(self.request, obj)
         return obj
+
+
+class AccessDelete(generics.DestroyAPIView):
+    queryset = Access.objects.all()
+    permission_classes = (
+        api_settings.DEFAULT_PERMISSION_CLASSES +
+        [partial(IsOwnerPermission, 'customization__username')]
+    )
+
+    def get_object(self):
+        obj = get_object_or_404(
+            self.get_queryset(),
+            customization__username=self.kwargs['username'],
+            key=self.kwargs['key']
+        )
+        return obj
+
+
+class AccessList(generics.ListCreateAPIView):
+
+    queryset = Access.objects.all()
+    serializer_class = AccessSerializer
+    permission_classes = (
+        api_settings.DEFAULT_PERMISSION_CLASSES +
+        [partial(IsOwnerPermission, 'customization__username')])
+
+    def get_queryset(self):
+        return self.queryset\
+            .filter(customization__username=self.kwargs['username'])
+
+    def get_serializer_context(self):
+        lc = get_object_or_404(
+            LocalCustomization, username=self.kwargs['username'])
+        context = super().get_serializer_context()
+        context.update({'customization': lc})
+        return context

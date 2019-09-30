@@ -1,4 +1,3 @@
-from rest_framework import permissions
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
@@ -6,15 +5,8 @@ from rest_framework.settings import api_settings
 from rest_framework.status import HTTP_409_CONFLICT
 
 from schedulesy.apps.ade_legacy.serializers import CustomizationSerializer
+from schedulesy.libs.permissions import IsOwnerPermission
 from . import models
-
-
-class IsOwnerPermission(permissions.BasePermission):
-    """Object-level permission to only allow owners of an object to edit it.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        return obj.username == request.user.username
 
 
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):

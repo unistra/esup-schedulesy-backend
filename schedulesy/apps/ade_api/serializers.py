@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from schedulesy.apps.ade_api.utils import force_https
-from .models import AdeConfig, Resource
+from .models import Access, AdeConfig, LocalCustomization, Resource
 
 
 class ResourceSerializer(serializers.ModelSerializer):
@@ -34,3 +34,19 @@ class AdeConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdeConfig
+
+
+class AccessSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['customization'] = self.context.get('customization')
+        return super().create(validated_data)
+
+    class Meta:
+        model = Access
+        exclude = ('id',)
+        extra_kwargs = {
+            'customization': {
+                'write_only': True, 'required': False, 'default': ''
+            }
+        }

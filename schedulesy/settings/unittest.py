@@ -42,6 +42,16 @@ ALLOWED_HOSTS = [
     '*'
 ]
 
+
+#############################
+# Application configuration #
+#############################
+
+INSTALLED_APPS += [
+    'schedulesy.libs.tests'
+]
+
+
 #####################
 # Log configuration #
 #####################
@@ -54,6 +64,11 @@ for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+
+REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
+    'rest_framework.permissions.AllowAny',
+)
 
 
 ################
