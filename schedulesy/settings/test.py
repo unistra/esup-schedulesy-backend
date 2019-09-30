@@ -44,14 +44,6 @@ for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
 
 
-############
-# Dipstrap #
-############
-
-DIPSTRAP_VERSION = '{{ dipstrap_version }}'
-DIPSTRAP_STATIC_URL += '%s/' % DIPSTRAP_VERSION
-
-
 ################
 # ADE settings #
 ################

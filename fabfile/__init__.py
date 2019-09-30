@@ -31,7 +31,6 @@ env.locale = 'fr_FR.UTF-8'  # locale to use on remote
 env.timezone = 'Europe/Paris'  # timezone for remote
 env.keep_releases = 2  # number of old releases to keep before cleaning
 env.extra_goals = ['preprod']  # add extra goal(s) to defaults (test,dev,prod)
-env.dipstrap_version = 'latest'
 env.verbose_output = False  # True for verbose output
 
 # optional parameters

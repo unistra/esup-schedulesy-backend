@@ -64,13 +64,6 @@ INSTALLED_APPS += [
     'debug_toolbar',
 ]
 
-############
-# Dipstrap #
-############
-
-DIPSTRAP_VERSION = environ.get('DIPSTRAP_VERSION', 'latest')
-DIPSTRAP_STATIC_URL += '%s/' % DIPSTRAP_VERSION
-
 #################
 # Debug toolbar #
 #################
