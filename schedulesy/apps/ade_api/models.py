@@ -6,7 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
     fields = JSONField(blank=True, null=True)
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children', on_delete=models.CASCADE)
+    parent = models.ForeignKey(
+        'self', blank=True, null=True, related_name='children',
+        on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Resource')
@@ -53,7 +55,7 @@ class AdeConfig(models.Model):
         return str(_('ADE config'))
 
     def save(self, *args, **kwargs):
-        self.id = 1
+        self.pk = 1
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -66,8 +68,10 @@ class LocalCustomization(models.Model):
     standalone usage.
     """
     customization_id = models.IntegerField(unique=True)
-    directory_id = models.CharField(max_length=32, db_column='uds_directory_id')
-    username = models.CharField(max_length=32, db_column='uid', blank=True, unique=True)
+    directory_id = models.CharField(
+        max_length=32, db_column='uds_directory_id')
+    username = models.CharField(
+        max_length=32, db_column='uid', blank=True, unique=True)
     resources = models.ManyToManyField(Resource)
 
     class Meta:

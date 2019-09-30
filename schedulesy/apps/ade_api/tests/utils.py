@@ -63,7 +63,8 @@ class ADEMixin(ResponsesMixin):
                 'function': 'setProject',
                 'sessionId': self.SESSION_ID
             }),
-            body=f'<setProject sessionId="{self.SESSION_ID}" projectId="5"/>',
+            body=f'<setProject sessionId="{self.SESSION_ID}" '
+                 f'projectId="{settings.ADE_WEB_API["PROJECT_ID"]}"/>',
             status=200
         )
 

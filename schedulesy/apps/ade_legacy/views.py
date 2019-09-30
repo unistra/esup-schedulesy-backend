@@ -19,8 +19,8 @@ class IsOwnerPermission(permissions.BasePermission):
 
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 
-    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES +\
-        [IsOwnerPermission]
+    permission_classes = (
+        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
     lookup_field = 'username'
@@ -29,7 +29,8 @@ class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 class CustomizationList(ListCreateAPIView):
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
-    permission_classes = (IsOwnerPermission,)
+    permission_classes = (
+        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
 
     def list(self, request, *args, **kwargs):
         user = self.request.user
@@ -41,8 +42,7 @@ class CustomizationList(ListCreateAPIView):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        filters = {'username': self.request.user}
-        queryset = self.get_queryset().filter(**filters)
+        queryset = self.get_queryset().filter(username=self.request.user)
         if queryset.exists():
             return Response({'detail': 'Object already exists'},
                             status=HTTP_409_CONFLICT)

@@ -42,7 +42,7 @@ class Customization(models.Model):
             (resource_ids - existing_ids)))
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'w_edtperso'
         verbose_name = _('Customization')
         verbose_name_plural = _('Customizations')

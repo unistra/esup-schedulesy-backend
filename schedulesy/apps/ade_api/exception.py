@@ -19,7 +19,7 @@
 
 from xml.etree import ElementTree as ET
 
-class ExceptionFactory(object):
+class ExceptionFactory(object):  # pragma: no cover
     def create_from_xml(self, xml_element):
         msg = xml_element.attrib['trace']
         return(Exception(msg))
