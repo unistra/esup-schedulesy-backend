@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 import os
+import socket
 
 from celery import Celery
 from celery.schedules import crontab
@@ -15,24 +16,28 @@ celery_app = Celery(
     backend=settings.CELERY_RESULT_BACKEND
 )
 
+suffix = socket.gethostname() if settings.STAGE == 'dev' else ''
+
 celery_app.config_from_object('django.conf:settings')
 celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-exchange = Exchange('schedulesy', type='topic', durable=False, delivery_mode=1)
+message_name = 'schedulesy' + suffix
+
+exchange = Exchange(message_name, type='topic', durable=False, delivery_mode=1)
 
 celery_app.conf.task_queues = (
-    Queue('schedulesy', exchange, routing_key='schedulesy.test'),
+    Queue(message_name, exchange, routing_key=message_name + '.test'),
 )
 
-celery_app.conf.task_default_queue = 'schedulesy'
-celery_app.conf.task_default_exchange = 'schedulesy'
-celery_app.conf.task_default_routing_key = 'schedulesy.test'
+celery_app.conf.task_default_queue = message_name
+celery_app.conf.task_default_exchange = message_name
+celery_app.conf.task_default_routing_key = message_name + '.test'
 
 celery_app.conf.task_routes = [
     {
         'schedulesy.apps.refresh.tasks.test': {
-            'queue': 'schedulesy',
-            'routing_key': 'schedulesy.test',
+            'queue': message_name,
+            'routing_key': message_name + '.test',
         },
     },
 
