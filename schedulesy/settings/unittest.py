@@ -51,6 +51,9 @@ INSTALLED_APPS += [
     'schedulesy.libs.tests'
 ]
 
+# Deactivate redis for tests
+INSTALLED_APPS.remove('cacheops')
+
 
 #####################
 # Log configuration #
