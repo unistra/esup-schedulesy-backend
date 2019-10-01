@@ -22,6 +22,7 @@ ws_urlpatterns = [
     path('display_types', views.DisplayTypeList.as_view(), name='display_types'),
 
     path('resource/<str:ext_id>', views.ResourceDetail.as_view(), name='resource'),
+    path('calendar/<str:username>', views.LocalCustomizationDetail.as_view(), name='calendar'),
 ]
 
 urlpatterns += format_suffix_patterns(ws_urlpatterns, suffix_required=True)

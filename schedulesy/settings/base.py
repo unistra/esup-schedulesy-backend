@@ -237,6 +237,7 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
+    'cacheops',
 ]
 
 LOCAL_APPS = [
@@ -427,3 +428,13 @@ AWS_DEFAULT_ACL = None
 #########
 
 STAGE = None
+
+
+CACHEOPS_REDIS = "redis://localhost:6379/1"
+CACHEOPS_DEFAULTS = {
+    'timeout': 60*60*12
+}
+CACHEOPS = {
+    'ade_api.*': {'ops': 'all'},
+    '*.*': {},
+}

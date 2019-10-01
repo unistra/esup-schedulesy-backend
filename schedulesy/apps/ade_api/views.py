@@ -15,6 +15,11 @@ from .models import (
     Access, AdeConfig, DisplayType, LocalCustomization, Resource)
 from .serializers import (
     AccessSerializer, AdeConfigSerializer, ResourceSerializer)
+from schedulesy.apps.ade_api.models import LocalCustomization
+from schedulesy.apps.ade_api.serializers import LocalCustomizationSerializer
+from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all, bulldoze as resource_bulldoze
+from .models import AdeConfig, DisplayType, Resource
+from .serializers import AdeConfigSerializer, ResourceSerializer
 
 
 def refresh(request):
@@ -94,3 +99,8 @@ class AccessList(generics.ListCreateAPIView):
         context = super().get_serializer_context()
         context.update({'customization': lc})
         return context
+class LocalCustomizationDetail(generics.RetrieveAPIView):
+    queryset = LocalCustomization.objects.all()
+    serializer_class = LocalCustomizationSerializer
+    permission_classes = (permissions.AllowAny, )
+    lookup_field = 'username'
