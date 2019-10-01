@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.conf.urls import url
 from django.urls import path
@@ -6,11 +7,14 @@ from . import views
 
 app_name = "api"
 
-urlpatterns = [
-    url(r'refresh/$', views.refresh, name='refresh'),
-    url(r'bulldoze/$', views.bulldoze, name='bulldoze'),
-    path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
-]
+urlpatterns = []
+
+if settings.DEBUG:
+    urlpatterns.append([
+        url(r'refresh/$', views.refresh, name='refresh'),
+        url(r'bulldoze/$', views.bulldoze, name='bulldoze'),
+        path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
+    ])
 
 ws_urlpatterns = [
     path('ade_config', views.AdeConfigDetail.as_view(), name='ade_config'),
