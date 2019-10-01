@@ -10,7 +10,7 @@ app_name = "api"
 urlpatterns = []
 
 if settings.DEBUG:
-    urlpatterns.append([
+    urlpatterns.extend([
         url(r'refresh/$', views.refresh, name='refresh'),
         url(r'bulldoze/$', views.bulldoze, name='bulldoze'),
         path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
