@@ -432,7 +432,7 @@ STAGE = None
 
 CACHEOPS_REDIS = "redis://localhost:6379/1"
 CACHEOPS_DEFAULTS = {
-    'timeout': 60*60*12
+    'timeout': 60*15
 }
 CACHEOPS = {
     'ade_api.*': {'ops': 'all'},
