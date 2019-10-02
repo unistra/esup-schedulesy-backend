@@ -1,4 +1,5 @@
 from django.test import TestCase
+import responses
 
 from .utils import ADEMixin
 from ..models import Fingerprint, Resource
@@ -7,12 +8,12 @@ from ..refresh import Refresh
 
 class RefreshCategoryTestCase(ADEMixin, TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.category = 'classroom'
-        cls.method = Refresh.METHOD_GET_RESOURCE
-        cls.data_key = f'{Refresh.METHOD_GET_RESOURCE}-{cls.category}'
+    def setUp(self):
+        super().setUp()
+        self.category = 'classroom'
+        self.method = Refresh.METHOD_GET_RESOURCE
+        self.data_key = f'{Refresh.METHOD_GET_RESOURCE}-{self.category}'
+        self.add_getresources_response(self.category)
 
     def test_initial_classroom_refresh(self):
         refresh = Refresh()
@@ -63,9 +64,22 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
 class RefreshResourceTestCase(ADEMixin, TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.category = 'classroom'
-        cls.method = Refresh.METHOD_GET_RESOURCE
-        cls.data_key = f'{Refresh.METHOD_GET_RESOURCE}-{cls.category}'
+    # # TODO: autre que classroom !!!
+    def test_refresh_classroom_resource(self):
+        res_bcd_media_ext_id = 1616
+        self.add_getresources_response()
+        self.add_getevents_response(1616)
+
+        refresh = Refresh()
+        refresh.refresh_resource(res_bcd_media_ext_id, 'op')
+        res_bcd_media = Resource.objects.get(ext_id=res_bcd_media_ext_id)
+        events = res_bcd_media.events
+
+        self.assertDictEqual(
+            events['trainees'], {'32291': {'name': 'M2 Biotechnologie HD'}})
+        self.assertIn('1616', events['classrooms'])
+        self.assertListEqual(
+            events['classrooms']['1616']['genealogy'],
+            ['COL  -SITE COLMAR', 'ESPE COLMAR BATIMENT PRINCIPAL'])
+        self.assertDictEqual(
+            events['instructors'], {'23390': {'name': 'Gerard Toto'}})

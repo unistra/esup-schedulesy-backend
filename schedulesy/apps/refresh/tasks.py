@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from celery import shared_task
+from django.db.models import Q
 
 from schedulesy.apps.ade_api.models import Resource
 from schedulesy.apps.ade_api.refresh import Refresh
@@ -26,7 +27,10 @@ def refresh_resource(ext_id, batch_size, operation_id):
 
 @shared_task()
 def bulldoze():
-    resources = [x for x in Resource.objects.all() if x.ext_id not in ['classroom', 'instructor', 'trainee', 'category5']]
+    resources = Resource.objects\
+        .filter(~Q(ext_id__in=('classroom', 'instructor', 'trainee',
+                               'category5')))
+    # resources = [x for x in Resource.objects.all() if x.ext_id not in ['classroom', 'instructor', 'trainee', 'category5']]
     batch_size = len(resources)
     operation_id = str(uuid.uuid4())
     for resource in resources:

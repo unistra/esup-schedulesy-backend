@@ -51,6 +51,8 @@ class AccessSerializer(serializers.ModelSerializer):
                 'write_only': True, 'required': False, 'default': ''
             }
         }
+
+
 class LocalCustomizationSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         """
@@ -68,7 +70,7 @@ class LocalCustomizationSerializer(serializers.ModelSerializer):
                [item for sublist in [x.events['events'] for x in resources if 'events' in x.events] for item
                 in sublist]}
         result['events'] = events.values()
-        for resource_type in ['trainees', 'instructors', 'classrooms']:
+        for resource_type in ('trainees', 'instructors', 'classrooms'):
             result[resource_type] = {k: v for d in [x.events[resource_type] for x in resources if resource_type in x.events] for k, v in d.items()}
         return result
 

@@ -1,0 +1,10 @@
+<events>
+    <event id="191050" activityId="65849" session="0" repetition="3" name="M2 GROUPE C1 INTERC" endHour="12:30" startHour="10:30" date="14/01/2020" absoluteSlot="8690" slot="10" day="1" week="22" additionalResources="0" duration="8" info="" note="" color="102,153,255" isLockPosition="false" lastUpdate="09/23/2019 14:51" creation="09/23/2019 11:42" isLockResources="false" isSoftKeepResources="false">
+        <resources>
+            <resource fromWorkflow="false" nodeId="543169" nodeOrId="543166" quantity="1" category="instructor" name="Gerard Toto" id="23390"/>
+            <resource fromWorkflow="false" nodeId="543853" nodeOrId="543848" quantity="1" category="classroom" name="BCD Media" id="1616"/>
+            <resource fromWorkflow="false" nodeId="543958" nodeOrId="543957" quantity="1" category="trainee" name="M2 Biotechnologie HD" id="32291"/>
+        </resources>
+        <additional/>
+    </event>
+</events>
