@@ -121,6 +121,10 @@ def test():
         'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
     execute(build_env)
 
@@ -129,21 +133,21 @@ def test():
 def preprod():
     """Define preprod stage"""
     env.roledefs = {
-        'web': ['schedulesy-pprd.net'],
-        'lb': ['lb.schedulesy-pprd.net'],
+        'web': ['django-pprd-w1.u-strasbg.fr', 'django-pprd-w2.u-strasbg.fr'],
+        'lb': ['rp3.u-strasbg.fr'],
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
-    env.server_name = 'schedulesy-pprd.net'
+    env.server_name = 'schedulesy-pprd.app.unistra.fr'
     env.short_server_name = 'schedulesy-pprd'
     env.static_folder = '/site_media/'
     env.server_ip = ''
     env.no_shared_sessions = False
     env.server_ssl_on = True
-    env.path_to_cert = '/etc/ssl/certs/schedulesy.net.pem'
-    env.path_to_cert_key = '/etc/ssl/private/schedulesy.net.key'
+    env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
+    env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'preprod'
-    env.socket_port = ''
+    env.socket_port = '8031'
     env.map_settings = {
         'default_db_host': "DATABASES['default']['HOST']",
         'default_db_user': "DATABASES['default']['USER']",
@@ -160,9 +164,12 @@ def preprod():
         'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
     execute(build_env)
-
 
 @task
 def prod():
@@ -199,6 +206,10 @@ def prod():
         'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
         's3_access_key': "AWS_ACCESS_KEY_ID",
         's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
     execute(build_env)
 
