@@ -9,3 +9,5 @@ celery<4.4
 boto3
 cryptography==2.7
 django-cacheops==4.2
+requests==2.22.0
+pytz==2019.2
