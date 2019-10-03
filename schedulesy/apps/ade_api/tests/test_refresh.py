@@ -64,15 +64,13 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
 class RefreshResourceTestCase(ADEMixin, TestCase):
 
-    # # TODO: autre que classroom !!!
-    def test_refresh_classroom_resource(self):
-        res_bcd_media_ext_id = 1616
+    def test_refresh_resource_single_event(self):
         self.add_getresources_response()
         self.add_getevents_response(1616)
 
         refresh = Refresh()
-        refresh.refresh_resource(res_bcd_media_ext_id, 'op')
-        res_bcd_media = Resource.objects.get(ext_id=res_bcd_media_ext_id)
+        refresh.refresh_resource(1616, 'op')
+        res_bcd_media = Resource.objects.get(ext_id=1616)
         events = res_bcd_media.events
 
         self.assertDictEqual(
@@ -83,3 +81,27 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
             ['COL  -SITE COLMAR', 'ESPE COLMAR BATIMENT PRINCIPAL'])
         self.assertDictEqual(
             events['instructors'], {'23390': {'name': 'Gerard Toto'}})
+
+    def test_refresh_resource_multiple_events(self):
+        self.add_getresources_response()
+        self.add_getevents_response(23390)
+
+        refresh = Refresh()
+        refresh.refresh_resource(23390, 'op')
+        instructor = Resource.objects.get(ext_id=23390)
+        events = instructor.events
+
+        self.assertDictEqual(
+            events['trainees'], {
+                '32291': {'name': 'M2 Biotechnologie HD'},
+                '23613': {'name': 'option NEI'}
+            })
+        self.assertIn('2491', events['classrooms'])
+        self.assertListEqual(
+            events['classrooms']['2491']['genealogy'],
+            ['SCH  -SITE SCHILTIGHEIM', 'IUT LOUIS PASTEUR', 'TP'])
+        self.assertDictEqual(
+            events['instructors'], {
+                '23390': {'name': 'Gerard Toto'},
+                '26840': {'name': 'Yao Toto'}
+            })

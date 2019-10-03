@@ -10,28 +10,27 @@ from rest_framework.settings import api_settings
 from schedulesy.apps.ade_api.models import LocalCustomization
 from schedulesy.apps.ade_api.serializers import LocalCustomizationSerializer
 from schedulesy.apps.ade_legacy.views import IsOwnerPermission
-from schedulesy.apps.refresh.tasks import refresh_resource as resource_task, refresh_all, bulldoze as resource_bulldoze
-from .models import (
-    Access)
-from .models import AdeConfig, DisplayType, Resource
+from schedulesy.apps.refresh.tasks import (
+    bulldoze as resource_bulldoze, refresh_all,
+    refresh_resource as resource_task)
+from .models import Access, AdeConfig, DisplayType, Resource
 from .serializers import (
-    AccessSerializer)
-from .serializers import AdeConfigSerializer, ResourceSerializer
+    AccessSerializer, AdeConfigSerializer, ResourceSerializer)
 
 
-def refresh(request):
+def refresh(request):  # pragma: no cover
     if request.method == "GET":
         result = refresh_all.delay()
         return JsonResponse(result.get())
 
 
-def bulldoze(request):
+def bulldoze(request):  # pragma: no cover
     if request.method == "GET":
-        result = resource_bulldoze.delay()
+        resource_bulldoze.delay()
         return JsonResponse({})
 
 
-def refresh_resource(request, ext_id):
+def refresh_resource(request, ext_id):  # pragma: no cover
     resource_task.delay(ext_id, 1, str(uuid.uuid4()))
     return JsonResponse({})
 
@@ -65,8 +64,8 @@ class AdeConfigDetail(generics.RetrieveAPIView):
 class AccessDelete(generics.DestroyAPIView):
     queryset = Access.objects.all()
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES +
-            [partial(IsOwnerPermission, 'customization__username')]
+        api_settings.DEFAULT_PERMISSION_CLASSES +
+        [partial(IsOwnerPermission, 'customization__username')]
     )
 
     def get_object(self):
@@ -82,8 +81,8 @@ class AccessList(generics.ListCreateAPIView):
     queryset = Access.objects.all()
     serializer_class = AccessSerializer
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES +
-            [partial(IsOwnerPermission, 'customization__username')])
+        api_settings.DEFAULT_PERMISSION_CLASSES +
+        [partial(IsOwnerPermission, 'customization__username')])
 
     def get_queryset(self):
         return self.queryset \
@@ -101,5 +100,5 @@ class LocalCustomizationDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = LocalCustomizationSerializer
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     lookup_field = 'username'

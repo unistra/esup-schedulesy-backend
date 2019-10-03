@@ -177,30 +177,6 @@ class Refresh:
                 'elapsed': elapsed
             })
 
-    # OBSOLETE ?
-    # def _simple_resource_refresh(self, resource, operation_id):
-    #     """
-    #     :param Resource resource:
-    #     :return:
-    #     """
-    #     filename = "/tmp/{}-{}.json".format(resource.fields['category'], operation_id)
-    #     if not os.path.exists(filename):
-    #         # May seems brutal but ADE API doesn't give children if object is called individually
-    #         tree = ade_resources(resource.fields['category'], operation_id)
-    #         ade_data = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
-    #         open(filename, 'w').write(json.dumps(ade_data))
-    #     else:
-    #         ade_data = json.loads(open(filename, 'r').read())
-    #     v = ade_data[resource.ext_id]
-    #     if resource.fields != v:
-    #         resource.fields = v
-    #         if "parent" in v:
-    #             if resource.parent_id is None or resource.parent_id != v["parent"]:
-    #                 resource.parent = Resource.objects.get(ext_id=v["parent"])
-    #         else:
-    #             resource.parent = None
-    #         resource.save()
-
 
 @MemoizeWithTimeout()
 def ade_connection():

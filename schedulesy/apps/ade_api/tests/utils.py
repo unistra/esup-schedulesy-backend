@@ -100,6 +100,7 @@ class ADEMixin(ResponsesMixin):
                 'sessionId': self.SESSION_ID
             }),
             body=open(os.path.join(
-                self.FIXTURES_PATH, 'events', f'{resource_id}.xml')).read(),
+                self.FIXTURES_PATH, 'events', f'resource_{resource_id}.xml')
+            ).read(),
             status=200
         )

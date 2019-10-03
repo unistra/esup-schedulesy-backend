@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import Access, LocalCustomization
+from ..models import Access, AdeConfig, LocalCustomization, Resource
 
 
 User = get_user_model()
@@ -64,3 +64,122 @@ class AccessDeleteTestCase(TestCase):
 
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Access.objects.filter(name='access1').exists())
+
+
+class AdeConfigDetailTestCase(TestCase):
+
+    def test_view(self):
+        view_url = '/api/ade_config.json'
+        AdeConfig.objects.create(
+            ade_url='https://adewebcons-test.unistra.fr/',
+            parameters={'projectId': '1'}
+        )
+
+        response = self.client.get(view_url)
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertDictEqual(data, {
+            'base_url': 'https://adewebcons-test.unistra.fr/',
+            'params': {'projectId': '1'}
+        })
+
+
+class LocalCustomizationDetailTestCase(TestCase):
+
+    fixtures = ['tests/resources']
+
+    def setUp(self):
+        super().setUp()
+        self.view_url = '/api/calendar/{username}.json'
+        self.user_owner = User.objects.create_user('owner', password='pass')
+
+    def test_customization_with_empty_resources(self):
+        LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+
+        self.client.login(username='owner', password='pass')
+        response = self.client.get(self.view_url.format(username='owner'))
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(data, {})
+
+    def test_customization_with_single_resource(self):
+        res_bcd_media = Resource.objects.get(ext_id='1616')
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        lc.resources.add(res_bcd_media)
+
+        self.client.login(username='owner', password='pass')
+        response = self.client.get(self.view_url.format(username='owner'))
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data['events']), 1)
+
+    def test_customization_with_multiple_resources(self):
+        res_bcd_media = Resource.objects.get(ext_id='1616')
+        instructor = Resource.objects.get(ext_id='23390')
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        lc.resources.add(res_bcd_media, instructor)
+
+        self.client.login(username='owner', password='pass')
+        response = self.client.get(self.view_url.format(username='owner'))
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data['events']), 2)
+        self.assertEqual(len(data['classrooms']), 2)
+        self.assertEqual(len(data['instructors']), 2)
+        self.assertEqual(len(data['trainees']), 2)
+
+
+class ResourceDetailTestCase(TestCase):
+
+    def test_resource_with_empty_fields(self):
+        view_url = '/api/resource/{ext_id}.json'
+        Resource.objects.create(ext_id=30622)
+
+        response = self.client.get(view_url.format(ext_id=30622))
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(data, {})
+
+    def test_resource_with_fields(self):
+        view_url = '/api/resource/{ext_id}.json'
+        Resource.objects.create(ext_id=30622, fields={
+            'children': [
+                {
+                    'id': '30628', 'name': 'ESPE COLMAR BATIMENT PRINCIPAL',
+                    'has_children': True
+                }, {
+                    'id': '30623', 'name': 'ESPE COLMAR AILE JOFFRE',
+                    'has_children': True
+                }, {
+                    'id': '30715', 'name': 'Gymnases IUFM COLMAR',
+                    'has_children': True
+                }
+            ]
+        })
+
+        response = self.client.get(view_url.format(ext_id=30622))
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(data['children'], [
+            {
+                'has_children': True,
+                'id': 'https://testserver/api/resource/30623.json/',
+                'name': 'ESPE COLMAR AILE JOFFRE'
+            }, {
+                'has_children': True,
+                'id': 'https://testserver/api/resource/30628.json/',
+                'name': 'ESPE COLMAR BATIMENT PRINCIPAL'
+            }, {
+                'has_children': True,
+                'id': 'https://testserver/api/resource/30715.json/',
+                'name': 'Gymnases IUFM COLMAR'
+            }
+        ])
