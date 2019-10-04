@@ -76,6 +76,7 @@ class LocalCustomization(models.Model):
     username = models.CharField(
         max_length=32, db_column='uid', blank=True, unique=True)
     resources = models.ManyToManyField(Resource)
+    configuration = JSONField(blank=True, null=True)
 
     class Meta:
         verbose_name = _('Local Customization')

@@ -9,7 +9,7 @@ class Customization(models.Model):
     display_configuration = models.CharField(
         max_length=60, db_column='configuration_affichage', default='')
     resources = models.CharField(
-        max_length=300, db_column='ressources', default='')
+        max_length=300, db_column='ressources', default='', blank=True)
     directory_id = models.CharField(
         max_length=32, db_column='uds_directory_id')
     rh_id = models.CharField(max_length=15, db_column='code_harp', default='')
@@ -18,6 +18,7 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(
         db_column='date_personnalisation', auto_now=True)
     username = models.CharField(max_length=32, db_column='uid')
+    configuration = None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -26,9 +27,11 @@ class Customization(models.Model):
             customization_id=self.id,
             defaults={
                 'directory_id': self.directory_id,
-                'username': self.username
+                'username': self.username,
             }
         )
+        lc.configuration = self.configuration
+        lc.save()
         resource_ids = set(self.resources.split(","))
         existing_ids = set(lc.resources.values_list('ext_id', flat=True))
 
