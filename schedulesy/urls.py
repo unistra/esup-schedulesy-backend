@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
 
@@ -14,6 +15,7 @@ urlpatterns = [
     path('legacy/', include('schedulesy.apps.ade_legacy.urls', namespace='legacy')),
 
     path('admin/', admin.site.urls),
+    url(r'^.*$', home, name='home'),
 ]
 
 # debug toolbar for dev
