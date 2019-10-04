@@ -9,7 +9,7 @@ class Customization(models.Model):
     display_configuration = models.CharField(
         max_length=60, db_column='configuration_affichage', default='')
     resources = models.CharField(
-        max_length=300, db_column='ressources', default='')
+        max_length=300, db_column='ressources', default='', blank=True)
     directory_id = models.CharField(
         max_length=32, db_column='uds_directory_id')
     rh_id = models.CharField(max_length=15, db_column='code_harp', default='')

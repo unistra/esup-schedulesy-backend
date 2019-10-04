@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 
 from schedulesy.apps.ade_api.models import LocalCustomization
@@ -18,6 +20,14 @@ class CustomizationSerializer(serializers.ModelSerializer):
         except LocalCustomization.DoesNotExist as e:
             data['configuration'] = None
         return data
+
+    @staticmethod
+    def validate_resources(value):
+        if value == "":
+            return value
+        if re.search("^([0-9]+)(,[0-9]+)*$", value) is None:
+            raise serializers.ValidationError("Invalid resources format")
+        return value
 
     def to_internal_value(self, data):
         d = super().to_internal_value(data)
