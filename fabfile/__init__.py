@@ -9,6 +9,7 @@ from os.path import join
 import pydiploy
 
 from . import sentry
+from . import celery
 
 # edit config here !
 
@@ -32,6 +33,9 @@ env.timezone = 'Europe/Paris'  # timezone for remote
 env.keep_releases = 2  # number of old releases to keep before cleaning
 env.extra_goals = ['preprod']  # add extra goal(s) to defaults (test,dev,prod)
 env.verbose_output = False  # True for verbose output
+
+# celery parameters
+env.celery_version = '4.3.0'
 
 # optional parameters
 
@@ -253,6 +257,7 @@ def deploy(update_pkg=False):
     """Deploy code on server"""
     execute(deploy_backend, update_pkg)
     execute(declare_release_to_sentry)
+    execute(deploy_backend_celery)
     execute(deploy_frontend)
 
 
@@ -261,6 +266,13 @@ def deploy(update_pkg=False):
 def deploy_backend(update_pkg=False):
     """Deploy code on server"""
     execute(pydiploy.django.deploy_backend, update_pkg)
+
+
+@roles('celery-worker')
+@task
+def deploy_backend_celery():
+    """Restart the celery worker(s)"""
+    execute(celery.celery_restart)
 
 
 @roles('lb')
@@ -347,3 +359,17 @@ def set_up():
 def custom_manage_cmd(cmd):
     """ Execute custom command in manage.py """
     execute(pydiploy.django.custom_manage_command, cmd)
+
+
+@roles('celery-worker')
+@task
+def celery_start():
+    """Start celery service on remote"""
+    execute(celery.celery_start)
+
+
+@roles('celery-worker')
+@task
+def celery_restart():
+    """Restart celery service on remote"""
+    execute(celery.celery_restart)
