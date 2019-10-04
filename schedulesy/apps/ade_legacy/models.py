@@ -18,6 +18,7 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(
         db_column='date_personnalisation', auto_now=True)
     username = models.CharField(max_length=32, db_column='uid')
+    configuration = None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -26,9 +27,11 @@ class Customization(models.Model):
             customization_id=self.id,
             defaults={
                 'directory_id': self.directory_id,
-                'username': self.username
+                'username': self.username,
             }
         )
+        lc.configuration = self.configuration
+        lc.save()
         resource_ids = set(self.resources.split(","))
         existing_ids = set(lc.resources.values_list('ext_id', flat=True))
 
