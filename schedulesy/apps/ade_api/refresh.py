@@ -4,8 +4,8 @@ import time
 
 from django.conf import settings
 
-from schedulesy.decorators import MemoizeWithTimeout
 from .ade import ADEWebAPI, Config
+from .decorators import MemoizeWithTimeout
 from .models import Resource, Fingerprint
 
 
