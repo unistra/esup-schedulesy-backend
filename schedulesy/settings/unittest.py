@@ -2,6 +2,7 @@
 
 from os import environ
 from os.path import normpath
+import tempfile
 from .base import *
 
 #######################
@@ -84,8 +85,9 @@ ADE_WEB_API['HOST'] = 'https://ade-test.unistra.fr/jsp/webapi'
 ADE_WEB_API['PROJECT_ID'] = 5
 
 
-######
-# S3 #
-######
+###########
+# Storage #
+###########
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_ROOT = tempfile.mkdtemp()

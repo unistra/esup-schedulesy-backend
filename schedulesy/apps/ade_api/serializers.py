@@ -55,28 +55,7 @@ class AccessSerializer(serializers.ModelSerializer):
 
 class LocalCustomizationSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
-        """
-        Merges all events
-        :param LocalCustomization obj:
-        :return:
-        """
-
-        def get_event_type(t):
-            return (x.events[t] for x in resources if t in x.events)
-
-        resources = obj.resources.all()
-        if len(resources) == 0:
-            return {}
-        if len(resources) == 1:
-            return resources[0].events
-
-        events = {l['id']: l for l in
-                  (item for sl in get_event_type('events') for item in sl)}
-        result = {'events': events.values()}
-        for rt in ('trainees', 'instructors', 'classrooms'):
-            result[rt] = (
-                {k: v for d in get_event_type(rt) for k, v in d.items()})
-        return result
+        return obj.generate_events()
 
     class Meta:
         model = LocalCustomization
