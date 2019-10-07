@@ -4,7 +4,7 @@ djangorestframework<3.10
 django-cors-headers<2.6
 psycopg2-binary<2.9
 sentry-sdk<0.12
-django-cas-sso<1.2
+-e git+https://github.com/unistra/django-cas.git@99516583dad3b5cab6b3f7f7aa6d454ad363ba3b#egg=django-cas-sso
 celery<4.4
 boto3
 cryptography<2.8

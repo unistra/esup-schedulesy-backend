@@ -10,7 +10,7 @@ admin.autodiscover()
 urlpatterns = [
     # Examples:
     path('', home, name='home'),
-    # path('app/', include('apps.app.urls')),
+    path('accounts/', include('django_cas.urls', namespace='django_cas')),
     path('api/', include('schedulesy.apps.ade_api.urls', namespace='api')),
     path('legacy/', include('schedulesy.apps.ade_legacy.urls', namespace='legacy')),
 

@@ -197,6 +197,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_cas.middleware.CASMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -365,7 +366,6 @@ CAS_USER_CREATION = True
 CAS_ADMIN_AUTH = True
 #CAS_CUSTOM_FORBIDDEN = 'forbidden-view'
 CAS_USERNAME_FORMAT = lambda username: username.lower().strip()
-CAS_REDIRECT_URL = '/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
