@@ -53,9 +53,8 @@ class AccessSerializer(serializers.ModelSerializer):
         }
 
 
-class LocalCustomizationSerializer(serializers.ModelSerializer):
-    def to_representation(self, obj):
-        return obj.generate_events()
+class CalendarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LocalCustomization
+        fields = ('events',)

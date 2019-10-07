@@ -39,18 +39,16 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
     def test_with_empty_resources(self):
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
-        data = lc.generate_events()
 
-        self.assertDictEqual(data, {})
+        self.assertDictEqual(lc.events, {})
 
     def test_with_single_resource(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         lc.resources.add(res_bcd_media)
-        data = lc.generate_events()
 
-        self.assertEqual(len(data['events']), 1)
+        self.assertEqual(len(lc.events['events']), 1)
 
     def test_with_multiple_resources(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
@@ -58,7 +56,7 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         lc.resources.add(res_bcd_media, instructor)
-        data = lc.generate_events()
+        data = lc.events
 
         self.assertEqual(len(data['events']), 2)
         self.assertEqual(len(data['classrooms']), 2)

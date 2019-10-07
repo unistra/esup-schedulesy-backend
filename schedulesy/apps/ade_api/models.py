@@ -93,7 +93,8 @@ class LocalCustomization(models.Model):
     def ics_calendar_filename(self):
         return f'{self.username}.ics'
 
-    def generate_events(self):
+    @property
+    def events(self):
         """
         Merges all events
         :return:
@@ -124,10 +125,10 @@ class LocalCustomization(models.Model):
         def format_ics_location(classroom):
             return f'{classroom["name"]} ({", ".join(classroom["genealogy"])})'
 
-        generated_events = self.generate_events()
-        events = generated_events.get('events', [])
+        merged_events = self.events
+        events = merged_events.get('events', [])
         if events:
-            classrooms = generated_events['classrooms']
+            classrooms = merged_events['classrooms']
             calendar = Calendar()
             for event in events:
                 e = Event()
