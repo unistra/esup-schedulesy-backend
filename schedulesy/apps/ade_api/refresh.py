@@ -68,7 +68,7 @@ class Refresh:
         resource = None
         try:
             resource = Resource.objects.get(ext_id=ext_id)
-            ade_resources(resource, operation_id)
+            self._simple_resource_refresh(resource, operation_id)
         except Resource.DoesNotExist:
             Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
@@ -83,6 +83,24 @@ class Refresh:
         events = self._reformat_events(r['data'])
         resource.events = events
         resource.save()
+
+    def _simple_resource_refresh(self, resource, operation_id):
+        """
+        :param Resource resource:
+        :return:
+        """
+        tree = ade_resources(resource.fields['category'], operation_id)
+        ade_data = dict(reversed(list(Flatten(tree['data']).f_data.items())))
+        v = ade_data[resource.ext_id]
+        if resource.fields != v:
+            resource.fields = v
+            # TODO: check if parent are different to prevent useless query ?
+            if "parent" in v:
+                if not resource.parent_id or resource.parent_id != v["parent"]:
+                    resource.parent = Resource.objects.get(ext_id=v["parent"])
+            else:
+                resource.parent = None
+            resource.save()
 
     def _reformat_events(self, data):
         events = []
