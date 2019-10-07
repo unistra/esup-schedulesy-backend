@@ -42,7 +42,7 @@ class Customization(models.Model):
         # Adding missing resources
         lc.resources.add(*(
             Resource.objects.get_or_create(ext_id=x)[0] for x in
-            (resource_ids - existing_ids)))
+            (resource_ids - existing_ids) if x != ''))
 
     class Meta:
         managed = False
