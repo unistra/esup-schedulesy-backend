@@ -32,7 +32,8 @@ class Customization(models.Model):
         )
         lc.configuration = self.configuration
         lc.save()
-        resource_ids = set(self.resources.split(","))
+        resource_ids = (
+            set(self.resources.split(",")) if self.resources else set())
         existing_ids = set(lc.resources.values_list('ext_id', flat=True))
 
         # Removing unselected resources
@@ -42,7 +43,7 @@ class Customization(models.Model):
         # Adding missing resources
         lc.resources.add(*(
             Resource.objects.get_or_create(ext_id=x)[0] for x in
-            (resource_ids - existing_ids) if x != ''))
+            (resource_ids - existing_ids)))
 
     class Meta:
         managed = False

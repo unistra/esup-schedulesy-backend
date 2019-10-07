@@ -18,6 +18,13 @@ class CustomizationModelTestCase(TestCase):
         self.assertEqual(local.resources.count(), 1)
         self.assertTrue(local.resources.filter(ext_id='10').exists())
 
+    def test_save_empty_resources(self):
+        Customization.objects.create(
+            id=1, directory_id='42', username='user1')
+        local = LocalCustomization.objects.get(customization_id=1)
+
+        self.assertEqual(local.resources.count(), 0)
+
     def test_save_remove_unselected_resources(self):
         local = LocalCustomization.objects.create(customization_id=1)
         local.resources.add(Resource.objects.create(ext_id='11'),

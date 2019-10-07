@@ -64,6 +64,25 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
 class RefreshResourceTestCase(ADEMixin, TestCase):
 
+    def test_refresh_existing_resource(self):
+        self.add_getresources_response()
+        self.add_getevents_response(1616)
+
+        refresh = Refresh()
+        refresh.refresh_resource(1616, 'op')
+
+        # Update the resource
+        res_bcd_media = Resource.objects.get(ext_id=1616)
+        res_bcd_media.parent = Resource.objects.get(ext_id="30618")
+        res_bcd_media.fields['name'] = 'Renamed resource'
+        res_bcd_media.save()
+
+        refresh.refresh_resource(1616, 'op')
+        res_bcd_media = Resource.objects.get(ext_id=1616)
+
+        self.assertEqual(res_bcd_media.fields['name'], 'BCD Media')
+        self.assertEqual(res_bcd_media.parent.ext_id, '30628')
+
     def test_refresh_resource_single_event(self):
         self.add_getresources_response()
         self.add_getevents_response(1616)
