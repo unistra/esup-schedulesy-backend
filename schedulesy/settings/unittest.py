@@ -53,7 +53,7 @@ INSTALLED_APPS += [
 ]
 
 # Deactivate redis for tests
-INSTALLED_APPS.remove('cacheops')
+#INSTALLED_APPS.remove('cacheops')
 
 
 #####################

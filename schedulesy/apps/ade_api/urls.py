@@ -9,12 +9,13 @@ app_name = "api"
 
 urlpatterns = []
 
-if settings.DEBUG:
-    urlpatterns.extend([
-        url(r'refresh/$', views.refresh, name='refresh'),
-        url(r'bulldoze/$', views.bulldoze, name='bulldoze'),
-        path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
-    ])
+#if settings.DEBUG:
+# TODO restrict URLs to admins
+urlpatterns.extend([
+    url(r'refresh/$', views.refresh, name='refresh'),
+    url(r'bulldoze/$', views.bulldoze, name='bulldoze'),
+    path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
+])
 
 ws_urlpatterns = [
     path('ade_config', views.AdeConfigDetail.as_view(), name='ade_config'),
