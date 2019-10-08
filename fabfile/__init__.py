@@ -266,7 +266,7 @@ def deploy(update_pkg=False):
 def deploy_backend(update_pkg=False):
     """Deploy code on server"""
     execute(pydiploy.django.deploy_backend, update_pkg)
-
+    execute(celery.deploy_celery_file)
 
 @roles('celery-worker')
 @task
