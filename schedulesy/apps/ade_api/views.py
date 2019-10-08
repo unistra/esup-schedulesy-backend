@@ -7,15 +7,15 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from schedulesy.apps.ade_api.models import LocalCustomization
-from schedulesy.apps.ade_api.serializers import LocalCustomizationSerializer
-from schedulesy.apps.ade_legacy.views import IsOwnerPermission
 from schedulesy.apps.refresh.tasks import (
     bulldoze as resource_bulldoze, refresh_all,
     refresh_resource as resource_task)
-from .models import Access, AdeConfig, DisplayType, Resource
+from schedulesy.libs.permissions import IsOwnerPermission
+from .models import (
+    Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
-    AccessSerializer, AdeConfigSerializer, ResourceSerializer)
+    AccessSerializer, AdeConfigSerializer, CalendarSerializer,
+    ResourceSerializer)
 
 
 def refresh(request):  # pragma: no cover
@@ -96,9 +96,9 @@ class AccessList(generics.ListCreateAPIView):
         return context
 
 
-class LocalCustomizationDetail(generics.RetrieveAPIView):
+class CalendarDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
-    serializer_class = LocalCustomizationSerializer
+    serializer_class = CalendarSerializer
     permission_classes = (
         api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     lookup_field = 'username'

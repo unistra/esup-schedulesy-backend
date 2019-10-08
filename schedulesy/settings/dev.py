@@ -102,10 +102,9 @@ BROKER_URL = "amqp://{}:{}@{}/".format(
 )
 
 
-######
-# S3 #
-######
+###########
+# Storage #
+###########
 
-AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID', '')
-AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY', '')
-AWS_STORAGE_BUCKET_NAME = 'schedulesy_dev'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_ROOT = '/tmp'

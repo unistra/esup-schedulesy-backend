@@ -84,57 +84,6 @@ class AdeConfigDetailTestCase(TestCase):
         })
 
 
-class LocalCustomizationDetailTestCase(TestCase):
-
-    fixtures = ['tests/resources']
-
-    def setUp(self):
-        super().setUp()
-        self.view_url = '/api/calendar/{username}.json'
-        self.user_owner = User.objects.create_user('owner', password='pass')
-
-    def test_customization_with_empty_resources(self):
-        LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
-
-        self.client.login(username='owner', password='pass')
-        response = self.client.get(self.view_url.format(username='owner'))
-        data = json.loads(response.content.decode('utf-8'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(data, {})
-
-    def test_customization_with_single_resource(self):
-        res_bcd_media = Resource.objects.get(ext_id='1616')
-        lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
-        lc.resources.add(res_bcd_media)
-
-        self.client.login(username='owner', password='pass')
-        response = self.client.get(self.view_url.format(username='owner'))
-        data = json.loads(response.content.decode('utf-8'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['events']), 1)
-
-    def test_customization_with_multiple_resources(self):
-        res_bcd_media = Resource.objects.get(ext_id='1616')
-        instructor = Resource.objects.get(ext_id='23390')
-        lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
-        lc.resources.add(res_bcd_media, instructor)
-
-        self.client.login(username='owner', password='pass')
-        response = self.client.get(self.view_url.format(username='owner'))
-        data = json.loads(response.content.decode('utf-8'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['events']), 2)
-        self.assertEqual(len(data['classrooms']), 2)
-        self.assertEqual(len(data['instructors']), 2)
-        self.assertEqual(len(data['trainees']), 2)
-
-
 class ResourceDetailTestCase(TestCase):
 
     def test_resource_with_empty_fields(self):
