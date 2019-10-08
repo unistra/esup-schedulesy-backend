@@ -238,7 +238,7 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
-    'cacheops',
+#    'cacheops',
 ]
 
 LOCAL_APPS = [
@@ -398,7 +398,7 @@ def sentry_init(environment):
     from os import path
 
     sentry_sdk.init(
-        dsn="https://8a0f03ff2a9842c69b195a63c57335f7@sentry-test.app.unistra.fr/20",
+        dsn="https://b1ed0f04a9bf4b269baae2720440278c@sentry-test.app.unistra.fr/24",
         integrations=[DjangoIntegration()],
         environment=environment,
         release=open(path.join(SITE_ROOT, "build.txt")).read()
