@@ -90,4 +90,5 @@ ADE_WEB_API['PROJECT_ID'] = 5
 ###########
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_URL = '/unittest_media/'
 MEDIA_ROOT = tempfile.mkdtemp()

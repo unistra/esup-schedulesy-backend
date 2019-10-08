@@ -30,7 +30,7 @@ class CustomizationList(ListCreateAPIView):
         if not user.is_superuser:
             filters = {'username': user.username}
         queryset = self.get_queryset().filter(**filters)
-        serializer = CustomizationSerializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):

@@ -12,11 +12,9 @@ User = get_user_model()
 class CustomizationListTestCase(TestCase):
 
     def setUp(self):
-        super().setUp()
         self.view_url = '/legacy/customization.json'
 
     def tearDown(self):
-        super().tearDown()
         Customization.objects.all().delete()
 
     def test_list_customizations_with_owner(self):
