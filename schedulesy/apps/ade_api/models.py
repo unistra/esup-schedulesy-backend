@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
@@ -94,7 +95,7 @@ class LocalCustomization(models.Model):
     def ics_calendar_filename(self):
         return f'{self.username}.ics'
 
-    @property
+    @cached_property
     def events(self):
         """
         Merges all events

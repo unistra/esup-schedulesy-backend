@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from schedulesy.apps.ade_api.models import LocalCustomization, Resource
@@ -18,8 +19,19 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(
         db_column='date_personnalisation', auto_now=True)
     username = models.CharField(max_length=32, db_column='uid')
-    configuration = None
 
+    @property
+    def ics_calendar(self):
+        return self.local_customization.ics_calendar_filename
+
+    @cached_property
+    def local_customization(self):
+        try:
+            return LocalCustomization.objects.get(customization_id=self.id)
+        except LocalCustomization.DoesNotExist:
+            return None
+
+    # TODO: atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Saves must be reflected in local customization
@@ -30,7 +42,8 @@ class Customization(models.Model):
                 'username': self.username,
             }
         )
-        lc.configuration = self.configuration
+        # FIXME:
+        # lc.configuration = self.configuration
         lc.save()
         resource_ids = (
             set(self.resources.split(",")) if self.resources else set())

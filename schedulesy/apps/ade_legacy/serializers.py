@@ -1,40 +1,40 @@
 import re
 
+from django.core.files.storage import default_storage
 from rest_framework import serializers
 
-from schedulesy.apps.ade_api.models import LocalCustomization
 from schedulesy.apps.ade_legacy.models import Customization
 
 
 class CustomizationSerializer(serializers.ModelSerializer):
-    def to_representation(self, obj):
-        """
-        builtins.dict representation of object. It will get configuration from LocalCustomization as well
-        :param Customization obj: ADE customization
-        :return: builtins.dict
-        """
-        data = super().to_representation(obj)
-        try:
-            lc = LocalCustomization.objects.get(customization_id=obj.id)
-            data['configuration'] = lc.configuration
-        except LocalCustomization.DoesNotExist as e:
-            data['configuration'] = None
-        return data
 
-    @staticmethod
-    def validate_resources(value):
-        if value == "":
-            return value
-        if re.search("^([0-9]+)(,[0-9]+)*$", value) is None:
-            raise serializers.ValidationError("Invalid resources format")
-        return value
-
-    def to_internal_value(self, data):
-        d = super().to_internal_value(data)
-        if 'configuration' in data and type(data['configuration'] == dict):
-            d['configuration'] = data['configuration']
-        return d
+    configuration = serializers.SerializerMethodField()
+    ics_calendar = serializers.SerializerMethodField()
 
     class Meta:
         model = Customization
         fields = '__all__'
+
+    # @staticmethod
+    # def validate_resources(value):
+    #     if value == "":
+    #         return value
+    #     if re.search("^([0-9]+)(,[0-9]+)*$", value) is None:
+    #         raise serializers.ValidationError("Invalid resources format")
+    #     return value
+
+    def get_configuration(self, obj):
+        lc = obj.local_customization
+        return lc.configuration if lc else {}
+
+    def get_ics_calendar(self, obj):
+        lc = obj.local_customization
+        if lc:
+            request = self.context['request']
+            return '{scheme}://{domain}{filename}'.format(
+                scheme=request.is_secure() and 'https' or 'http',
+                domain=request.get_host(),
+                filename=default_storage.url(
+                    obj.local_customization.ics_calendar_filename)
+            )
+        return ''

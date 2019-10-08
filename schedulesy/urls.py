@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.conf.urls import url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -15,8 +16,8 @@ urlpatterns = [
     path('legacy/', include('schedulesy.apps.ade_legacy.urls', namespace='legacy')),
 
     path('admin/', admin.site.urls),
-    url(r'^.*$', home, name='home'),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # debug toolbar for dev
 if settings.DEBUG and 'debug_toolbar'in settings.INSTALLED_APPS:
@@ -24,3 +25,8 @@ if settings.DEBUG and 'debug_toolbar'in settings.INSTALLED_APPS:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]
+
+# Must be the last url
+urlpatterns += [
+    url(r'^.*$', home, name='home'),
+]
