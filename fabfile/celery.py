@@ -104,7 +104,7 @@ def deploy_celery_file():
         use_jinja=True)
 
 
-# @do_verbose
-# def deploy_backend_celery():
-#     fabric.api.execute(deploy_celery_file)
-#     fabric.api.execute(celery_restart)
+@do_verbose
+def deploy_backend_celery():
+    fabric.api.execute(deploy_celery_file)
+    fabric.api.execute(celery_restart)

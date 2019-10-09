@@ -282,7 +282,7 @@ def deploy_backend(update_pkg=False):
 @roles('celery-worker')
 @task
 def deploy_backend_celery():
-    execute(celery.celery_restart)
+    execute(celery.deploy_backend_celery)
 
 
 @roles('lb')
