@@ -97,7 +97,7 @@ def test():
     env.roledefs = {
         'web': ['schedulesy-test.app.unistra.fr'],
         'lb': ['schedulesy-test.app.unistra.fr'],
-        'celery-worker': ['django-test2.u-strasbg.fr'],
+        'celery-worker': ['schedulesy-test.app.unistra.fr'],
         'broker': ['django-test2.u-strasbg.fr']
     }
     # env.user = 'root'  # user for ssh
