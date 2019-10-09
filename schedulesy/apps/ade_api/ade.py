@@ -26,6 +26,7 @@ from xml.etree import ElementTree as ET
 
 import pytz
 import requests
+from sentry_sdk import add_breadcrumb
 
 from .exception import ExceptionFactory
 
@@ -290,6 +291,8 @@ class ADEWebAPI():
 
         response.encoding = 'UTF-8'
         data = response.text
+
+        add_breadcrumb(category='api', message="{}".format(data))
 
         element = ET.fromstring(data)
         self._parse_error(element)
