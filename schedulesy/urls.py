@@ -4,12 +4,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from . import get_version
 from .views import home
 
 admin.autodiscover()
+admin.site.site_header = f'Schedulesy v.{get_version()}'
 
 urlpatterns = [
-    # Examples:
     path('', home, name='home'),
     path('accounts/', include('django_cas.urls', namespace='django_cas')),
     path('api/', include('schedulesy.apps.ade_api.urls', namespace='api')),

@@ -1,6 +1,28 @@
 ==========
 Schedulesy
 ==========
+
+**Master**
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/master/pipeline.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/master
+   :alt: Tests
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/master/coverage.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/master
+   :alt: Coverage
+
+
+**Develop**
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/pipeline.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/develop
+   :alt: Tests
+
+.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/coverage.svg
+   :target: https://git.unistra.fr/di/schedulesy/commits/develop
+   :alt: Coverage
+
 Objectifs
 ---------
 
@@ -74,32 +96,6 @@ Données
    -  contenant l’intégralité des événements pour les ressources
       sélectionnées, sur l’ensemble de l’année
    -  enrichi (contiendra les bâtiments liés aux salles)
-
-Health
-------
-
-Master
-++++++
-
-.. image:: https://git.unistra.fr/di/schedulesy/badges/master/pipeline.svg
-   :target: https://git.unistra.fr/di/schedulesy/commits/master
-   :alt: Tests
-
-.. image:: https://git.unistra.fr/di/schedulesy/badges/master/coverage.svg
-   :target: https://git.unistra.fr/di/schedulesy/commits/master
-   :alt: Coverage
-
-
-Develop
-+++++++
-
-.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/pipeline.svg
-   :target: https://git.unistra.fr/di/schedulesy/commits/develop
-   :alt: Tests
-
-.. image:: https://git.unistra.fr/di/schedulesy/badges/develop/coverage.svg
-   :target: https://git.unistra.fr/di/schedulesy/commits/develop
-   :alt: Coverage
 
 Installation
 ------------
