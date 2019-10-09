@@ -3,6 +3,8 @@ import os
 import time
 
 from django.conf import settings
+from psycopg2._psycopg import IntegrityError
+from sentry_sdk import capture_exception
 
 from .ade import ADEWebAPI, Config
 from .decorators import MemoizeWithTimeout
@@ -169,7 +171,11 @@ class Refresh:
                     resource = Resource(ext_id=k, fields=v)
                     if "parent" in v:
                         resource.parent = indexed_resources[v["parent"]]
-                    resource.save()
+                    try:
+                        resource.save()
+                    except IntegrityError as error:
+                        # Should not happen
+                        capture_exception(error)
                     indexed_resources[k] = resource
                     nb_created += 1
                 else:
