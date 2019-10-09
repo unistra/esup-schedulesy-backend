@@ -1,6 +1,7 @@
 import uuid
 from functools import partial
 
+from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
@@ -18,18 +19,21 @@ from .serializers import (
     ResourceSerializer)
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh(request):  # pragma: no cover
     if request.method == "GET":
         result = refresh_all.delay()
         return JsonResponse(result.get())
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def bulldoze(request):  # pragma: no cover
     if request.method == "GET":
         resource_bulldoze.delay()
         return JsonResponse({})
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_resource(request, ext_id):  # pragma: no cover
     resource_task.delay(ext_id, 1, str(uuid.uuid4()))
     return JsonResponse({})
