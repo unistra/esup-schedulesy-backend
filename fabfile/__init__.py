@@ -8,6 +8,8 @@ from os.path import join
 
 import pydiploy
 
+from . import celery
+from . import rabbitmq
 from . import sentry
 
 # edit config here !
@@ -32,6 +34,9 @@ env.timezone = 'Europe/Paris'  # timezone for remote
 env.keep_releases = 2  # number of old releases to keep before cleaning
 env.extra_goals = ['preprod']  # add extra goal(s) to defaults (test,dev,prod)
 env.verbose_output = False  # True for verbose output
+
+# celery parameters
+env.celery_version = '4.3'
 
 # optional parameters
 
@@ -92,6 +97,8 @@ def test():
     env.roledefs = {
         'web': ['schedulesy-test.app.unistra.fr'],
         'lb': ['schedulesy-test.app.unistra.fr'],
+        'celery-worker': ['django-test2.u-strasbg.fr'],
+        'broker': ['django-test2.u-strasbg.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = ['127.0.0.1']
@@ -126,6 +133,7 @@ def test():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
+    env.rabbitmq_server = env.socket_host
     execute(build_env)
 
 
@@ -135,6 +143,8 @@ def preprod():
     env.roledefs = {
         'web': ['django-pprd-w1.u-strasbg.fr', 'django-pprd-w2.u-strasbg.fr'],
         'lb': ['rp3.u-strasbg.fr'],
+        'celery-worker': ['django-pprd-w1.u-strasbg.fr'],
+        'broker': ['rabbitmq-pprd.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
@@ -169,25 +179,29 @@ def preprod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
+    env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
+
 
 @task
 def prod():
     """Define prod stage"""
     env.roledefs = {
-        'web': ['schedulesy.net'],
-        'lb': ['lb.schedulesy.net']
+        'web': ['django-w3.u-strasbg.fr', 'django-w4.u-strasbg.fr'],
+        'lb': ['rp10-m.di.unistra.fr', 'rp10-s.di.unistra.fr'],
+        'celery-worker': ['django-w3.u-strasbg.fr'],
+        'broker': ['rabbitmq-prod.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
     env.server_name = 'schedulesy.net'
     env.short_server_name = 'schedulesy'
     env.static_folder = '/site_media/'
-    env.server_ip = ''
+    env.server_ip = '130.79.254.87'
     env.no_shared_sessions = False
     env.server_ssl_on = True
-    env.path_to_cert = '/etc/ssl/certs/schedulesy.net.pem'
-    env.path_to_cert_key = '/etc/ssl/private/schedulesy.net.key'
+    env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
+    env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'prod'
     env.socket_port = ''
     env.map_settings = {
@@ -211,6 +225,7 @@ def prod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
     }
+    env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
 
 # dont touch after that point if you don't know what you are doing !
@@ -254,6 +269,7 @@ def deploy(update_pkg=False):
     execute(deploy_backend, update_pkg)
     execute(declare_release_to_sentry)
     execute(deploy_frontend)
+    execute(deploy_backend_celery)
 
 
 @roles('web')
@@ -261,6 +277,12 @@ def deploy(update_pkg=False):
 def deploy_backend(update_pkg=False):
     """Deploy code on server"""
     execute(pydiploy.django.deploy_backend, update_pkg)
+
+
+@roles('celery-worker')
+@task
+def deploy_backend_celery():
+    execute(celery.celery_restart)
 
 
 @roles('lb')
@@ -312,9 +334,11 @@ def reload():
     execute(reload_frontend)
     execute(reload_backend)
 
+
 @task
 def declare_release_to_sentry():
     execute(sentry.declare_release)
+
 
 @roles('lb')
 @task
@@ -347,3 +371,32 @@ def set_up():
 def custom_manage_cmd(cmd):
     """ Execute custom command in manage.py """
     execute(pydiploy.django.custom_manage_command, cmd)
+
+
+# Custom celery commands
+@roles('celery-worker')
+@task
+def install_celery():
+    """Install celery on remote"""
+    execute(celery.install_celery)
+
+
+@roles('broker')
+@task
+def install_rabbitmq():
+    execute(rabbitmq.install)
+    execute(rabbitmq.enable_management)
+
+
+@roles('celery-worker')
+@task
+def celery_start():
+    """Start celery service on remote"""
+    execute(celery.celery_start)
+
+
+@roles('celery-worker')
+@task
+def celery_restart():
+    """Restart celery service on remote"""
+    execute(celery.celery_restart)
