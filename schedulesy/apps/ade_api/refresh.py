@@ -3,6 +3,7 @@ import os
 import time
 
 from django.conf import settings
+from django.db.models import Q
 from psycopg2._psycopg import IntegrityError
 from sentry_sdk import capture_exception
 
@@ -200,6 +201,28 @@ class Refresh:
                 'created': nb_created,
                 'elapsed': elapsed
             })
+
+    def refresh_event(self, ext_id, activity_id, resources, operation_id):
+        # {'instructors': ['2', '3']}>
+        old_resources = (
+            {r.pk: r for r in Resource.objects
+             .filter(events__events__contains=[{'id': ext_id}])})
+        new_resources = (
+            {r.pk: r for r in Resource.objects
+             .filter(ext_id__in=resources)})
+
+        if len(new_resources) != len(resources):
+            # TODO: create new resources if missing ?
+            capture_exception('Some resources are missing in the event refresh')
+
+        all_resources = dict(**old_resources, **new_resources)
+        for r_id, resource in all_resources.items():
+            r = self.myade.getEvents(
+                resources=r_id, detail=0,
+                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+            events = self._reformat_events(r['data'])
+            resource.events = events
+            resource.save()
 
 
 @MemoizeWithTimeout()

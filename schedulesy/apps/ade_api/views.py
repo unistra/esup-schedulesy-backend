@@ -20,6 +20,13 @@ from .serializers import (
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
+def bulldoze(request):  # pragma: no cover
+    if request.method == "GET":
+        resource_bulldoze.delay()
+        return JsonResponse({})
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh(request):  # pragma: no cover
     if request.method == "GET":
         result = refresh_all.delay()
@@ -27,10 +34,12 @@ def refresh(request):  # pragma: no cover
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
-def bulldoze(request):  # pragma: no cover
-    if request.method == "GET":
-        resource_bulldoze.delay()
-        return JsonResponse({})
+def refresh_event(request, ext_id):  # pragma: no cover
+# http://localhost:8000/api/refresh/event/1?resources=2&resources=3
+    resources = request.GET.get('resources')
+    print(f'GG : {resources}')
+    resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
+    return JsonResponse({})
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')

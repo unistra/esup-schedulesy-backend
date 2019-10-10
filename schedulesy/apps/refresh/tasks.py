@@ -26,6 +26,14 @@ def refresh_resource(ext_id, batch_size, operation_id):
 
 
 @shared_task()
+def refresh_event(ext_id, activity_id, resources, batch_size, operation_id):
+    # TODO improve number of requests with batch size (file with uuid4)
+    refresh_agent = Refresh()
+    refresh_agent.refresh_event(ext_id, activity_id, resources, operation_id)
+    return None
+
+
+@shared_task()
 def bulldoze():
     resources = Resource.objects\
         .filter(~Q(ext_id__in=('classroom', 'instructor', 'trainee',
