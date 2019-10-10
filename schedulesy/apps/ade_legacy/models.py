@@ -19,6 +19,7 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(
         db_column='date_personnalisation', auto_now=True)
     username = models.CharField(max_length=32, db_column='uid')
+    configuration = None
 
     @property
     def ics_calendar(self):
@@ -42,8 +43,8 @@ class Customization(models.Model):
                 'username': self.username,
             }
         )
-        # FIXME:
-        # lc.configuration = self.configuration
+        if self.configuration is not None:
+            lc.configuration = self.configuration
         lc.save()
         resource_ids = (
             set(self.resources.split(",")) if self.resources else set())
