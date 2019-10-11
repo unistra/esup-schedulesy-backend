@@ -2,7 +2,8 @@ import uuid
 from functools import partial
 
 from django.contrib.auth.decorators import user_passes_test
-from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -20,6 +21,13 @@ from .serializers import (
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
+def bulldoze(request):  # pragma: no cover
+    if request.method == "GET":
+        resource_bulldoze.delay()
+        return JsonResponse({})
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh(request):  # pragma: no cover
     if request.method == "GET":
         result = refresh_all.delay()
@@ -27,10 +35,23 @@ def refresh(request):  # pragma: no cover
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
-def bulldoze(request):  # pragma: no cover
-    if request.method == "GET":
-        resource_bulldoze.delay()
-        return JsonResponse({})
+def refresh_event(request, ext_id):  # pragma: no cover
+# http://localhost:8000/api/refresh/event/1?resources=2&resources=3
+    resources = request.GET.get('resources')
+    resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
+    return JsonResponse({})
+
+
+def calendar_export(request, username):
+    lc = get_object_or_404(LocalCustomization, username=username)
+    try:
+        return FileResponse(
+            default_storage.open(lc.ics_calendar_filename),
+            as_attachment=True,
+            content_type='text/calendar'
+        )
+    except Exception:
+        raise Http404()
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')

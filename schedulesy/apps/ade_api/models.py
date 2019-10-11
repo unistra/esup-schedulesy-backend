@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -102,13 +104,14 @@ class LocalCustomization(models.Model):
         :return:
         """
         def get_event_type(t):
-            return (x.events[t] for x in resources if t in x.events)
+            return (x.events[t] for x in resources
+                    if x.events and t in x.events)
 
         resources = self.resources.all()
         if len(resources) == 0:
             return {}
         if len(resources) == 1:
-            return resources[0].events
+            return resources[0].events or {}
 
         events = {l['id']: l for l in
                   (item for sl in get_event_type('events') for item in sl)}
@@ -145,6 +148,13 @@ class LocalCustomization(models.Model):
 
             with default_storage.open(self.ics_calendar_filename, 'w') as fh:
                 fh.writelines(calendar)
+
+
+# @receiver(post_save, sender=LocalCustomization)
+# def generate_ics_calendar(sender, **kwargs):
+#     instance = kwargs['instance']
+#     if instance.resources.exists():
+#         instance.generate_ics_calendar()
 
 
 class Access(models.Model):
