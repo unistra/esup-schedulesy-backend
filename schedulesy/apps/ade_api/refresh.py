@@ -205,10 +205,10 @@ class Refresh:
     def refresh_event(self, ext_id, activity_id, resources, operation_id):
         # {'instructors': ['2', '3']}>
         old_resources = (
-            {r.pk: r for r in Resource.objects
+            {str(r.pk): r for r in Resource.objects
              .filter(events__events__contains=[{'id': ext_id}])})
         new_resources = (
-            {r.pk: r for r in Resource.objects
+            {str(r.pk): r for r in Resource.objects
              .filter(ext_id__in=resources)})
 
         if len(new_resources) != len(resources):
@@ -218,7 +218,7 @@ class Refresh:
         all_resources = dict(**old_resources, **new_resources)
         for r_id, resource in all_resources.items():
             r = self.myade.getEvents(
-                resources=r_id, detail=0,
+                resources=resource.ext_id, detail=0,
                 attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
             events = self._reformat_events(r['data'])
             resource.events = events

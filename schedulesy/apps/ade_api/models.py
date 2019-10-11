@@ -150,11 +150,11 @@ class LocalCustomization(models.Model):
                 fh.writelines(calendar)
 
 
-@receiver(post_save, sender=LocalCustomization)
-def generate_ics_calendar(sender, **kwargs):
-    instance = kwargs['instance']
-    if instance.resources.exists():
-        instance.generate_ics_calendar()
+# @receiver(post_save, sender=LocalCustomization)
+# def generate_ics_calendar(sender, **kwargs):
+#     instance = kwargs['instance']
+#     if instance.resources.exists():
+#         instance.generate_ics_calendar()
 
 
 class Access(models.Model):

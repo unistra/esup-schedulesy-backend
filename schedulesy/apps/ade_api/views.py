@@ -37,7 +37,6 @@ def refresh(request):  # pragma: no cover
 def refresh_event(request, ext_id):  # pragma: no cover
 # http://localhost:8000/api/refresh/event/1?resources=2&resources=3
     resources = request.GET.get('resources')
-    print(f'GG : {resources}')
     resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
     return JsonResponse({})
 

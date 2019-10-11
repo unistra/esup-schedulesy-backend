@@ -10,17 +10,17 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
     def setUp(self):
         super().setUp()
+        self.refresh = Refresh()
         self.category = 'classroom'
         self.method = Refresh.METHOD_GET_RESOURCE
         self.data_key = f'{Refresh.METHOD_GET_RESOURCE}-{self.category}'
         self.add_getresources_response(self.category)
 
     def test_initial_classroom_refresh(self):
-        refresh = Refresh()
-        refresh.refresh_category(self.category)
+        self.refresh.refresh_category(self.category)
 
         self.assertEqual(Resource.objects.count(), 19)
-        self.assertEqual(refresh.data[self.data_key]['created'], 19)
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 19)
         self.assertTrue(Fingerprint.objects
                         .filter(ext_id=self.category, method=self.method)
                         .exists())
@@ -41,12 +41,11 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         res_bcd_media = Resource.objects.create(
             ext_id=1616, fields={'category': self.category})
 
-        refresh = Refresh()
-        refresh.refresh_category(self.category)
+        self.refresh.refresh_category(self.category)
 
         self.assertEqual(Resource.objects.count(), 19)
-        self.assertEqual(refresh.data[self.data_key]['created'], 18)
-        self.assertEqual(refresh.data[self.data_key]['updated'], 1)
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
+        self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
         self.assertNotEqual(
             (
                 Fingerprint.objects
@@ -64,12 +63,15 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
 class RefreshResourceTestCase(ADEMixin, TestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.refresh = Refresh()
+
     def test_refresh_existing_resource(self):
         self.add_getresources_response()
         self.add_getevents_response(1616)
 
-        refresh = Refresh()
-        refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_resource(1616, 'op')
 
         # Update the resource
         res_bcd_media = Resource.objects.get(ext_id=1616)
@@ -77,7 +79,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         res_bcd_media.fields['name'] = 'Renamed resource'
         res_bcd_media.save()
 
-        refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_resource(1616, 'op')
         res_bcd_media = Resource.objects.get(ext_id=1616)
 
         self.assertEqual(res_bcd_media.fields['name'], 'BCD Media')
@@ -87,8 +89,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.add_getresources_response()
         self.add_getevents_response(1616)
 
-        refresh = Refresh()
-        refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_resource(1616, 'op')
         res_bcd_media = Resource.objects.get(ext_id=1616)
         events = res_bcd_media.events
 
@@ -105,8 +106,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.add_getresources_response()
         self.add_getevents_response(23390)
 
-        refresh = Refresh()
-        refresh.refresh_resource(23390, 'op')
+        self.refresh.refresh_resource(23390, 'op')
         instructor = Resource.objects.get(ext_id=23390)
         events = instructor.events
 
@@ -124,3 +124,41 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
                 '23390': {'name': 'Gerard Toto'},
                 '26840': {'name': 'Yao Toto'}
             })
+
+
+class RefreshEventTestCase(ADEMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.refresh = Refresh()
+
+    def test_add_missing_events(self):
+        self.add_getresources_response()
+        self.add_getevents_response(1616)
+
+        self.refresh.refresh_all()
+        self.refresh.refresh_event(191050, 1, [1616], 'op')
+
+        self.assertTrue(Resource.objects.get(ext_id=1616).events)
+        self.assertEqual(
+            Resource.objects.filter(events__isnull=False).count(), 1)
+
+    def test_remove_old_events(self):
+        self.add_getresources_response()
+        self.add_getevents_response(1616)
+        self.add_getevents_response(23390)
+
+        self.refresh.refresh_all()
+        # Add the event 191050 on some random resource
+        Resource.objects.filter(ext_id=1616).update(
+            events={'events': [{'id': 187912}]}
+        )
+        self.refresh.refresh_event(191050, 1, [1616], 'op')
+
+        self.assertEqual(
+            Resource.objects.filter(events__isnull=False).count(), 1)
+        self.assertFalse(
+            Resource.objects
+            .filter(ext_id=1616, events__events__contains=[{'id': '187912'}])
+            .exists()
+        )
