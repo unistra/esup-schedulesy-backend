@@ -30,11 +30,14 @@ class Customization(models.Model):
         try:
             return LocalCustomization.objects.get(customization_id=self.id)
         except LocalCustomization.DoesNotExist:
-            return None
+            return self._sync()
 
     # TODO: atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        self._sync()
+
+    def _sync(self):
         # Saves must be reflected in local customization
         lc, created = LocalCustomization.objects.get_or_create(
             customization_id=self.id,
@@ -58,6 +61,7 @@ class Customization(models.Model):
         lc.resources.add(*(
             Resource.objects.get_or_create(ext_id=x)[0] for x in
             (resource_ids - existing_ids)))
+        return lc
 
     class Meta:
         managed = False
