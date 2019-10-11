@@ -1,6 +1,6 @@
 import re
 
-from django.core.files.storage import default_storage
+from django.urls import reverse
 from rest_framework import serializers
 
 from schedulesy.apps.ade_legacy.models import Customization
@@ -34,7 +34,7 @@ class CustomizationSerializer(serializers.ModelSerializer):
             return '{scheme}://{domain}{filename}'.format(
                 scheme=request.is_secure() and 'https' or 'http',
                 domain=request.get_host(),
-                filename=default_storage.url(
-                    obj.local_customization.ics_calendar_filename)
+                filename=reverse(
+                    'api:calendar-export', kwargs={'username': lc.username})
             )
         return ''

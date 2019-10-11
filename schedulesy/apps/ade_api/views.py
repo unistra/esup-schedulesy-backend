@@ -2,7 +2,8 @@ import uuid
 from functools import partial
 
 from django.contrib.auth.decorators import user_passes_test
-from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -39,6 +40,18 @@ def refresh_event(request, ext_id):  # pragma: no cover
     resources = request.GET.get('resources')
     resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
     return JsonResponse({})
+
+
+def calendar_export(request, username):
+    lc = get_object_or_404(LocalCustomization, username=username)
+    try:
+        return FileResponse(
+            default_storage.open(lc.ics_calendar_filename),
+            as_attachment=True,
+            content_type='text/calendar'
+        )
+    except Exception:
+        raise Http404()
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')

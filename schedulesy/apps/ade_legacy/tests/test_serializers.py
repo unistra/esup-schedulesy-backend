@@ -23,7 +23,7 @@ class CustomizationSerializerTestCase(TestCase):
             id=1, directory_id='1', username='owner')
         serializer = CustomizationSerializer(data=obj, context=self.context)
         self.assertEqual(serializer.get_ics_calendar(obj),
-                         'http://testserver.com/unittest_media/owner.ics')
+                         'http://testserver.com/api/calendar/owner/export')
 
     def test_get_ics_calendar_without_local_customization(self):
         # Use the bulk create to prevent the call of the save method
