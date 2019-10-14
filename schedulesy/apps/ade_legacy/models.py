@@ -19,6 +19,7 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(
         db_column='date_personnalisation', auto_now=True)
     username = models.CharField(max_length=32, db_column='uid')
+    configuration = None
 
     @property
     def ics_calendar(self):
@@ -29,11 +30,14 @@ class Customization(models.Model):
         try:
             return LocalCustomization.objects.get(customization_id=self.id)
         except LocalCustomization.DoesNotExist:
-            return None
+            return self._sync()
 
     # TODO: atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        self._sync()
+
+    def _sync(self):
         # Saves must be reflected in local customization
         lc, created = LocalCustomization.objects.get_or_create(
             customization_id=self.id,
@@ -42,8 +46,8 @@ class Customization(models.Model):
                 'username': self.username,
             }
         )
-        # FIXME:
-        # lc.configuration = self.configuration
+        if self.configuration is not None:
+            lc.configuration = self.configuration
         lc.save()
         resource_ids = (
             set(self.resources.split(",")) if self.resources else set())
@@ -57,6 +61,7 @@ class Customization(models.Model):
         lc.resources.add(*(
             Resource.objects.get_or_create(ext_id=x)[0] for x in
             (resource_ids - existing_ids)))
+        return lc
 
     class Meta:
         managed = False
