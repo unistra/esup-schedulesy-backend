@@ -32,4 +32,5 @@ class CustomizationSerializerTestCase(TestCase):
         ])
         obj = Customization.objects.get(id=1)
         serializer = CustomizationSerializer(data=obj, context=self.context)
-        self.assertEqual(serializer.get_ics_calendar(obj), '')
+        # Local customization is created on call if doesn't exist
+        self.assertEqual(serializer.get_ics_calendar(obj), 'http://testserver.com/api/calendar/owner/export')
