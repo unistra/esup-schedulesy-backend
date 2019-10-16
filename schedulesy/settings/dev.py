@@ -49,7 +49,10 @@ ALLOWED_HOSTS = [
 
 LOGGING['handlers']['file']['filename'] = environ.get('LOG_DIR',
         normpath(join('/tmp', '%s.log' % SITE_NAME)))
+LOGGING['handlers']['infocentre_file']['filename'] = environ.get('LOG_DIR',
+        normpath(join('/tmp', 'infocentre_%s.log' % SITE_NAME)))
 LOGGING['handlers']['file']['level'] = 'DEBUG'
+LOGGING['handlers']['infocentre_file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'

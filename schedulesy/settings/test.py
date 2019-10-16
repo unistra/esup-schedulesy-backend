@@ -39,6 +39,7 @@ ALLOWED_HOSTS = [
 #####################
 
 LOGGING['handlers']['file']['filename'] = '{{ remote_current_path }}/log/app.log'
+LOGGING['handlers']['infocentre_file']['filename'] = '{{ remote_current_path }}/log/infocentre.log'
 
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'

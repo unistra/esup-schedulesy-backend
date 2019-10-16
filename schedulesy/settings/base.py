@@ -304,6 +304,14 @@ LOGGING = {
             'maxBytes': 209715200,
             'backupCount': 3,
             'formatter': 'default'
+        },
+        'infocentre_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '',
+            'maxBytes': 209715200,
+            'backupCount': 3,
+            'formatter': 'default'
         }
     },
     'loggers': {
@@ -320,7 +328,12 @@ LOGGING = {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
             'propagate': True
-        }
+        },
+        'infocentre': {
+            'handlers': ['infocentre_file'],
+            'level': 'ERROR',
+            'propagate': True
+        },
     }
 }
 

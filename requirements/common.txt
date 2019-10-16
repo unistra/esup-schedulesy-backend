@@ -12,3 +12,4 @@ django-cacheops<4.3
 requests<2.23
 pytz==2019.2
 ics<0.6
+britney-utils
