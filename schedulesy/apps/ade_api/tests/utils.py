@@ -78,7 +78,7 @@ class ADEMixin(ResponsesMixin):
                 responses.GET,
                 self.ws_url(params={
                     'category': resource,
-                    'detail': 3,
+                    'detail': 11,
                     'tree': True,
                     'hash': True,
                     'function': 'getResources',

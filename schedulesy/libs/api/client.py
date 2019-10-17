@@ -1,7 +1,9 @@
 from functools import wraps
+import json
 import logging
 
 import britney_utils
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -14,14 +16,15 @@ def get_client(source, middlewares=None, reset=False, suffix='json', name='',
 
     source = source.upper()
     name = name or source
-    base_middlewares = (
-        ('ApiKey', {
-            'key_name': 'Authorization',
-            'key_value': 'Token {}'.format(
-                getattr(settings, f'{source}WS_TOKEN'))
-        }),
-    )
-    middlewares = base_middlewares + (middlewares or ())
+    # TODO: base_middlewares in settings
+    # base_middlewares = (
+    #     ('ApiKey', {
+    #         'key_name': 'Authorization',
+    #         'key_value': 'Token {}'.format(
+    #             getattr(settings, f'{source}WS_TOKEN'))
+    #     }),
+    # )
+    # middlewares = base_middlewares + (middlewares or ())
 
     if source not in _clients:
         client = britney_utils.get_client(
@@ -84,6 +87,16 @@ def format_json(func):
     return wrapper
 
 
-@check_status('infocentre')
-def get_building(id):
-    return get_client('infocentre').get_building(id=id)
+def get_geolocation(id, **kwargs):
+
+    @format_json
+    @check_status('ldap')
+    def get_building():
+        return get_client('infocentre').get_building(id=id)
+
+    id = id or 0
+    # Pfff whatever
+    if id.isdigit():
+        # Lame way to check if the resource has an Abyla ID
+        return get_building().get('geolocation', [])
+    return []

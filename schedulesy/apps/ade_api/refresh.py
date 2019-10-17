@@ -7,6 +7,7 @@ from django.db.models import Q
 from psycopg2._psycopg import IntegrityError
 from sentry_sdk import capture_exception
 
+from schedulesy.libs.api.client import get_geolocation
 from .ade import ADEWebAPI, Config
 from .decorators import MemoizeWithTimeout
 from .models import Resource, Fingerprint
@@ -21,6 +22,7 @@ class Flatten:
     def _flatten(self, item=None, genealogy=None):
         if not item:
             item = self.data
+        # print(f'\n-----------------------------------------\nI : {item}')
 
         if item['tag'] == 'category':
             item['id'] = item['category']
@@ -32,13 +34,16 @@ class Flatten:
                 me = None
                 if 'id' in item:
                     me = list(genealogy) if genealogy is not None else []
-                    me.append({'id': item['id'], 'name': item['name']})
+                    me.append({'id': item['id'], 'name': item['name'], 'code': item.get('code', '')})
                 ref = self._flatten(child, me)
                 if ref:
                     children_ref.append(ref)
 
         if 'id' in item:
             key = item['id']
+            # DEBUG
+            if key == "30688":
+                print(f'YIIP !!!! {item}')
             if key in self.f_data:
                 print("Double key {}".format(key))
             else:
@@ -49,8 +54,11 @@ class Flatten:
                 if len(children_ref) > 0:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
-            result = {'id': key, 'name': item['name']}
+            result = {'id': key, 'name': item['name'], 'code': item.get('code', '')}
             result['has_children'] = len(children_ref) > 0
+            # DEBUG
+            if key == "30688":
+                print(f'\tRES !!!! {result}')
             return result
 
         return None
@@ -93,9 +101,13 @@ class Refresh:
         :return:
         """
         tree = ade_resources(resource.fields['category'], operation_id)
+        # print(f'TREE : {tree["data"].keys()}\n______________________________________')
         ade_data = dict(reversed(list(Flatten(tree['data']).f_data.items())))
         v = ade_data[resource.ext_id]
-        if resource.fields != v:
+        # if resource.fields != v:
+        # DEBUG
+        if True:
+            # print(f'V : {v}')
             resource.fields = v
             # TODO: check if parent are different to prevent useless query ?
             if "parent" in v:
@@ -103,12 +115,15 @@ class Refresh:
                     resource.parent = Resource.objects.get(ext_id=v["parent"])
             else:
                 resource.parent = None
+            # print(f'\n******************************\nRF : {resource.fields}')
             resource.save()
 
     def _reformat_events(self, data):
         events = []
         classrooms = {}
         resources = {}
+        geolocations = {}
+
         if 'children' in data:
             for element in data['children']:
                 element.pop('tag', None)
@@ -119,6 +134,7 @@ class Refresh:
                     for resource in children[0]['children']:
                         # TODO improve plural
                         r_id = resource['id']
+                        # print(f'\t\tRID : {r_id}')
                         c_name = f'{resource["category"]}s'
                         tmp_r = {'name': resource['name']}
 
@@ -126,7 +142,27 @@ class Refresh:
                         if c_name == 'classrooms':
                             if r_id not in classrooms:
                                 classrooms[r_id] = Resource.objects.get(ext_id=r_id)
-                            tmp_r['genealogy'] = [x['name'] for x in classrooms[r_id].fields['genealogy']][1:]
+                            parents = []
+                            geolocation = []
+                            for index, x in enumerate(classrooms[r_id].fields['genealogy']):
+                                parents.append(x['name'])
+                                if index == 2:
+                                    # pass
+                                    # print(f'X : {x}')
+                                    # raise capture_exception
+                                    code = x['code']
+
+                                    geoloc = (
+                                        geolocations.get(code) or
+                                        geolocations.setdefault(
+                                            code, get_geolocation(code)))
+                                    # print(f'C : {code} ({type(code)}) {geolocations.get(code)}' )
+                                    # geolocation = geolocations.setdefault(
+                                    #     x['code'], get_geolocation(x['code']))
+
+                            # [x['name'] for x in classrooms[r_id].fields['genealogy']]
+                            tmp_r['genealogy'] = parents[1:]
+                            tmp_r['geolocation'] = geolocation
 
                         resources.setdefault(c_name, {})[r_id] = tmp_r
                         local_resources.setdefault(c_name, []).append(r_id)
@@ -238,4 +274,4 @@ def ade_connection():
 
 @MemoizeWithTimeout()
 def ade_resources(category, operation_id='standard'):
-    return ade_connection().getResources(category=category, detail=3, tree=True, hash=True)
+    return ade_connection().getResources(category=category, detail=11, tree=True, hash=True)

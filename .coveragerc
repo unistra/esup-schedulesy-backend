@@ -7,4 +7,5 @@ omit = schedulesy/settings/*
        */tests/*
        */ade_api/ade.py
        */ade_api/exception.py
+       */libs/api/*
        */tasks.py

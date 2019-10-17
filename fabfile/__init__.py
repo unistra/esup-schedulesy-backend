@@ -132,7 +132,6 @@ def test():
         'rabbitmq_password': "RABBITMQ_PASSWORD",
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
-        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
     env.rabbitmq_server = env.socket_host
     execute(build_env)
@@ -179,7 +178,6 @@ def preprod():
         'rabbitmq_password': "RABBITMQ_PASSWORD",
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
-        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
@@ -226,7 +224,6 @@ def prod():
         'rabbitmq_password': "RABBITMQ_PASSWORD",
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
-        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)

@@ -286,7 +286,7 @@ class ADEWebAPI():
 
         # self.logger.debug("send %s" % hide_dict_values(params))
         start = time.clock()
-        response = requests.get(self.url, params=params)
+        response = requests.get(self.url, params=params, verify=False)
         elapsed_rq = time.clock() - start
 
         response.encoding = 'UTF-8'
