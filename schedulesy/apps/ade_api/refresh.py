@@ -1,10 +1,8 @@
-import json
-import os
 import time
 
 from django.conf import settings
-from django.db.models import Q
-from psycopg2._psycopg import IntegrityError
+from django.db import IntegrityError
+
 from sentry_sdk import capture_exception
 
 from .ade import ADEWebAPI, Config
@@ -175,8 +173,7 @@ class Refresh:
                     try:
                         resource.save()
                     except IntegrityError as error:
-                        # Should not happen
-                        capture_exception(error)
+                        pass
                     indexed_resources[k] = resource
                     nb_created += 1
                 else:
