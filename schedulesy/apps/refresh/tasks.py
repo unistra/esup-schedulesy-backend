@@ -1,9 +1,11 @@
 import json
 import logging
 import uuid
+from json import JSONDecodeError
 
 from celery import shared_task
 from django.db.models import Q
+from sentry_sdk import capture_exception
 from skinos.custom_consumer import CustomConsumer
 
 from schedulesy.apps.ade_api.models import Resource
@@ -47,13 +49,16 @@ def bulldoze():
         refresh_resource.delay(resource.ext_id, batch_size, operation_id)
 
 
-@shared_task()
-def test(body):
-    print("Body : {}\n".format(json.loads(body)))
-
-
 @CustomConsumer.consumer(sync_queue_name(), sync_queue_name() + ".ade", sync_queue_name() + '.ade.*')
-def communications_consumer(body, message):
-    """Communications consumer"""
-    print("{}".format(message))
-    test.delay(body)
+def refresh_resources(body, message):
+    """
+    Awaited resources to refresh
+    :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e", "resources":[26903]}
+    :param message: celery message
+    :return: None
+    """
+    try:
+        print("{}".format(json.loads(body)))
+    except JSONDecodeError as e:
+        logger.error("Content : {}\n{}".format(body, e))
+        capture_exception(e)
