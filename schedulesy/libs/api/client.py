@@ -21,14 +21,14 @@ def get_client(source, middlewares=None, reset=False, suffix='json', name='',
     source = source.upper()
     name = name or source
     # TODO: base_middlewares in settings
-    # base_middlewares = (
-    #     ('ApiKey', {
-    #         'key_name': 'Authorization',
-    #         'key_value': 'Token {}'.format(
-    #             getattr(settings, f'{source}WS_TOKEN'))
-    #     }),
-    # )
-    # middlewares = base_middlewares + (middlewares or ())
+    base_middlewares = (
+        ('ApiKey', {
+            'key_name': 'Authorization',
+            'key_value': 'Token {}'.format(
+                getattr(settings, f'{source}WS_TOKEN'))
+        }),
+    )
+    middlewares = base_middlewares + (middlewares or ())
 
     if source not in _clients:
         client = britney_utils.get_client(
@@ -101,7 +101,8 @@ def get_geolocation(id, **kwargs):
     @format_json
     @check_status('ldap')
     def get_building():
-        return get_client('infocentre').get_building(id=id)
+        return get_client('infocentre').get_building(
+            id=id, fields='geolocation')
 
     id = id or 0
     # Pfff whatever
