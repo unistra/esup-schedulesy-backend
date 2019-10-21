@@ -61,15 +61,15 @@ def refresh_resources(body, message):
     try:
         data = json.loads(body)
         start = time.clock()
-        resources_ids = {}
-        for ext_id in data['events']:
-            resources = Resource.objects.filter(events__events__contains=[{'id': str(ext_id)}])
-            resources_ids = {**resources_ids, **{v.ext_id: v for v in resources}}
-            # logger.debug("found {} for {}".format(len(resources), ext_id))
-        # elapsed = time.clock() - start
-        # logger.debug("Consolidated {}".format(resources_ids.keys()))
-        # logger.debug("Resources : {}".format([x.fields['name'] for x in resources_ids.values()]))
-        # logger.debug("Elapsed time : {}".format(elapsed))
+        query = Q()
+        queries = [Q(events__events__contains=[{'id': str(value)}]) for value in data['events']]
+        for item in queries:
+            query |= item
+        resources = Resource.objects.filter(query)
+        resources_ids = {v.ext_id: v for v in resources}
+        # for ext_id in data['events']:
+        #     resources = Resource.objects.filter(events__events__contains=[{'id': str(ext_id)}])
+        #     resources_ids = {**resources_ids, **{v.ext_id: v for v in resources}}
         batch_size = len(resources_ids)
         for resource_id in resources_ids.keys():
             refresh_resource.delay(resource_id, batch_size, data['operation_id'])
