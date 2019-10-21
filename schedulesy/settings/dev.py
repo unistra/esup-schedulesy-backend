@@ -49,7 +49,10 @@ ALLOWED_HOSTS = [
 
 LOGGING['handlers']['file']['filename'] = environ.get('LOG_DIR',
         normpath(join('/tmp', '%s.log' % SITE_NAME)))
+LOGGING['handlers']['infocentre_file']['filename'] = environ.get('LOG_DIR',
+        normpath(join('/tmp', 'infocentre_%s.log' % SITE_NAME)))
 LOGGING['handlers']['file']['level'] = 'DEBUG'
+LOGGING['handlers']['infocentre_file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
@@ -108,3 +111,11 @@ BROKER_URL = "amqp://{}:{}@{}/".format(
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 MEDIA_ROOT = '/tmp'
+
+
+###############################
+# Weberservices configuration #
+###############################
+
+INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
+INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'

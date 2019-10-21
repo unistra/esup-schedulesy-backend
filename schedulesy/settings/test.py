@@ -39,6 +39,7 @@ ALLOWED_HOSTS = [
 #####################
 
 LOGGING['handlers']['file']['filename'] = '{{ remote_current_path }}/log/app.log'
+LOGGING['handlers']['infocentre_file']['filename'] = '{{ remote_current_path }}/log/infocentre.log'
 
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
@@ -73,6 +74,7 @@ AWS_ACCESS_KEY_ID = '{{ s3_access_key }}'
 AWS_SECRET_ACCESS_KEY = '{{ s3_secret_key }}'
 AWS_STORAGE_BUCKET_NAME = 'schedulesy_test'
 
+
 ##########
 # CELERY #
 ##########
@@ -83,3 +85,11 @@ RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
+
+
+###############################
+# Weberservices configuration #
+###############################
+
+INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
+INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'

@@ -62,6 +62,8 @@ INSTALLED_APPS += [
 
 LOGGING['handlers']['file']['filename'] = environ.get(
     'LOG_DIR', normpath(join('/tmp', f'test_{SITE_NAME}.log')))
+LOGGING['handlers']['infocentre_file']['filename'] = environ.get(
+    'LOG_DIR', normpath(join('/tmp', f'test_infocentre_{SITE_NAME}.log')))
 LOGGING['handlers']['file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:

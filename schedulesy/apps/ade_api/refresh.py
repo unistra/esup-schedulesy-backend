@@ -7,8 +7,9 @@ from django.db.models import Q
 from psycopg2._psycopg import IntegrityError
 from sentry_sdk import capture_exception
 
+from schedulesy.libs.api.client import get_geolocation
+from schedulesy.libs.decorators import MemoizeWithTimeout
 from .ade import ADEWebAPI, Config
-from .decorators import MemoizeWithTimeout
 from .models import Resource, Fingerprint
 
 
@@ -32,7 +33,7 @@ class Flatten:
                 me = None
                 if 'id' in item:
                     me = list(genealogy) if genealogy is not None else []
-                    me.append({'id': item['id'], 'name': item['name']})
+                    me.append({'id': item['id'], 'name': item['name'], 'code': item.get('code', '')})
                 ref = self._flatten(child, me)
                 if ref:
                     children_ref.append(ref)
@@ -49,7 +50,7 @@ class Flatten:
                 if len(children_ref) > 0:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
-            result = {'id': key, 'name': item['name']}
+            result = {'id': key, 'name': item['name'], 'code': item.get('code', '')}
             result['has_children'] = len(children_ref) > 0
             return result
 
@@ -109,6 +110,8 @@ class Refresh:
         events = []
         classrooms = {}
         resources = {}
+        geolocations = {}
+
         if 'children' in data:
             for element in data['children']:
                 element.pop('tag', None)
@@ -126,7 +129,19 @@ class Refresh:
                         if c_name == 'classrooms':
                             if r_id not in classrooms:
                                 classrooms[r_id] = Resource.objects.get(ext_id=r_id)
-                            tmp_r['genealogy'] = [x['name'] for x in classrooms[r_id].fields['genealogy']][1:]
+                            parents = []
+                            geolocation = []
+                            for index, x in enumerate(classrooms[r_id].fields['genealogy']):
+                                parents.append(x['name'])
+                                if index == 2:
+                                    code = x['code']
+                                    geolocation = (
+                                        geolocations.get(code) or
+                                        geolocations.setdefault(
+                                            code, get_geolocation(code)))
+
+                            tmp_r['genealogy'] = parents[1:]
+                            tmp_r['geolocation'] = geolocation
 
                         resources.setdefault(c_name, {})[r_id] = tmp_r
                         local_resources.setdefault(c_name, []).append(r_id)
@@ -238,4 +253,4 @@ def ade_connection():
 
 @MemoizeWithTimeout()
 def ade_resources(category, operation_id='standard'):
-    return ade_connection().getResources(category=category, detail=3, tree=True, hash=True)
+    return ade_connection().getResources(category=category, detail=11, tree=True, hash=True)
