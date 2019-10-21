@@ -2,9 +2,12 @@ from functools import wraps
 import json
 import logging
 
+from britney.errors import SporeMethodCallError, SporeMethodStatusError
 import britney_utils
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
+from schedulesy.libs.decorators import MemoizeWithTimeout
 
 
 _clients = {}
@@ -87,6 +90,7 @@ def format_json(func):
     return wrapper
 
 
+@MemoizeWithTimeout(timeout=3600)
 def get_geolocation(id, **kwargs):
 
     @format_json
@@ -96,7 +100,7 @@ def get_geolocation(id, **kwargs):
 
     id = id or 0
     # Pfff whatever
-    if id.isdigit():
+    if id and(isinstance(id, int) or id.isdigit()):
         # Lame way to check if the resource has an Abyla ID
         return get_building().get('geolocation', [])
     return []
