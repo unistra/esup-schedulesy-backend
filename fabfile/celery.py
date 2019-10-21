@@ -108,3 +108,4 @@ def deploy_celery_file():
 def deploy_backend_celery():
     fabric.api.execute(deploy_celery_file)
     # fabric.api.execute(celery_restart)
+s

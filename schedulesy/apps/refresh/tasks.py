@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 import uuid
 from json import JSONDecodeError
 
@@ -53,12 +54,25 @@ def bulldoze():
 def refresh_resources(body, message):
     """
     Awaited resources to refresh
-    :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e", "resources":[26903]}
+    :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e", "events":[154613, 16011]}
     :param message: celery message
     :return: None
     """
     try:
-        print("{}".format(json.loads(body)))
+        data = json.loads(body)
+        start = time.clock()
+        resources_ids = {}
+        for ext_id in data['events']:
+            resources = Resource.objects.filter(events__events__contains=[{'id': str(ext_id)}])
+            resources_ids = {**resources_ids, **{v.ext_id: v for v in resources}}
+            # logger.debug("found {} for {}".format(len(resources), ext_id))
+        # elapsed = time.clock() - start
+        # logger.debug("Consolidated {}".format(resources_ids.keys()))
+        # logger.debug("Resources : {}".format([x.fields['name'] for x in resources_ids.values()]))
+        # logger.debug("Elapsed time : {}".format(elapsed))
+        batch_size = len(resources_ids)
+        for resource_id in resources_ids.keys():
+            refresh_resource.delay(resource_id, batch_size, data['operation_id'])
     except JSONDecodeError as e:
         logger.error("Content : {}\n{}".format(body, e))
         capture_exception(e)
