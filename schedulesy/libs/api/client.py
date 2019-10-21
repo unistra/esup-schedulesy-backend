@@ -8,6 +8,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from schedulesy.libs.decorators import MemoizeWithTimeout
+from .exceptions import WSError
 
 
 _clients = {}
@@ -75,6 +76,10 @@ def check_status(logger_name=__name__, object_type=''):
                 logger.critical('Expected values: %s',
                                 ', '.join(method_call_error.expected_values))
                 raise WSError(None, message, obj_type)
+            except Exception as exc:
+                message = f'Unexpected error {exc.__class__.__name__} : {exc}'
+                logger.critical(message)
+                raise WSError(None, message, obj_type)
             else:
                 logger.debug(response.request.url)
                 return response
@@ -90,7 +95,7 @@ def format_json(func):
     return wrapper
 
 
-@MemoizeWithTimeout(timeout=3600)
+@MemoizeWithTimeout(timeout=360)
 def get_geolocation(id, **kwargs):
 
     @format_json
@@ -102,5 +107,8 @@ def get_geolocation(id, **kwargs):
     # Pfff whatever
     if id and(isinstance(id, int) or id.isdigit()):
         # Lame way to check if the resource has an Abyla ID
-        return get_building().get('geolocation', [])
+        try:
+            return get_building().get('geolocation', [])
+        except Exception:
+            pass
     return []
