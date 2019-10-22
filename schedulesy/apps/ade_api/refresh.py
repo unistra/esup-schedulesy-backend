@@ -1,3 +1,4 @@
+import logging
 import time
 
 from django.conf import settings
@@ -8,6 +9,8 @@ from sentry_sdk import capture_exception
 from .ade import ADEWebAPI, Config
 from .decorators import MemoizeWithTimeout
 from .models import Resource, Fingerprint
+
+logger = logging.getLogger(__name__)
 
 
 class Flatten:
@@ -67,6 +70,7 @@ class Refresh:
 
     def refresh_resource(self, ext_id, operation_id):
         resource = None
+        logger.debug("{operation_id} / Refreshing resource {ext_id}".format(ext_id=ext_id, operation_id=operation_id))
         try:
             resource = Resource.objects.get(ext_id=ext_id)
             self._simple_resource_refresh(resource, operation_id)
@@ -140,6 +144,7 @@ class Refresh:
             self.refresh_category(r_type)
 
     def refresh_category(self, r_type):
+        logger.debug("Refreshing category {}".format(r_type))
         method = Refresh.METHOD_GET_RESOURCE
 
         tree = ade_resources(r_type)
@@ -201,6 +206,7 @@ class Refresh:
 
     def refresh_event(self, ext_id, activity_id, resources, operation_id):
         # {'instructors': ['2', '3']}>
+        logger.debug("{operation_id} / {activity_id}".format(activity_id=activity_id, operation_id=operation_id))
         old_resources = (
             {str(r.pk): r for r in Resource.objects
              .filter(events__events__contains=[{'id': ext_id}])})
