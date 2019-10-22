@@ -145,7 +145,8 @@ class LocalCustomization(models.Model):
                 e.begin = format_ics_date(
                     f'{event["date"]} {event["endHour"]}')
                 e.duration = float(event['duration'])
-                e.location = ', '.join(format_ics_location(classrooms[cl])
+                if 'classrooms' in event:
+                    e.location = ', '.join(format_ics_location(classrooms[cl])
                                        for cl in event['classrooms'])
                 # e.last_modified = event['lastUpdate']
                 calendar.events.add(e)
