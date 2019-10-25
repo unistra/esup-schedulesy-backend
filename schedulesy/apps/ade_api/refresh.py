@@ -7,7 +7,8 @@ from django.db.models import Q
 from psycopg2._psycopg import IntegrityError
 from sentry_sdk import capture_exception
 
-from schedulesy.libs.api.client import get_geolocation
+from schedulesy.libs.api.client import (
+    get_geolocation, get_geolocations, to_ade_id)
 from schedulesy.libs.decorators import MemoizeWithTimeout
 from .ade import ADEWebAPI, Config
 from .models import Resource, Fingerprint
@@ -110,7 +111,6 @@ class Refresh:
         events = []
         classrooms = {}
         resources = {}
-        geolocations = {}
 
         if 'children' in data:
             for element in data['children']:
@@ -126,22 +126,7 @@ class Refresh:
                         tmp_r = {'name': resource['name']}
 
                         # Adding building to resource
-                        if c_name == 'classrooms':
-                            if r_id not in classrooms:
-                                classrooms[r_id] = Resource.objects.get(ext_id=r_id)
-                            parents = []
-                            geolocation = []
-                            for index, x in enumerate(classrooms[r_id].fields['genealogy']):
-                                parents.append(x['name'])
-                                if index == 2:
-                                    code = x['code']
-                                    geolocation = (
-                                        geolocations.get(code) or
-                                        geolocations.setdefault(
-                                            code, get_geolocation(code)))
-
-                            tmp_r['genealogy'] = parents[1:]
-                            tmp_r['geolocation'] = geolocation
+                        self._add_building(classrooms, r_id, c_name, tmp_r)
 
                         resources.setdefault(c_name, {})[r_id] = tmp_r
                         local_resources.setdefault(c_name, []).append(r_id)
@@ -151,6 +136,22 @@ class Refresh:
                 events.append(element)
         result = {'events': events, **resources}
         return result
+
+    def _add_building(self, classrooms, r_id, c_name, tmp_r, *args, **kwargs):
+        # tmp_r is a reference and should not be reassigned
+        if c_name == 'classrooms':
+            if r_id not in classrooms:
+                classrooms[r_id] = Resource.objects.get(ext_id=r_id)
+            parents = []
+            geolocation = []
+            for index, x in enumerate(classrooms[r_id].fields['genealogy']):
+                parents.append(x['name'])
+                if index >= 2:
+                    code = to_ade_id(x['code'])
+                    geolocation = get_geolocations().get(code, [])
+
+            tmp_r['genealogy'] = parents[1:]
+            tmp_r['geolocation'] = geolocation
 
     def refresh_all(self):
         for r_type in ('classroom', 'instructor', 'trainee', 'category5'):

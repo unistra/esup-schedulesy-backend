@@ -99,17 +99,41 @@ def format_json(func):
 def get_geolocation(id, **kwargs):
 
     @format_json
-    @check_status('ldap')
+    @check_status('infocentre')
     def get_building():
         return get_client('infocentre').get_building(
             id=id, fields='geolocation')
 
-    id = id or 0
+    # FIXME: useful ?
+    # id = id or 0
     # Pfff whatever
-    if id and(isinstance(id, int) or id.isdigit()):
-        # Lame way to check if the resource has an Abyla ID
+    id = to_ade_id(id)
+    if id:
         try:
             return get_building().get('geolocation', [])
         except Exception:
             pass
     return []
+
+
+@MemoizeWithTimeout(timeout=600)
+def get_geolocations(**kwargs):
+    import time
+    print(f'geolocSSS {int(time.time())}')
+
+    @format_json
+    @check_status('infocentre')
+    def get_buildings():
+        return get_client('infocentre').list_buildings(fields='id,geolocation')
+
+    return {b['id']: b['geolocation'] for b in get_buildings()}
+
+
+def to_ade_id(id):
+    # Lame way to check if the resource has an Abyla ID
+    if id:
+        if isinstance(id, int):
+            return id
+        if id.isdigit():
+            return int(id)
+    return None
