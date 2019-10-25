@@ -1,10 +1,11 @@
 import json
+import logging
 import os
 import time
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.db.models import Q
-from psycopg2._psycopg import IntegrityError
 from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import (
@@ -12,6 +13,8 @@ from schedulesy.libs.api.client import (
 from schedulesy.libs.decorators import MemoizeWithTimeout
 from .ade import ADEWebAPI, Config
 from .models import Resource, Fingerprint
+
+logger = logging.getLogger(__name__)
 
 
 class Flatten:
@@ -191,8 +194,7 @@ class Refresh:
                     try:
                         resource.save()
                     except IntegrityError as error:
-                        # Should not happen
-                        capture_exception(error)
+                        logger.warning(error)
                     indexed_resources[k] = resource
                     nb_created += 1
                 else:
