@@ -59,38 +59,40 @@ def generate_ics(r_id):
 def refresh_resources(body, message):
     """
     Awaited resources to refresh. All signals are from ADE sync
-    :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e", "events":[154613, 16011, 69775]}
+    :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e",
+        "events":[{"resources":[1566,2565,2617,21184],"id":"163477"},
+            {"resources":[12410,30964,362,13078],"id":"204538"}]}
     :param message: celery message
     :return: None
     """
     try:
         data = json.loads(body)
         query = Q()
-        queries = [Q(events__events__contains=[{'id': str(value)}]) for value in data['events']]
+        queries = [Q(events__events__contains=[{'id': str(value["id"])}]) for value in data['events']]
         if 'operation_id' not in data:
             operation_id = str(uuid.uuid4())
         else:
             operation_id = data['operation_id']
+        # Getting linked resources in old events
         for item in queries:
             query |= item
         resources = Resource.objects.filter(query)
-        resources_ids = {v.ext_id: v for v in resources}
+        old_resources_ids = [v.ext_id for v in resources]
+        # Getting linked resources in new events
+        resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events']])
         # for ext_id in data['events']:
         #     resources = Resource.objects.filter(events__events__contains=[{'id': str(ext_id)}])
         #     resources_ids = {**resources_ids, **{v.ext_id: v for v in resources}}
         batch_size = len(resources_ids)
-        for resource_id in resources_ids.keys():
-            refresh_resource.delay(resource_id, batch_size, operation_id)
         logger.debug(
             "{operation_id} / Will refresh {batch_size} "
             "resources : {resources_list}".format(
                 operation_id=operation_id,
                 batch_size=batch_size,
-                resources_list=[
-                    x.fields['name'] for x
-                    in
-                    resources_ids.values()]))
-        customizations = LocalCustomization.objects.filter(resources__ext_id__in=resources_ids.keys())
+                resources_list=resources_ids))
+        for resource_id in resources_ids:
+            refresh_resource.delay(resource_id, batch_size, operation_id)
+        customizations = LocalCustomization.objects.filter(resources__ext_id__in=resources_ids)
         logger.debug(
             "{operation_id} / Will refresh {size} customizations".format(
                 operation_id=operation_id,
