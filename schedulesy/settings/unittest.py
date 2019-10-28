@@ -94,3 +94,13 @@ ADE_WEB_API['PROJECT_ID'] = 5
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 MEDIA_URL = '/unittest_media/'
 MEDIA_ROOT = tempfile.mkdtemp()
+
+
+###############################
+# Weberservices configuration #
+###############################
+
+INFOCENTREWS_DESCRIPTION = join(
+    DJANGO_ROOT, 'libs', 'api', 'tests', 'description_infocentre.json')
+INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
+INFOCENTREWS_TOKEN = 'TOK3N'

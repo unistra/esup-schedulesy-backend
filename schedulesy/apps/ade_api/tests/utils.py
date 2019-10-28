@@ -22,7 +22,9 @@ class ResponsesMixin:
 
     def add_default_response(self):
         """ Override to add default response/s for all test runs """
-        raise NotImplementedError
+        # FIXME: abstract
+        # raise NotImplementedError
+        pass
 
 
 class ADEMixin(ResponsesMixin):
@@ -36,7 +38,7 @@ class ADEMixin(ResponsesMixin):
         'category5': 'category5.xml'
     }
 
-    def ws_url(self, url_path='', params=None):
+    def __ws_url(self, url_path='', params=None):
         url_path = f'/{url_path}' if url_path else ''
         params = params or {}
         base_url = settings.ADE_WEB_API['HOST']
@@ -45,10 +47,12 @@ class ADEMixin(ResponsesMixin):
         return url
 
     def add_default_response(self):
+        super().add_default_response()
+
         # Connection
         responses.add(
             responses.GET,
-            self.ws_url(params={
+            self.__ws_url(params={
                 'login': settings.ADE_WEB_API['USER'],
                 'password': settings.ADE_WEB_API['PASSWORD'],
                 'function': 'connect'
@@ -60,7 +64,7 @@ class ADEMixin(ResponsesMixin):
         # Set project
         responses.add(
             responses.GET,
-            self.ws_url(params={
+            self.__ws_url(params={
                 'projectId': settings.ADE_WEB_API['PROJECT_ID'],
                 'function': 'setProject',
                 'sessionId': self.SESSION_ID
@@ -76,7 +80,7 @@ class ADEMixin(ResponsesMixin):
             filename = self.RESOURCES_MOCK[resource]
             responses.add(
                 responses.GET,
-                self.ws_url(params={
+                self.__ws_url(params={
                     'category': resource,
                     'detail': 11,
                     'tree': True,
@@ -92,7 +96,7 @@ class ADEMixin(ResponsesMixin):
     def add_getevents_response(self, resource_id):
         responses.add(
             responses.GET,
-            self.ws_url(params={
+            self.__ws_url(params={
                 'resources': resource_id,
                 'detail': 0,
                 'attribute_filter': Refresh.EVENTS_ATTRIBUTE_FILTERS,
@@ -102,5 +106,25 @@ class ADEMixin(ResponsesMixin):
             body=open(os.path.join(
                 self.FIXTURES_PATH, 'events', f'resource_{resource_id}.xml')
             ).read(),
+            status=200
+        )
+
+
+class InfocentreMixin(ResponsesMixin):
+
+    def __ws_url(self, url_path='', params=None):
+        url_path = f'/{url_path}' if url_path else ''
+        params = params or {}
+        base_url = settings.INFOCENTREWS_BASE_URL
+        query = f'?{urllib.parse.urlencode(params, True)}' if params else ''
+        url = '{base_url}{url_path}{query}'.format(**locals())
+        return url
+
+    def add_default_response(self):
+        super().add_default_response()
+        responses.add(
+            responses.GET,
+            self.__ws_url(url_path='buildings.json'),
+            json=[],
             status=200
         )

@@ -1,7 +1,7 @@
 from django.test import TestCase
 import responses
 
-from .utils import ADEMixin
+from .utils import ADEMixin, InfocentreMixin
 from ..models import Fingerprint, Resource
 from ..refresh import Refresh
 
@@ -126,7 +126,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
             })
 
 
-class RefreshEventTestCase(ADEMixin, TestCase):
+class RefreshEventTestCase(ADEMixin, InfocentreMixin, TestCase):
 
     def setUp(self):
         super().setUp()

@@ -118,8 +118,8 @@ def get_geolocation(id, **kwargs):
 
 @MemoizeWithTimeout(timeout=600)
 def get_geolocations(**kwargs):
-    import time
-    print(f'geolocSSS {int(time.time())}')
+    # import time
+    # print(f'geolocSSS {int(time.time())}')
 
     @format_json
     @check_status('infocentre')
