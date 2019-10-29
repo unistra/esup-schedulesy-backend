@@ -30,6 +30,7 @@ from sentry_sdk import add_breadcrumb
 
 from .exception import ExceptionFactory
 
+logger = logging.getLogger(__name__)
 
 def hide_string(s, char_replace='*'):
     """Returns a string of same length but with '*'"""
@@ -304,6 +305,7 @@ class ADEWebAPI():
 
     def _parse_error(self, element):
         if element.tag == 'error':
+            logger.error(element)
             self.exception_factory.raise_from_xml(element)
 
     def connect(self):
