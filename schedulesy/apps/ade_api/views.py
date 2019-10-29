@@ -1,3 +1,4 @@
+import logging
 import uuid
 from functools import partial
 
@@ -9,6 +10,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
+from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import (
     bulldoze as resource_bulldoze, refresh_all,
     refresh_resource as resource_task)
@@ -18,6 +20,8 @@ from .models import (
 from .serializers import (
     AccessSerializer, AdeConfigSerializer, CalendarSerializer,
     ResourceSerializer)
+
+logger = logging.getLogger(__name__)
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
@@ -40,6 +44,20 @@ def refresh_event(request, ext_id):  # pragma: no cover
     resources = request.GET.get('resources')
     resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
     return JsonResponse({})
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
+def sync_customization(request):
+    customizations = Customization.objects.all()
+    local_customizations = LocalCustomization.objects.all()
+    missing = 0
+    for c in [x for x in customizations if x.username not in [x.username for x in local_customizations]]:
+        try:
+            missing += 1
+            c._sync()
+        except Exception as e:
+            logger.error(e)
+    return JsonResponse({"Created":missing,"Total":len(customizations)})
 
 
 def calendar_export(request, username):

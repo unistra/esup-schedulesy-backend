@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.contrib.postgres.fields import JSONField
@@ -10,6 +11,8 @@ from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
 from .utils import generate_uuid
+
+logger = logging.getLogger(__name__)
 
 
 class Resource(models.Model):
@@ -123,6 +126,7 @@ class LocalCustomization(models.Model):
         return result
 
     def generate_ics_calendar(self):
+        logger.debug("Refreshed ICS for {}".format(self.username))
 
         def format_ics_date(event_date):
             return datetime.strptime(event_date, '%d/%m/%Y %H:%M')
@@ -141,7 +145,8 @@ class LocalCustomization(models.Model):
                 e.begin = format_ics_date(
                     f'{event["date"]} {event["endHour"]}')
                 e.duration = float(event['duration'])
-                e.location = ', '.join(format_ics_location(classrooms[cl])
+                if 'classrooms' in event:
+                    e.location = ', '.join(format_ics_location(classrooms[cl])
                                        for cl in event['classrooms'])
                 # e.last_modified = event['lastUpdate']
                 calendar.events.add(e)

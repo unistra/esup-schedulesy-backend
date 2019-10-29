@@ -1,14 +1,27 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
 import socket
 
 from celery import Celery
-from celery.schedules import crontab
 from kombu import Exchange, Queue
+from skinos.custom_consumer import CustomConsumer
+
+from schedulesy.apps.ade_api.decorators import MemoizeWithTimeout
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'schedulesy.settings.{{ goal }}')
 
 from django.conf import settings
+
+
+@MemoizeWithTimeout()
+def queue_name():
+    suffix = socket.gethostname() if settings.STAGE == 'dev' else ''
+    return 'schedulesy' + suffix
+
+def sync_queue_name():
+    return queue_name() + "_ade"
+
 
 celery_app = Celery(
     settings.CELERY_NAME,
@@ -16,12 +29,12 @@ celery_app = Celery(
     backend=settings.CELERY_RESULT_BACKEND
 )
 
-suffix = socket.gethostname() if settings.STAGE == 'dev' else ''
-
 celery_app.config_from_object('django.conf:settings')
 celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-message_name = 'schedulesy' + suffix
+CustomConsumer.add_exchange(sync_queue_name(), sync_queue_name() + ".*.*")
+
+message_name = queue_name()
 
 exchange = Exchange(message_name, type='topic', durable=False, delivery_mode=1)
 
@@ -40,5 +53,6 @@ celery_app.conf.task_routes = [
             'routing_key': message_name + '.test',
         },
     },
-
 ]
+
+CustomConsumer.build(celery_app)
