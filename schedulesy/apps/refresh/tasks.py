@@ -71,12 +71,29 @@ def refresh_resources(body, message):
             operation_id = str(uuid.uuid4())
         else:
             operation_id = data['operation_id']
+
         # Getting linked resources in old events
+
+        #################### WORKING ####################
         old_resources_ids = set()
         for query in [Q(events__events__contains=[{'id': str(value["id"])}]) for value in data['events']]:
             logger.debug("Searching linked resources for query {}".format(query))
             r_tmp = Resource.objects.filter(query)
             old_resources_ids = old_resources_ids.union([x.ext_id for x in r_tmp])
+        #################################################
+
+        #################### TO TEST ####################
+        # old_resources = Resource.objects.raw(
+        #     """
+        #     SELECT DISTINCT(ade_api_resource.id)
+        #     FROM ade_api_resource,
+        #          jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
+        #     WHERE x.id in %s
+        #     """, params=[[value["id"] for value in data['events']]]
+        # )
+        # old_resources_ids = {r.pk for r in old_resources}
+        #################################################
+
         # Getting linked resources in new events
         resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events']])
         # for ext_id in data['events']:
