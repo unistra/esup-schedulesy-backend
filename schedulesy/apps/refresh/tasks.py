@@ -67,17 +67,16 @@ def refresh_resources(body, message):
     """
     try:
         data = json.loads(body)
-        query = Q()
-        queries = [Q(events__events__contains=[{'id': str(value["id"])}]) for value in data['events']]
         if 'operation_id' not in data:
             operation_id = str(uuid.uuid4())
         else:
             operation_id = data['operation_id']
         # Getting linked resources in old events
-        for item in queries:
-            query |= item
-        resources = Resource.objects.filter(query)
-        old_resources_ids = [v.ext_id for v in resources]
+        old_resources_ids = set()
+        for query in [Q(events__events__contains=[{'id': str(value["id"])}]) for value in data['events']]:
+            logger.debug("Searching linked resources for query {}".format(query))
+            r_tmp = Resource.objects.filter(query)
+            old_resources_ids = old_resources_ids.union([x.ext_id for x in r_tmp])
         # Getting linked resources in new events
         resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events']])
         # for ext_id in data['events']:
