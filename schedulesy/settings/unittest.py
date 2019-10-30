@@ -56,10 +56,6 @@ INSTALLED_APPS += [
 
 LOGGING['handlers']['file']['filename'] = environ.get(
     'LOG_DIR', normpath(join('/tmp', f'test_{SITE_NAME}.log')))
-LOGGING['handlers']['file']['level'] = 'DEBUG'
-
-for logger in LOGGING['loggers']:
-    LOGGING['loggers'][logger]['level'] = 'DEBUG'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 

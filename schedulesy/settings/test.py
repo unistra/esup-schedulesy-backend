@@ -43,6 +43,11 @@ LOGGING['handlers']['file']['filename'] = '{{ remote_current_path }}/log/app.log
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
 
+LOGGING['loggers']['django.db.backends'] = {
+    'handlers': ['console'],
+    'level': 'INFO',
+}
+
 
 ################
 # ADE settings #

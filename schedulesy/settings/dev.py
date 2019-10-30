@@ -54,6 +54,11 @@ LOGGING['handlers']['file']['level'] = 'DEBUG'
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
 
+LOGGING['loggers']['django.db.backends'] = {
+    'handlers': ['console'],
+    'level': 'INFO',
+}
+
 
 ###########################
 # Unit test configuration #
