@@ -24,16 +24,10 @@ DATABASES = {
         'PASSWORD': environ.get('DEFAULT_DB_TEST_PASSWORD', 'schedulesy'),
         'HOST': environ.get('DEFAULT_DB_TEST_HOST', 'postgres'),
         'PORT': environ.get('DEFAULT_DB_TEST_PORT', ''),
-    },
-    'ade': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/tmp/ade.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': ''
     }
 }
+
+DATABASE_ROUTERS = []
 
 ############################
 # Allowed hosts & Security #
@@ -64,10 +58,9 @@ LOGGING['handlers']['file']['filename'] = environ.get(
     'LOG_DIR', normpath(join('/tmp', f'test_{SITE_NAME}.log')))
 LOGGING['handlers']['infocentre_file']['filename'] = environ.get(
     'LOG_DIR', normpath(join('/tmp', f'test_infocentre_{SITE_NAME}.log')))
-LOGGING['handlers']['file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:
-    LOGGING['loggers'][logger]['level'] = 'DEBUG'
+    LOGGING['loggers'][logger]['level'] = 'ERROR'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 

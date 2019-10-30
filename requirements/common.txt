@@ -14,3 +14,4 @@ pytz==2019.2
 ics<0.6
 britney
 britney-utils
+celery-skinos<0.3
