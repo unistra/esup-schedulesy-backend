@@ -3,6 +3,7 @@ import time
 
 from django.conf import settings
 from django.db import IntegrityError
+from pyinstrument import Profiler
 from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import (
@@ -76,19 +77,24 @@ class Refresh:
             resource = Resource.objects.get(ext_id=ext_id)
             self._simple_resource_refresh(resource, operation_id)
         except Resource.DoesNotExist:
-            Fingerprint.objects.update(fingerprint='toRefresh')
+            logger.debug("Didn't find {}".format(ext_id))
+            # Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
 
-        r = self.myade.getEvents(
-            resources=ext_id, detail=0,
-            attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+        try:
+            r = self.myade.getEvents(
+                resources=ext_id, detail=0,
+                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
 
-        if resource is None:
-            resource = Resource.objects.get(ext_id=ext_id)
+            if resource is None:
+                resource = Resource.objects.get(ext_id=ext_id)
 
-        events = self._reformat_events(r['data'])
-        resource.events = events
-        resource.save()
+            events = self._reformat_events(r['data'])
+            resource.events = events
+            resource.save()
+        except Exception as e:
+            logger.error(e)
+
 
     def _simple_resource_refresh(self, resource, operation_id):
         """
