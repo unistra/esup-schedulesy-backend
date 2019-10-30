@@ -296,7 +296,12 @@ class ADEWebAPI():
         add_breadcrumb(category='api', message="{}".format(data))
 
         element = ET.fromstring(data)
-        self._parse_error(element)
+        try:
+            self._parse_error(element)
+        except Exception as e:
+            logger.error("{}".format(params))
+            logger.error("{}".format(data))
+            raise e
 
         if 'hash' in params and params['hash']:
             d_hash = hashlib.md5(data.encode('utf-8')).hexdigest()
@@ -305,7 +310,6 @@ class ADEWebAPI():
 
     def _parse_error(self, element):
         if element.tag == 'error':
-            logger.error(element)
             self.exception_factory.raise_from_xml(element)
 
     def connect(self):
