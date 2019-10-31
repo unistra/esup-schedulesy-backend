@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+import pytz
 
 
 def force_https(uri):
@@ -11,3 +12,7 @@ def force_https(uri):
 
 def generate_uuid():
     return str(uuid.uuid4())
+
+
+def get_ade_timezone():
+    return pytz.timezone(settings.ADE_DEFAULT_TIMEZONE)

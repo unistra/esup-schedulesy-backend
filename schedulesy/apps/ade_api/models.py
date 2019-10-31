@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-import pytz
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
 from django.db import models
@@ -9,9 +9,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
-from .utils import generate_uuid
+from .utils import generate_uuid, get_ade_timezone
 
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -134,10 +133,19 @@ class LocalCustomization(models.Model):
         logger.debug("Refreshed ICS for {}".format(self.username))
 
         def format_ics_date(event_date):
-            return pytz.timezone(settings.DEFAULT_ADE_TIMEZONE).localize(datetime.strptime(event_date, '%d/%m/%Y %H:%M'))
+            return get_ade_timezone().localize(
+                datetime.strptime(event_date, '%d/%m/%Y %H:%M'))
 
         def format_ics_location(classroom):
             return f'{classroom["name"]} ({", ".join(classroom["genealogy"])})'
+
+        def format_geolocation(classrooms):
+            try:
+                # Returns the first geolocation found
+                return next(
+                    v.get('geolocation') for v in classrooms.values())[:2]
+            except Exception:
+                return ()
 
         merged_events = self.events
         events = merged_events.get('events', [])
@@ -149,22 +157,17 @@ class LocalCustomization(models.Model):
                 e.name = event['name']
                 e.begin = format_ics_date(
                     f'{event["date"]} {event["startHour"]}')
-                e.end = e.begin.replace(minutes=+(int(event["duration"]) * settings.DEFAULT_ADE_DURATION))
+                e.end = e.begin.replace(
+                    minutes=+(int(event["duration"]) * settings.ADE_DEFAULT_DURATION))
+                e.geo = format_geolocation(classrooms)
                 if 'classrooms' in event:
                     e.location = ', '.join(format_ics_location(classrooms[cl])
-                                       for cl in event['classrooms'])
+                                           for cl in event['classrooms'])
                 # e.last_modified = event['lastUpdate']
                 calendar.events.add(e)
 
             with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                fh.write("{}".format(calendar))
-
-
-# @receiver(post_save, sender=LocalCustomization)
-# def generate_ics_calendar(sender, **kwargs):
-#     instance = kwargs['instance']
-#     if instance.resources.exists():
-#         instance.generate_ics_calendar()
+                fh.write(str(calendar))
 
 
 class Access(models.Model):
