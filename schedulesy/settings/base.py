@@ -366,6 +366,8 @@ ADE_WEB_API = {
     'PASSWORD': '',
     'HOST': ''
 }
+ADE_DEFAULT_TIMEZONE = 'Europe/Paris'
+ADE_DEFAULT_DURATION = 8
 
 
 ########
@@ -451,9 +453,3 @@ CACHEOPS = {
     'ade_api.*': {'ops': 'all'},
     '*.*': {},
 }
-
-#############
-# Ade dates #
-#############
-DEFAULT_ADE_TIMEZONE = 'Europe/Paris'
-DEFAULT_ADE_DURATION = 8
