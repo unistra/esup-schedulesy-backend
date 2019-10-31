@@ -159,11 +159,17 @@ class LocalCustomization(models.Model):
                     f'{event["date"]} {event["startHour"]}')
                 e.end = e.begin.replace(
                     minutes=+(int(event["duration"]) * settings.ADE_DEFAULT_DURATION))
+                description = ''
+                if 'trainees' in event:
+                    description += '\nFilières : ' + ','.join([merged_events['trainees'][x]['name'] for x in event['trainees']])
+                if 'instructors' in event:
+                    description += '\nIntervenants : ' + ','.join([merged_events['instructors'][x]['name'] for x in event['instructors']])
                 e.geo = format_geolocation(classrooms)
                 if 'classrooms' in event:
                     e.location = ', '.join(format_ics_location(classrooms[cl])
                                            for cl in event['classrooms'])
                 # e.last_modified = event['lastUpdate']
+                e.description = description
                 calendar.events.add(e)
 
             with default_storage.open(self.ics_calendar_filename, 'w') as fh:

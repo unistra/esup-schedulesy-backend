@@ -110,14 +110,6 @@ BROKER_URL = "amqp://{}:{}@{}/".format(
 )
 
 
-###########
-# Storage #
-###########
-
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-MEDIA_ROOT = '/tmp'
-
-
 ###############################
 # Weberservices configuration #
 ###############################
