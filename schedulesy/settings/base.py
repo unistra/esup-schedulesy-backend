@@ -367,7 +367,7 @@ ADE_WEB_API = {
     'HOST': ''
 }
 ADE_DEFAULT_TIMEZONE = 'Europe/Paris'
-ADE_DEFAULT_DURATION = 8
+ADE_DEFAULT_DURATION = 15
 
 
 ########

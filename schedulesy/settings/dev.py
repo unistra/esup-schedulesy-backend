@@ -124,7 +124,7 @@ MEDIA_ROOT = '/tmp'
 
 INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
 INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
-INFOCENTREWS_TOKEN = environ.get('INFOCENTREWS_TOKEN', '{{ infocentrews_token }}')
+INFOCENTREWS_TOKEN = environ.get('INFOCENTREWS_TOKEN')
 
 ######
 # S3 #
