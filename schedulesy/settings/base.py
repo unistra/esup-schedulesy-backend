@@ -432,9 +432,9 @@ BROKER_URL = ""
 ######
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_S3_ENDPOINT_URL = 'https://s3.unistra.fr'
-AWS_S3_FILE_OVERWRITE = False
+AWS_S3_FILE_OVERWRITE = True
 AWS_DEFAULT_ACL = None
+AWS_AUTO_CREATE_BUCKET = True
 
 #########
 # STAGE #
@@ -451,3 +451,9 @@ CACHEOPS = {
     'ade_api.*': {'ops': 'all'},
     '*.*': {},
 }
+
+#############
+# Ade dates #
+#############
+DEFAULT_ADE_TIMEZONE = 'Europe/Paris'
+DEFAULT_ADE_DURATION = 8

@@ -125,3 +125,12 @@ MEDIA_ROOT = '/tmp'
 INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
 INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
 INFOCENTREWS_TOKEN = environ.get('INFOCENTREWS_TOKEN', '{{ infocentrews_token }}')
+
+######
+# S3 #
+######
+
+AWS_S3_ENDPOINT_URL = environ.get('AWS_S3_ENDPOINT_URL')
+AWS_STORAGE_BUCKET_NAME = environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_SECRET_ACCESS_KEY = environ.get('AWS_STORAGE_BUCKET_NAME')

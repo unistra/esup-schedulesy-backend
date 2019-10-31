@@ -1,16 +1,17 @@
 import logging
 from datetime import datetime
 
+import pytz
 from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
 from .utils import generate_uuid
+
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +134,7 @@ class LocalCustomization(models.Model):
         logger.debug("Refreshed ICS for {}".format(self.username))
 
         def format_ics_date(event_date):
-            return datetime.strptime(event_date, '%d/%m/%Y %H:%M')
+            return pytz.timezone(settings.DEFAULT_ADE_TIMEZONE).localize(datetime.strptime(event_date, '%d/%m/%Y %H:%M'))
 
         def format_ics_location(classroom):
             return f'{classroom["name"]} ({", ".join(classroom["genealogy"])})'
@@ -147,8 +148,8 @@ class LocalCustomization(models.Model):
                 e = Event()
                 e.name = event['name']
                 e.begin = format_ics_date(
-                    f'{event["date"]} {event["endHour"]}')
-                e.duration = float(event['duration'])
+                    f'{event["date"]} {event["startHour"]}')
+                e.end = e.begin.replace(minutes=+(int(event["duration"]) * settings.DEFAULT_ADE_DURATION))
                 if 'classrooms' in event:
                     e.location = ', '.join(format_ics_location(classrooms[cl])
                                        for cl in event['classrooms'])

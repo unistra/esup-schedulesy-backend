@@ -74,6 +74,7 @@ sentry_init(STAGE)
 AWS_ACCESS_KEY_ID = '{{ s3_access_key }}'
 AWS_SECRET_ACCESS_KEY = '{{ s3_secret_key }}'
 AWS_STORAGE_BUCKET_NAME = 'schedulesy'
+AWS_S3_ENDPOINT_URL = '{{ s3_endpoint }}'
 
 
 ##########
