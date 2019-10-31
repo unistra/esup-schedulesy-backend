@@ -156,7 +156,7 @@ class LocalCustomization(models.Model):
                 calendar.events.add(e)
 
             with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                fh.writelines(calendar)
+                fh.write("{}".format(calendar))
 
 
 # @receiver(post_save, sender=LocalCustomization)
