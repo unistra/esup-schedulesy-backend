@@ -456,4 +456,4 @@ CACHEOPS = {
 # Ade dates #
 #############
 DEFAULT_ADE_TIMEZONE = 'Europe/Paris'
-DEFAULT_ADE_DURATION = 8
+DEFAULT_ADE_DURATION = 15
