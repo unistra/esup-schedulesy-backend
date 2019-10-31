@@ -301,7 +301,7 @@ class ADEWebAPI():
         except Exception as e:
             logger.error("{}".format(params))
             logger.error("{}".format(data))
-            raise e
+            #raise e
 
         if 'hash' in params and params['hash']:
             d_hash = hashlib.md5(data.encode('utf-8')).hexdigest()

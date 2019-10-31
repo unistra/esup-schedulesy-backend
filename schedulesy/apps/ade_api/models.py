@@ -100,6 +100,10 @@ class LocalCustomization(models.Model):
     def ics_calendar_filename(self):
         return f'{self.username}.ics'
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        self.generate_ics_calendar()
+
     @cached_property
     def events(self):
         """

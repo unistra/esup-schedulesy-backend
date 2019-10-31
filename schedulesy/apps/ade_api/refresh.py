@@ -212,6 +212,9 @@ class Refresh:
                         resource.save()
                         indexed_resources[k] = resource
                         nb_updated += 1
+            # Clean resources
+            for resource in [v for k,v in indexed_resources.items() if k not in test.keys()]:
+                logger.debug("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
             if o_fp:
                 o_fp.fingerprint = n_fp
             else:

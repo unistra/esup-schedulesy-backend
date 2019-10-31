@@ -73,7 +73,7 @@ def refresh_resources(body, message):
             operation_id = data['operation_id']
 
         # Getting linked resources in old events
-        logger.debug("{}".format(list(map(int, (value["id"] for value in data['events'])))))
+        logger.debug("Events to refresh : {}".format(list(map(int, (value["id"] for value in data['events'])))))
         old_resources = Resource.objects.raw(
             """
             SELECT DISTINCT(ade_api_resource.id)
@@ -82,7 +82,19 @@ def refresh_resources(body, message):
             WHERE x.id in %s
             """, params=[tuple(list(map(int, (value["id"] for value in data['events']))))]
         )
-        old_resources_ids = {r.pk for r in old_resources}
+        old_resources_ids = {r.ext_id for r in old_resources}
+
+        logger.debug(
+            "{operation_id} / Will refresh old references for resources "
+            "resources : {resources_list}".format(
+                operation_id=operation_id,
+                resources_list=old_resources_ids))
+
+        logger.debug(
+            "{operation_id} / Will refresh new references for resources "
+            "resources : {resources_list}".format(
+                operation_id=operation_id,
+                resources_list=[value['resources'] for value in data['events']]))
 
         # Getting linked resources in new events
         resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events']])
@@ -90,12 +102,6 @@ def refresh_resources(body, message):
         #     resources = Resource.objects.filter(events__events__contains=[{'id': str(ext_id)}])
         #     resources_ids = {**resources_ids, **{v.ext_id: v for v in resources}}
         batch_size = len(resources_ids)
-        logger.debug(
-            "{operation_id} / Will refresh {batch_size} "
-            "resources : {resources_list}".format(
-                operation_id=operation_id,
-                batch_size=batch_size,
-                resources_list=resources_ids))
         for resource_id in resources_ids:
             refresh_resource.delay(resource_id, batch_size, operation_id)
         customizations = LocalCustomization.objects.filter(resources__ext_id__in=resources_ids)
