@@ -3,7 +3,6 @@ import time
 
 from django.conf import settings
 from django.db import IntegrityError
-from pyinstrument import Profiler
 from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import (
