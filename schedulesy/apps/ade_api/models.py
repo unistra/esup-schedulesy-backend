@@ -153,7 +153,6 @@ class LocalCustomization(models.Model):
             classrooms = merged_events['classrooms']
             calendar = Calendar()
             for event in events:
-                print(event)
                 e = Event()
                 e.name = event['name']
                 e.begin = format_ics_date(
