@@ -96,3 +96,8 @@ BROKER_URL = "amqp://{}:{}@{}/".format(
 INFOCENTREWS_DESCRIPTION = 'https://rest-api.u-strasbg.fr/infocentre/description.json'
 INFOCENTREWS_BASE_URL = 'https://infocentre-ws.u-strasbg.fr'
 INFOCENTREWS_TOKEN = '{{ infocentrews_token }}'
+
+#########
+# Redis #
+#########
+CACHEOPS_REDIS = '{{ redis }}'
