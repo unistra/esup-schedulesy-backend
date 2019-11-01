@@ -238,7 +238,7 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
-#    'cacheops',
+    'cacheops',
 ]
 
 LOCAL_APPS = [
@@ -444,8 +444,9 @@ AWS_AUTO_CREATE_BUCKET = True
 
 STAGE = None
 
-
-CACHEOPS_REDIS = "redis://localhost:6379/1"
+#########
+# Redis #
+#########
 CACHEOPS_DEFAULTS = {
     'timeout': 60*15
 }

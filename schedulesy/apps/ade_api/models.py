@@ -168,7 +168,7 @@ class LocalCustomization(models.Model):
                                        + ','.join([merged_events[key][x]['name'] for x in event[key]])
                 e.geo = format_geolocation(classrooms)
                 if 'classrooms' in event:
-                    e.location = ', '.join(format_ics_location(classrooms[cl])
+                    e.location = ';'.join(format_ics_location(classrooms[cl])
                                            for cl in event['classrooms'])
                 # e.last_modified = event['lastUpdate']
                 e.description = description
