@@ -160,10 +160,12 @@ class LocalCustomization(models.Model):
                 e.end = e.begin.replace(
                     minutes=+(int(event["duration"]) * settings.ADE_DEFAULT_DURATION))
                 description = ''
-                if 'trainees' in event:
-                    description += '\nFilières : ' + ','.join([merged_events['trainees'][x]['name'] for x in event['trainees']])
-                if 'instructors' in event:
-                    description += '\nIntervenants : ' + ','.join([merged_events['instructors'][x]['name'] for x in event['instructors']])
+                for key, display in {'trainees': 'Filières',
+                                     'instructors': 'Intervenants',
+                                     'category5': 'Matières'}.items():
+                    if key in event:
+                        description += f'\n{display} : ' \
+                                       + ','.join([merged_events[key][x]['name'] for x in event[key]])
                 e.geo = format_geolocation(classrooms)
                 if 'classrooms' in event:
                     e.location = ', '.join(format_ics_location(classrooms[cl])
