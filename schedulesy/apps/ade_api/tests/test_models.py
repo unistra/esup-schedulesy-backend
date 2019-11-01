@@ -46,6 +46,8 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
+        # Reload the events cached_property
+        lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media)
 
         self.assertEqual(len(lc.events['events']), 1)
@@ -55,6 +57,8 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
         instructor = Resource.objects.get(ext_id='23390')
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
+        # Reload the events cached_property
+        lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media, instructor)
         data = lc.events
 
@@ -103,6 +107,8 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
+        # Reload the events cached_property
+        lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media)
         lc.generate_ics_calendar()
 
@@ -119,6 +125,8 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
         instructor = Resource.objects.get(ext_id='23390')
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
+        # Reload the events cached_property
+        lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media, instructor)
         lc.generate_ics_calendar()
 

@@ -142,10 +142,10 @@ class LocalCustomization(models.Model):
         def format_geolocation(classrooms):
             try:
                 # Returns the first geolocation found
-                return next(
-                    v.get('geolocation') for v in classrooms.values())[:2]
+                return next(v.get('geolocation')
+                            for v in classrooms.values())[:2]
             except Exception:
-                return ()
+                return None
 
         merged_events = self.events
         events = merged_events.get('events', [])
