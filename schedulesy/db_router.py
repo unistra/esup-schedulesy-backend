@@ -1,4 +1,4 @@
-class DBRouter:
+class DBRouter:  # pragma: no cover
 
     _alias = 'ade_legacy'
 
