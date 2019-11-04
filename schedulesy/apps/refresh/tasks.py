@@ -55,7 +55,7 @@ def generate_ics(r_id):
     lc.generate_ics_calendar()
 
 
-@CustomConsumer.consumer(sync_queue_name(), sync_queue_name() + ".ade", sync_queue_name() + '.ade.*')
+@CustomConsumer.consumer(sync_queue_name(), sync_queue_name(), sync_queue_name() + '.ade.*')
 def refresh_resources(body, message):
     """
     Awaited resources to refresh. All signals are from ADE sync
