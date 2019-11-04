@@ -12,7 +12,7 @@ urlpatterns = [
     path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
     path('sync/', views.sync_customization, name='sync_customization'),
 
-    path('calendar/<str:username>/export', views.calendar_export, name='calendar-export'),
+    path('calendar/<str:uuid>/export', views.calendar_export, name='calendar-export'),
 ]
 
 ws_urlpatterns = [

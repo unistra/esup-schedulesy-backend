@@ -132,3 +132,22 @@ class ResourceDetailTestCase(TestCase):
                 'name': 'Gymnases IUFM COLMAR'
             }
         ])
+
+
+class CalendarExportTestCase(TestCase):
+
+    fixtures = ['tests/resources']
+
+    def test_calendar_export(self):
+        view_url = '/api/calendar/{uuid}/export'
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        access = Access.objects.create(name='testing', customization=lc)
+        # Reload the events cached_property
+        lc = LocalCustomization.objects.get(customization_id='1')
+        lc.resources.add(Resource.objects.get(ext_id='1616'))
+        lc.generate_ics_calendar()
+
+        response = self.client.get(view_url.format(uuid=access.key))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/calendar')

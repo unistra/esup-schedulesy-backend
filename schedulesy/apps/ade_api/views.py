@@ -49,19 +49,19 @@ def refresh_event(request, ext_id):  # pragma: no cover
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def sync_customization(request):
     customizations = Customization.objects.all()
-    local_customizations = LocalCustomization.objects.all()
+    lcl = LocalCustomization.objects.values_list('customization_id', flat=True)
     missing = 0
-    for c in [x for x in customizations if x.username not in [x.username for x in local_customizations]]:
+    for c in (x for x in customizations if x.id not in lcl):
         try:
             missing += 1
             c._sync()
         except Exception as e:
             logger.error(e)
-    return JsonResponse({"Created":missing,"Total":len(customizations)})
+    return JsonResponse({"Created": missing, "Total": len(customizations)})
 
 
-def calendar_export(request, username):
-    lc = get_object_or_404(LocalCustomization, username=username)
+def calendar_export(request, uuid):
+    lc = get_object_or_404(LocalCustomization, accesses__key=uuid)
     try:
         return FileResponse(
             default_storage.open(lc.ics_calendar_filename),
