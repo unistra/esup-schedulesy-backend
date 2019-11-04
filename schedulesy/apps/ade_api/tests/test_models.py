@@ -1,7 +1,5 @@
 import collections
 import os
-import shutil
-from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -74,11 +72,6 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
 
     def setUp(self):
         self.user_owner = User.objects.create_user('owner', password='pass')
-
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
-        super().tearDownClass()
 
     def _assertIcsFields(self, filename, fields):
         with open(filename, 'r') as fh:

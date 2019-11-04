@@ -9,7 +9,7 @@ from schedulesy.apps.ade_legacy.models import Customization
 class CustomizationSerializer(serializers.ModelSerializer):
 
     configuration = serializers.SerializerMethodField()
-    ics_calendar = serializers.SerializerMethodField()
+    # ics_calendar = serializers.SerializerMethodField()
 
     class Meta:
         model = Customization
@@ -33,14 +33,14 @@ class CustomizationSerializer(serializers.ModelSerializer):
         lc = obj.local_customization
         return lc.configuration if lc else {}
 
-    def get_ics_calendar(self, obj):
-        lc = obj.local_customization
-        if lc:
-            request = self.context['request']
-            return '{scheme}://{domain}{filename}'.format(
-                scheme=request.is_secure() and 'https' or 'http',
-                domain=request.get_host(),
-                filename=reverse(
-                    'api:calendar-export', kwargs={'username': lc.username})
-            )
-        return ''
+    # def get_ics_calendar(self, obj):
+    #     lc = obj.local_customization
+    #     if lc:
+    #         request = self.context['request']
+    #         return '{scheme}://{domain}{filename}'.format(
+    #             scheme=request.is_secure() and 'https' or 'http',
+    #             domain=request.get_host(),
+    #             filename=reverse(
+    #                 'api:calendar-export', kwargs={'username': lc.username})
+    #         )
+    #     return ''
