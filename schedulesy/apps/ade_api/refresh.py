@@ -7,7 +7,7 @@ from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import (
     get_geolocations, to_ade_id)
-from schedulesy.libs.decorators import MemoizeWithTimeout
+from schedulesy.libs.decorators import MemoizeWithTimeout, refresh_if_necessary
 from .ade import ADEWebAPI, Config
 from .models import Resource, Fingerprint
 
@@ -69,7 +69,7 @@ class Refresh:
         self.data = {}
         self.myade = ade_connection()
 
-    def refresh_resource(self, ext_id, operation_id):
+    def refresh_single_resource(self, ext_id, operation_id):
         resource = None
         logger.debug("{operation_id} / Refreshing resource {ext_id}".format(ext_id=ext_id, operation_id=operation_id))
         try:
@@ -163,6 +163,7 @@ class Refresh:
         for r_type in ('classroom', 'instructor', 'trainee', 'category5'):
             self.refresh_category(r_type)
 
+    @refresh_if_necessary
     def refresh_category(self, r_type):
         logger.debug("Refreshing category {}".format(r_type))
         method = Refresh.METHOD_GET_RESOURCE
@@ -214,6 +215,7 @@ class Refresh:
             # Clean resources
             for resource in [v for k,v in indexed_resources.items() if k not in test.keys()]:
                 logger.debug("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
+                resource.delete()
             if o_fp:
                 o_fp.fingerprint = n_fp
             else:

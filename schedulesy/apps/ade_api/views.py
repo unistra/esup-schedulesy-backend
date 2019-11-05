@@ -40,7 +40,7 @@ def refresh(request):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_event(request, ext_id):  # pragma: no cover
-# http://localhost:8000/api/refresh/event/1?resources=2&resources=3
+    # http://localhost:8000/api/refresh/event/1?resources=2&resources=3
     resources = request.GET.get('resources')
     resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
     return JsonResponse({})
@@ -57,7 +57,13 @@ def sync_customization(request):
             c._sync()
         except Exception as e:
             logger.error(e)
-    return JsonResponse({"Created":missing,"Total":len(customizations)})
+    for lc in [x for x in local_customizations if x.ext_id not in [x.id for x in customizations]]:
+        try:
+            logger.warning(f'Deleting local customization for {lc.username} (missing matching customization)')
+            lc.delete()
+        except Exception as e:
+            logger.error(e)
+    return JsonResponse({"Created": missing, "Total": len(customizations)})
 
 
 def calendar_export(request, username):
@@ -107,8 +113,8 @@ class AdeConfigDetail(generics.RetrieveAPIView):
 class AccessDelete(generics.DestroyAPIView):
     queryset = Access.objects.all()
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES +
-        [partial(IsOwnerPermission, 'customization__username')]
+            api_settings.DEFAULT_PERMISSION_CLASSES +
+            [partial(IsOwnerPermission, 'customization__username')]
     )
 
     def get_object(self):
@@ -124,8 +130,8 @@ class AccessList(generics.ListCreateAPIView):
     queryset = Access.objects.all()
     serializer_class = AccessSerializer
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES +
-        [partial(IsOwnerPermission, 'customization__username')])
+            api_settings.DEFAULT_PERMISSION_CLASSES +
+            [partial(IsOwnerPermission, 'customization__username')])
 
     def get_queryset(self):
         return self.queryset \
@@ -143,5 +149,5 @@ class CalendarDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = CalendarSerializer
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+            api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     lookup_field = 'username'

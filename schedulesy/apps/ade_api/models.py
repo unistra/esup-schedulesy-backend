@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime
 
 from django.conf import settings
@@ -103,7 +104,8 @@ class LocalCustomization(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
-        self.generate_ics_calendar()
+        import schedulesy.apps.refresh.tasks
+        schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
 
     @cached_property
     def events(self):
@@ -186,6 +188,13 @@ class LocalCustomization(models.Model):
                     fh.write(str(calendar))
             else:
                 logger.error(f'Too much events for {self.username} : {size}')
+                e = Event()
+                e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
+                e.begin = datetime.strptime('01/01/2000 00:00', '%d/%m/%Y %H:%M')
+                e.end = datetime.strptime('01/01/2100 00:00', '%d/%m/%Y %H:%M')
+                calendar.events.add(e)
+                with default_storage.open(self.ics_calendar_filename, 'w') as fh:
+                    fh.write(str(calendar))
 
 
 class Access(models.Model):

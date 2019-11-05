@@ -71,7 +71,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.add_getresources_response()
         self.add_getevents_response(1616)
 
-        self.refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_single_resource(1616, 'op')
 
         # Update the resource
         res_bcd_media = Resource.objects.get(ext_id=1616)
@@ -79,7 +79,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         res_bcd_media.fields['name'] = 'Renamed resource'
         res_bcd_media.save()
 
-        self.refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_single_resource(1616, 'op')
         res_bcd_media = Resource.objects.get(ext_id=1616)
 
         self.assertEqual(res_bcd_media.fields['name'], 'BCD Media')
@@ -89,7 +89,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.add_getresources_response()
         self.add_getevents_response(1616)
 
-        self.refresh.refresh_resource(1616, 'op')
+        self.refresh.refresh_single_resource(1616, 'op')
         res_bcd_media = Resource.objects.get(ext_id=1616)
         events = res_bcd_media.events
 
@@ -106,7 +106,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.add_getresources_response()
         self.add_getevents_response(23390)
 
-        self.refresh.refresh_resource(23390, 'op')
+        self.refresh.refresh_single_resource(23390, 'op')
         instructor = Resource.objects.get(ext_id=23390)
         events = instructor.events
 
