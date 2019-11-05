@@ -9,6 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
+from schedulesy.libs.decorators import MemoizeWithTimeout
 from .utils import generate_uuid, get_ade_timezone
 
 
@@ -132,6 +133,7 @@ class LocalCustomization(models.Model):
     def generate_ics_calendar(self):
         logger.debug("Refreshed ICS for {}".format(self.username))
 
+        @MemoizeWithTimeout()
         def format_ics_date(event_date):
             return get_ade_timezone().localize(
                 datetime.strptime(event_date, '%d/%m/%Y %H:%M'))
@@ -147,35 +149,43 @@ class LocalCustomization(models.Model):
             except Exception:
                 return None
 
+        @MemoizeWithTimeout()
+        def replace(date, offset):
+            return date.replace(
+                minutes=+(offset * settings.ADE_DEFAULT_DURATION))
+
         merged_events = self.events
         events = merged_events.get('events', [])
         if events:
             classrooms = merged_events['classrooms']
             calendar = Calendar()
-            for event in events:
-                e = Event()
-                e.name = event['name']
-                e.begin = format_ics_date(
-                    f'{event["date"]} {event["startHour"]}')
-                e.end = e.begin.replace(
-                    minutes=+(int(event["duration"]) * settings.ADE_DEFAULT_DURATION))
-                description = ''
-                for key, display in {'trainees': 'Filières',
-                                     'instructors': 'Intervenants',
-                                     'category5': 'Matières'}.items():
-                    if key in event:
-                        description += f'\n{display} : ' \
-                                       + ','.join([merged_events[key][x]['name'] for x in event[key]])
-                e.geo = format_geolocation(classrooms)
-                if 'classrooms' in event:
-                    e.location = ';'.join(format_ics_location(classrooms[cl])
-                                           for cl in event['classrooms'])
-                # e.last_modified = event['lastUpdate']
-                e.description = description
-                calendar.events.add(e)
+            size = len(events)
+            if size < 5000:
+                for event in events:
+                    e = Event()
+                    e.name = event['name']
+                    e.begin = format_ics_date(
+                        f'{event["date"]} {event["startHour"]}')
+                    e.end = replace(e.begin, int(event["duration"]))
+                    description = ''
+                    for key, display in {'trainees': 'Filières',
+                                         'instructors': 'Intervenants',
+                                         'category5': 'Matières'}.items():
+                        if key in event:
+                            description += f'\n{display} : ' \
+                                           + ','.join([merged_events[key][x]['name'] for x in event[key]])
+                    e.geo = format_geolocation(classrooms)
+                    if 'classrooms' in event:
+                        e.location = ';'.join(format_ics_location(classrooms[cl])
+                                               for cl in event['classrooms'])
+                    # e.last_modified = event['lastUpdate']
+                    e.description = description
+                    calendar.events.add(e)
 
-            with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                fh.write(str(calendar))
+                with default_storage.open(self.ics_calendar_filename, 'w') as fh:
+                    fh.write(str(calendar))
+            else:
+                logger.error(f'Too much events for {self.username} : {size}')
 
 
 class Access(models.Model):

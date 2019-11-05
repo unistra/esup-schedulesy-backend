@@ -5,6 +5,7 @@ from json import JSONDecodeError
 
 from celery import shared_task
 from django.db.models import Q
+from pyinstrument import Profiler
 from sentry_sdk import capture_exception
 from skinos.custom_consumer import CustomConsumer
 
