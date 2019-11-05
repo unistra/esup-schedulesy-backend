@@ -4,6 +4,7 @@ from functools import partial
 
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
+from django.db.models.expressions import RawSQL
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -80,7 +81,8 @@ def refresh_resource(request, ext_id):  # pragma: no cover
 
 
 class ResourceDetail(generics.RetrieveAPIView):
-    queryset = Resource.objects.all()
+    queryset = Resource.objects\
+        .annotate(nb_events=RawSQL("jsonb_array_length(events->'events')", ()))
     serializer_class = ResourceSerializer
     permission_classes = (permissions.AllowAny,)
     lookup_field = 'ext_id'
