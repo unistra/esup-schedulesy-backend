@@ -101,8 +101,11 @@ class LocalCustomization(models.Model):
         return f'{self.username}.ics'
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         super().save(*args, **kwargs)
         self.generate_ics_calendar()
+        if is_new:
+            Access.objects.create(name=self.username, customization=self)
 
     @cached_property
     def events(self):
@@ -205,3 +208,11 @@ class Access(models.Model):
 
     def __str__(self):
         return '{0.key} ({0.name})'.format(self)
+
+    @property
+    def is_last_access(self):
+        return not self.customization.accesses.count() > 1
+
+    def delete(self, *args, **kwargs):
+        if not self.is_last_access:
+            super().delete(*args, **kwargs)

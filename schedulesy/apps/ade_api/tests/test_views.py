@@ -1,9 +1,11 @@
 import json
 
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 from django.test import TestCase
 
 from ..models import Access, AdeConfig, LocalCustomization, Resource
+from ..views import AccessDeletePermission
 
 
 User = get_user_model()
@@ -35,18 +37,38 @@ class AccessListTestCase(TestCase):
         User.objects.create_user('not-owner', password='pass')
         lc_owner = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
-        lc_not_owner = LocalCustomization.objects.create(
-            customization_id='2', directory_id='43', username='not-owner')
         Access.objects.create(customization=lc_owner, name='access1')
-        Access.objects.create(customization=lc_not_owner, name='access2')
 
         self.client.login(username='owner', password='pass')
         response = self.client.get(self.view_url.format(username='owner'))
         data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]['name'], 'access1')
+        self.assertEqual(len(data), 2)
+        self.assertIn('access1', [d['name'] for d in data])
+        # Defaut access created with LocalCustomization
+        self.assertIn('owner', [d['name'] for d in data])
+
+
+class AccessDeletePermissionTestCase(TestCase):
+
+    def test_authorize_access_deletion(self):
+        request = HttpRequest()
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        access = Access.objects.create(customization=lc, name='access1')
+
+        self.assertTrue(AccessDeletePermission().has_object_permission(
+            request, None, access))
+
+    def test_prevent_last_access_deletion(self):
+        request = HttpRequest()
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        access = lc.accesses.first()
+
+        self.assertFalse(AccessDeletePermission().has_object_permission(
+            request, None, access))
 
 
 class AccessDeleteTestCase(TestCase):
@@ -142,7 +164,7 @@ class CalendarExportTestCase(TestCase):
         view_url = '/api/calendar/{uuid}/export'
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
-        access = Access.objects.create(name='testing', customization=lc)
+        access = lc.accesses.first()
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(Resource.objects.get(ext_id='1616'))
