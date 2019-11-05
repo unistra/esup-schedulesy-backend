@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import AdeConfig, LocalCustomization, Resource
+from ..models import Access, AdeConfig, LocalCustomization, Resource
 
 
 User = get_user_model()
@@ -142,3 +142,26 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
                 ]
             }
         )
+
+
+class AccessTestCase(TestCase):
+
+    def test_is_last_access(self):
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        self.assertTrue(lc.accesses.first().is_last_access)
+
+        Access.objects.create(name='access', customization=lc)
+        self.assertFalse(lc.accesses.first().is_last_access)
+
+    def test_delete(self):
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        access = lc.accesses.first()
+        access.delete()
+        # Can not delete the last access of a customization
+        self.assertTrue(Access.objects.filter(pk=access.pk).exists())
+
+        Access.objects.create(name='access', customization=lc)
+        access.delete()
+        self.assertFalse(Access.objects.filter(pk=access.pk).exists())

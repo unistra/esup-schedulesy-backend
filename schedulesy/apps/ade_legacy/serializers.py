@@ -15,13 +15,13 @@ class CustomizationSerializer(serializers.ModelSerializer):
         model = Customization
         fields = '__all__'
 
-    @staticmethod
-    def validate_resources(value):
-        if value == "":
-            return value
-        if re.search("^([0-9]+)(,[0-9]+)*$", value) is None:
-            raise serializers.ValidationError("Invalid resources format")
-        return value
+    # @staticmethod
+    # def validate_resources(value):
+    #     if value == "":
+    #         return value
+    #     if re.search("^([0-9]+)(,[0-9]+)*$", value) is None:
+    #         raise serializers.ValidationError("Invalid resources format")
+    #     return value
 
     def to_internal_value(self, data):
         d = super().to_internal_value(data)
