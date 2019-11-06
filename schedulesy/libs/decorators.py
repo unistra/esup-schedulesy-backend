@@ -5,10 +5,16 @@ import redis
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+has_redis = 'cacheops' in settings.INSTALLED_APPS
 
 
 def refresh_if_necessary(func):
     def wrapper(*args, **kwargs):
+        # TODO: for unit test, find a better way to test this
+        if not has_redis:
+            func(*args, **kwargs)
+            return
+
         r = redis.Redis(host=settings.CACHEOPS_REDIS_SERVER,
                         port=settings.CACHEOPS_REDIS_PORT,
                         db=settings.CACHEOPS_REDIS_DB)

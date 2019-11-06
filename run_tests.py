@@ -2,6 +2,7 @@
 
 
 import os
+import shutil
 import sys
 
 import django
@@ -29,4 +30,8 @@ if __name__ == '__main__':
     test_runner = TestRunner(pattern='test_*.py', verbosity=2,
                              interactive=True, failfast=False)
     failures = test_runner.run_tests(test_apps)
+
+    # Delete temporary directory
+    shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
     sys.exit(failures)

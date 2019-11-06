@@ -4,8 +4,10 @@ from functools import partial
 
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
+from django.db.models.expressions import RawSQL
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -49,14 +51,15 @@ def refresh_event(request, ext_id):  # pragma: no cover
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def sync_customization(request):
     customizations = Customization.objects.all()
-    local_customizations = LocalCustomization.objects.all()
+    lcl = LocalCustomization.objects.values_list('customization_id', flat=True)
     missing = 0
-    for c in [x for x in customizations if x.username not in [x.username for x in local_customizations]]:
+    for c in (x for x in customizations if x.id not in lcl):
         try:
             missing += 1
             c._sync()
         except Exception as e:
             logger.error(e)
+
     for lc in [x for x in local_customizations if x.ext_id not in [x.id for x in customizations]]:
         try:
             logger.warning(f'Deleting local customization for {lc.username} (missing matching customization)')
@@ -66,8 +69,8 @@ def sync_customization(request):
     return JsonResponse({"Created": missing, "Total": len(customizations)})
 
 
-def calendar_export(request, username):
-    lc = get_object_or_404(LocalCustomization, username=username)
+def calendar_export(request, uuid):
+    lc = get_object_or_404(LocalCustomization, accesses__key=uuid)
     try:
         return FileResponse(
             default_storage.open(lc.ics_calendar_filename),
@@ -85,7 +88,8 @@ def refresh_resource(request, ext_id):  # pragma: no cover
 
 
 class ResourceDetail(generics.RetrieveAPIView):
-    queryset = Resource.objects.all()
+    queryset = Resource.objects\
+        .annotate(nb_events=RawSQL("jsonb_array_length(events->'events')", ()))
     serializer_class = ResourceSerializer
     permission_classes = (permissions.AllowAny,)
     lookup_field = 'ext_id'
@@ -110,11 +114,22 @@ class AdeConfigDetail(generics.RetrieveAPIView):
         return obj
 
 
+class AccessDeletePermission(permissions.BasePermission):
+    """Check permissions for accesses deletion
+    """
+    message = _('A customization must always have at least one access')
+
+    def has_object_permission(self, request, view, obj):
+        return not obj.is_last_access
+
+
 class AccessDelete(generics.DestroyAPIView):
     queryset = Access.objects.all()
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES +
-            [partial(IsOwnerPermission, 'customization__username')]
+        api_settings.DEFAULT_PERMISSION_CLASSES + [
+            partial(IsOwnerPermission, 'customization__username'),
+            AccessDeletePermission
+        ]
     )
 
     def get_object(self):
@@ -123,6 +138,7 @@ class AccessDelete(generics.DestroyAPIView):
             customization__username=self.kwargs['username'],
             key=self.kwargs['key']
         )
+        self.check_object_permissions(self.request, obj)
         return obj
 
 

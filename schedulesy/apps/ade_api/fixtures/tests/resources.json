@@ -29,7 +29,8 @@
             "classrooms": {
                 "1616": {
                     "name": "BCD Media",
-                    "genealogy": ["COL  -SITE COLMAR", "ESPE COLMAR BATIMENT PRINCIPAL"]
+                    "genealogy": ["COL  -SITE COLMAR", "ESPE COLMAR BATIMENT PRINCIPAL"],
+                    "geolocation": [48.072084, 7.352045, 0.0]
                 }
             },
             "instructors": {"23390": {"name": "Gerard Toto"}}
@@ -85,7 +86,8 @@
             "classrooms": {
                 "1616": {
                     "name": "BCD Media",
-                    "genealogy": ["COL  -SITE COLMAR", "ESPE COLMAR BATIMENT PRINCIPAL"]
+                    "genealogy": ["COL  -SITE COLMAR", "ESPE COLMAR BATIMENT PRINCIPAL"],
+                    "geolocation": [48.072084, 7.352045, 0.0]
                 },
                 "2491": {
                     "name": "A1.13 Informatique So (A1.16)",
