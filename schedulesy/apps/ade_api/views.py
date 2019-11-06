@@ -146,8 +146,8 @@ class AccessList(generics.ListCreateAPIView):
     queryset = Access.objects.all()
     serializer_class = AccessSerializer
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES +
-            [partial(IsOwnerPermission, 'customization__username')])
+        api_settings.DEFAULT_PERMISSION_CLASSES +
+        [partial(IsOwnerPermission, 'customization__username')])
 
     def get_queryset(self):
         return self.queryset \
@@ -165,5 +165,5 @@ class CalendarDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = CalendarSerializer
     permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     lookup_field = 'username'

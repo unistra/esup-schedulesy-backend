@@ -105,8 +105,8 @@ class LocalCustomization(models.Model):
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         super().save(*args, **kwargs)
-        import schedulesy.apps.refresh.tasks
-        schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
+        # import schedulesy.apps.refresh.tasks
+        # schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
         if is_new:
             Access.objects.create(name=self.username, customization=self)
 
@@ -154,10 +154,10 @@ class LocalCustomization(models.Model):
             except Exception:
                 return None
 
-        @MemoizeWithTimeout()
-        def replace(date, offset):
-            return date.replace(
-                minutes=+(offset * settings.ADE_DEFAULT_DURATION))
+        # @MemoizeWithTimeout()
+        # def replace(date, offset):
+        #     return date.replace(
+        #         minutes=+(offset * settings.ADE_DEFAULT_DURATION))
 
         def format_description(resources):
             descriptions = []

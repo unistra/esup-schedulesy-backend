@@ -18,9 +18,9 @@ def refresh_if_necessary(func):
         r = redis.Redis(host=settings.CACHEOPS_REDIS_SERVER,
                         port=settings.CACHEOPS_REDIS_PORT,
                         db=settings.CACHEOPS_REDIS_DB)
-        suffix = args[0] if isinstance(args[0], str) or isinstance(args[0], int) else args[1]
+        suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
         key = f'{func.__name__}-{suffix}'
-        order_time = kwargs['order_time'] if 'order_time' in kwargs else time.time()
+        order_time = kwargs.get('order_time', time.time())
         with r.lock(f'{key}-lock') as lock:
             if not r.exists(key) or float(r.get(key)) < order_time:
                 func(*args, **kwargs)
