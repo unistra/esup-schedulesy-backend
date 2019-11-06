@@ -34,6 +34,15 @@ ALLOWED_HOSTS = [
     '.unistra.fr',
 ]
 
+
+#############################
+# Application configuration #
+#############################
+
+# Deactivate redis for tests
+INSTALLED_APPS.remove('cacheops')
+
+
 #####################
 # Log configuration #
 #####################
