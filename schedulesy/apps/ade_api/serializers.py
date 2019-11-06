@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models.expressions import RawSQL
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -11,21 +12,28 @@ class ResourceSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         fields = obj.fields or {}
         if 'children' in fields:
+            # Get number of events per child
+            children_nb_events = dict(
+                obj.children
+                .annotate(nb_events=RawSQL(
+                    "jsonb_array_length(events->'events')", ()))
+                .values_list('ext_id', 'nb_events'))
+
             for child in fields['children']:
+                child_id = child['id']
                 child['id'] = force_https(reverse(
                     'api:resource',
                     kwargs={
-                        'ext_id': child['id'],
+                        'ext_id': child_id,
                         'format': self.context['format']
                     },
                     request=self.context['request']))
+                nb_events = children_nb_events.get(child_id)
+                child['selectable'] = bool(
+                    nb_events and not nb_events > settings.ADE_MAX_EVENTS)
             new_list = sorted(
                 fields['children'], key=lambda k: k['name'].lower())
             fields['children'] = new_list
-
-        nb_events = obj.nb_events
-        fields['selectable'] = (
-            nb_events and not nb_events > settings.ADE_MAX_EVENTS)
         return fields
 
     class Meta:
