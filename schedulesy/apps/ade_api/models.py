@@ -1,5 +1,6 @@
-import logging
+import collections
 from datetime import datetime, timedelta
+import logging
 import time
 
 from django.conf import settings
@@ -126,13 +127,13 @@ class LocalCustomization(models.Model):
         if len(resources) == 1:
             return resources[0].events or {}
 
-        events = {l['id']: l for l in
-                  (item for sl in get_event_type('events') for item in sl)}
+        events = {item['id']: item
+                  for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
 
         for rt in ('trainees', 'instructors', 'classrooms'):
-            result[rt] = (
-                {k: v for d in get_event_type(rt) for k, v in d.items()})
+            # Merge each resource type
+            result[rt] = collections.ChainMap(*get_event_type(rt))
         return result
 
     def generate_ics_calendar(self):
@@ -154,10 +155,10 @@ class LocalCustomization(models.Model):
             except Exception:
                 return None
 
-        # @MemoizeWithTimeout()
-        # def replace(date, offset):
-        #     return date.replace(
-        #         minutes=+(offset * settings.ADE_DEFAULT_DURATION))
+        @MemoizeWithTimeout()
+        def format_end_date(dt, offset):
+            return dt + timedelta(
+                minutes=(int(offset) * settings.ADE_DEFAULT_DURATION))
 
         def format_description(resources):
             descriptions = []
@@ -171,18 +172,23 @@ class LocalCustomization(models.Model):
                         ','.join([x['name'] for x in resources[key]]))
             return ','.join(descriptions)
 
+        res_list = ('classrooms', 'trainees', 'instructors', 'category5')
         merged_events = self.events
         events = merged_events.get('events', [])
-        res_list = ('classrooms', 'trainees', 'instructors', 'category5')
+        # merged_events = {r: merged_events.get(r, {}) for r in res_list}
         if events:
             calendar = Calendar()
             size = len(events)
 
             if size < settings.ADE_MAX_EVENTS:
                 for event in events:
-                    resources = {r: [v for k, v in merged_events.get(r, {}).items()
-                                 if k in event.get(r)]
-                             for r in res_list if r in event.keys()}
+                    # Keeps generating 5000 events under 1 sec
+                    resources = {}
+                    for r in res_list:
+                        res = [merged_events[r][e] for e in event.get(r, [])]
+                        if res:
+                            resources[r] = res
+
                     classrooms = resources.get('classrooms', ())
                     begin_time = format_ics_date(
                         f'{event["date"]} {event["startHour"]}')
@@ -191,8 +197,7 @@ class LocalCustomization(models.Model):
                     e = Event()
                     e.name = event['name']
                     e.begin = begin_time
-                    e.end = begin_time + timedelta(
-                        minutes=(int(event["duration"]) * settings.ADE_DEFAULT_DURATION))
+                    e.end = format_end_date(begin_time, event['duration'])
                     e.geo = format_geolocation(classrooms)
                     e.location = ';'.join(map(format_ics_location, classrooms))
                     # e.last_modified = event['lastUpdate']
@@ -202,8 +207,8 @@ class LocalCustomization(models.Model):
                 logger.error(f'Too much events for {self.username} : {size}')
                 e = Event()
                 e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
-                e.begin = datetime.strptime('01/01/2000 00:00', '%d/%m/%Y %H:%M')
-                e.end = datetime.strptime('01/01/2100 00:00', '%d/%m/%Y %H:%M')
+                e.begin = format_ics_date('01/01/2000 00:00')
+                e.end = format_ics_date('01/01/2100 00:00')
                 calendar.events.add(e)
 
             with default_storage.open(self.ics_calendar_filename, 'w') as fh:
