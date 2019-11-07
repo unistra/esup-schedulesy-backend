@@ -1,5 +1,6 @@
 import collections
 from datetime import datetime, timedelta
+import hashlib
 import logging
 import time
 
@@ -101,7 +102,13 @@ class LocalCustomization(models.Model):
 
     @property
     def ics_calendar_filename(self):
-        return f'{self.username}.ics'
+        """Generate a filename based on the resources' ids
+        """
+        res = self.resources.order_by('id').values_list('id', flat=True)
+        digest = hashlib.sha1(
+            (','.join(map(str, res))).encode('utf-8')).hexdigest()
+        return f'{digest}.ics'
+        # return f'{self.username}.ics'
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -136,7 +143,7 @@ class LocalCustomization(models.Model):
             result[rt] = collections.ChainMap(*get_event_type(rt))
         return result
 
-    def generate_ics_calendar(self):
+    def generate_ics_calendar(self, filename=''):
         logger.debug(f"Refreshed ICS for {self.username}")
 
         @MemoizeWithTimeout()
@@ -172,17 +179,18 @@ class LocalCustomization(models.Model):
                         ','.join([x['name'] for x in resources[key]]))
             return ','.join(descriptions)
 
-        res_list = ('classrooms', 'trainees', 'instructors', 'category5')
         merged_events = self.events
         events = merged_events.get('events', [])
         # merged_events = {r: merged_events.get(r, {}) for r in res_list}
         if events:
+            filename = filename or self.ics_calendar_filename
+            res_list = ('classrooms', 'trainees', 'instructors', 'category5')
             calendar = Calendar()
             size = len(events)
 
             if size < settings.ADE_MAX_EVENTS:
                 for event in events:
-                    # Keeps generating 5000 events under 1 sec
+                    # Keeps adding 5000 events under 1 sec
                     resources = {}
                     for r in res_list:
                         res = [merged_events[r][e] for e in event.get(r, [])]
@@ -211,8 +219,8 @@ class LocalCustomization(models.Model):
                 e.end = format_ics_date('01/01/2100 00:00')
                 calendar.events.add(e)
 
-            with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                fh.write(str(calendar))
+            with default_storage.open(filename, 'w') as fh:
+                return fh.write(str(calendar))
 
 
 class Access(models.Model):

@@ -71,12 +71,24 @@ def sync_customization(request):
 
 def calendar_export(request, uuid):
     lc = get_object_or_404(LocalCustomization, accesses__key=uuid)
-    try:
+    filename = lc.ics_calendar_filename
+
+    def file_response():
         return FileResponse(
-            default_storage.open(lc.ics_calendar_filename),
+            default_storage.open(filename),
             as_attachment=True,
-            content_type='text/calendar'
-        )
+            content_type='text/calendar',
+            filename=f'{lc.username}.ics')
+
+    try:
+        return file_response()
+    except FileNotFoundError as fnfe:
+        try:
+            # Generate the ICS if it does not exist
+            lc.generate_ics_calendar(filename=filename)
+            return file_response()
+        except Exception as e:
+            raise Http404()
     except Exception:
         raise Http404()
 
