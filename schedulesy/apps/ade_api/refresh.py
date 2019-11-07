@@ -100,18 +100,21 @@ class Refresh:
         :param Resource resource:
         :return:
         """
-        tree = ade_resources(resource.fields['category'], operation_id)
-        ade_data = dict(reversed(list(Flatten(tree['data']).f_data.items())))
-        v = ade_data[resource.ext_id]
-        if resource.fields != v:
-            resource.fields = v
-            # TODO: check if parent are different to prevent useless query ?
-            if "parent" in v:
-                if not resource.parent_id or resource.parent_id != v["parent"]:
-                    resource.parent = Resource.objects.get(ext_id=v["parent"])
-            else:
-                resource.parent = None
-            resource.save()
+        if 'category' in resource.fields:
+            tree = ade_resources(resource.fields['category'], operation_id)
+            ade_data = dict(reversed(list(Flatten(tree['data']).f_data.items())))
+            v = ade_data[resource.ext_id]
+            if resource.fields != v:
+                resource.fields = v
+                # TODO: check if parent are different to prevent useless query ?
+                if "parent" in v:
+                    if not resource.parent_id or resource.parent_id != v["parent"]:
+                        resource.parent = Resource.objects.get(ext_id=v["parent"])
+                else:
+                    resource.parent = None
+                resource.save()
+        else:
+            logger.warning(f'Inconsistent resource {resource.id} : {resource.fields}')
 
     def _reformat_events(self, data):
         events = []

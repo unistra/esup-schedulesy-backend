@@ -18,7 +18,7 @@ def refresh_if_necessary(func):
         with r.lock(f'{key}-lock') as lock:
             if not r.exists(key) or float(r.get(key)) < order_time:
                 func(*args, **kwargs)
-                r.set(key, time.time())
+                r.set(key, time.time(), ex=3600)
             else:
                 logger.debug(f'Prevented useless {key}')
 
