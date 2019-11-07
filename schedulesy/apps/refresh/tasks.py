@@ -113,13 +113,6 @@ def refresh_resources(body, message):
 
         for resource_id in resources_ids:
             refresh_resource.delay(resource_id, batch_size=batch_size, operation_id=operation_id, order_time=time.time())
-        customizations = LocalCustomization.objects.filter(resources__ext_id__in=resources_ids)
-        logger.info(
-            "{operation_id} / Will refresh {size} customizations".format(
-                operation_id=operation_id,
-                size=len(customizations)))
-        for customization in customizations:
-            generate_ics.delay(customization.id, order_time=time.time())
     except JSONDecodeError as e:
         logger.error("Content : {}\n{}".format(body, e))
         capture_exception(e)
