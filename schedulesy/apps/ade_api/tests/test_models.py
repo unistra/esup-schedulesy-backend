@@ -1,14 +1,12 @@
 import collections
 import os
-import shutil
-from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import AdeConfig, LocalCustomization, Resource
+from ..models import Access, AdeConfig, LocalCustomization, Resource
 
 
 User = get_user_model()
@@ -75,11 +73,6 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
     def setUp(self):
         self.user_owner = User.objects.create_user('owner', password='pass')
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
-        super().tearDownClass()
-
     def _assertIcsFields(self, filename, fields):
         with open(filename, 'r') as fh:
             d = collections.defaultdict(list)
@@ -90,10 +83,6 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
                 self.assertListEqual(
                     sorted(e.replace('\\', '') for e in d[k]),
                     sorted(v if isinstance(v, list) else [v]))
-
-    def test_ics_calendar_filename(self):
-        lc = LocalCustomization(username='owner')
-        self.assertEqual(lc.ics_calendar_filename, 'owner.ics')
 
     def test_with_empty_resources(self):
         lc = LocalCustomization.objects.create(
@@ -116,7 +105,9 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
         self._assertIcsFields(
             os.path.join(settings.MEDIA_ROOT, lc.ics_calendar_filename),
             {
-                'LOCATION': 'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)'
+                'LOCATION': 'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)',
+                'DESCRIPTION': 'Filières : M2 Biotechnologie HD,Intervenants : Gerard Toto',
+                'GEO': '48.072084;7.352045'
             }
         )
 
@@ -137,6 +128,36 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
                 'LOCATION': [
                     'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)',
                     'A1.13 Informatique So (A1.16) (SCH  -SITE SCHILTIGHEIM, IUT LOUIS PASTEUR, TP)'
+                ],
+                'DESCRIPTION': [
+                    'Filières : option NEI,Intervenants : Yao Toto',
+                    'Filières : M2 Biotechnologie HD,Intervenants : Gerard Toto'
+                ],
+                'GEO': [
+                    '48.072084;7.352045'
                 ]
             }
         )
+
+
+class AccessTestCase(TestCase):
+
+    def test_is_last_access(self):
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        self.assertTrue(lc.accesses.first().is_last_access)
+
+        Access.objects.create(name='access', customization=lc)
+        self.assertFalse(lc.accesses.first().is_last_access)
+
+    def test_delete(self):
+        lc = LocalCustomization.objects.create(
+            customization_id='1', directory_id='42', username='owner')
+        access = lc.accesses.first()
+        access.delete()
+        # Can not delete the last access of a customization
+        self.assertTrue(Access.objects.filter(pk=access.pk).exists())
+
+        Access.objects.create(name='access', customization=lc)
+        access.delete()
+        self.assertFalse(Access.objects.filter(pk=access.pk).exists())

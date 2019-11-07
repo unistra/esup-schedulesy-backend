@@ -1,6 +1,8 @@
+import collections
+from datetime import datetime, timedelta
+import hashlib
 import logging
 import time
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -100,12 +102,21 @@ class LocalCustomization(models.Model):
 
     @property
     def ics_calendar_filename(self):
-        return f'{self.username}.ics'
+        """Generate a filename based on the resources' ids
+        """
+        res = self.resources.order_by('id').values_list('id', flat=True)
+        digest = hashlib.sha1(
+            (','.join(map(str, res))).encode('utf-8')).hexdigest()
+        return f'{digest}.ics'
+        # return f'{self.username}.ics'
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert, force_update, using, update_fields)
-        import schedulesy.apps.refresh.tasks
-        schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        # import schedulesy.apps.refresh.tasks
+        # schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
+        if is_new:
+            Access.objects.create(name=self.username, customization=self)
 
     @cached_property
     def events(self):
@@ -123,17 +134,17 @@ class LocalCustomization(models.Model):
         if len(resources) == 1:
             return resources[0].events or {}
 
-        events = {l['id']: l for l in
-                  (item for sl in get_event_type('events') for item in sl)}
+        events = {item['id']: item
+                  for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
 
         for rt in ('trainees', 'instructors', 'classrooms'):
-            result[rt] = (
-                {k: v for d in get_event_type(rt) for k, v in d.items()})
+            # Merge each resource type
+            result[rt] = collections.ChainMap(*get_event_type(rt))
         return result
 
-    def generate_ics_calendar(self):
-        logger.debug("Refreshed ICS for {}".format(self.username))
+    def generate_ics_calendar(self, filename=''):
+        logger.debug(f"Refreshed ICS for {self.username}")
 
         @MemoizeWithTimeout()
         def format_ics_date(event_date):
@@ -146,55 +157,70 @@ class LocalCustomization(models.Model):
         def format_geolocation(classrooms):
             try:
                 # Returns the first geolocation found
-                return next(v.get('geolocation')
-                            for v in classrooms.values())[:2]
+                return next(filter(
+                    None, (c.get('geolocation') for c in classrooms)))[:2]
             except Exception:
                 return None
 
         @MemoizeWithTimeout()
-        def replace(date, offset):
-            return date.replace(
-                minutes=+(offset * settings.ADE_DEFAULT_DURATION))
+        def format_end_date(dt, offset):
+            return dt + timedelta(
+                minutes=(int(offset) * settings.ADE_DEFAULT_DURATION))
+
+        def format_description(resources):
+            descriptions = []
+            # TODO: i18n ?
+            for key, display in {'trainees': 'Filières',
+                                 'instructors': 'Intervenants',
+                                 'category5': 'Matières'}.items():
+                if key in resources:
+                    descriptions.append(
+                        f'{display} : ' +
+                        ','.join([x['name'] for x in resources[key]]))
+            return ','.join(descriptions)
 
         merged_events = self.events
         events = merged_events.get('events', [])
+        # merged_events = {r: merged_events.get(r, {}) for r in res_list}
         if events:
-            classrooms = merged_events['classrooms']
+            filename = filename or self.ics_calendar_filename
+            res_list = ('classrooms', 'trainees', 'instructors', 'category5')
             calendar = Calendar()
             size = len(events)
-            if size < 5000:
+
+            if size < settings.ADE_MAX_EVENTS:
                 for event in events:
+                    # Keeps adding 5000 events under 1 sec
+                    resources = {}
+                    for r in res_list:
+                        res = [merged_events[r][e] for e in event.get(r, [])]
+                        if res:
+                            resources[r] = res
+
+                    classrooms = resources.get('classrooms', ())
+                    begin_time = format_ics_date(
+                        f'{event["date"]} {event["startHour"]}')
+
+                    # Genereate ICS event
                     e = Event()
                     e.name = event['name']
-                    e.begin = format_ics_date(
-                        f'{event["date"]} {event["startHour"]}')
-                    e.end = replace(e.begin, int(event["duration"]))
-                    description = ''
-                    for key, display in {'trainees': 'Filières',
-                                         'instructors': 'Intervenants',
-                                         'category5': 'Matières'}.items():
-                        if key in event:
-                            description += f'\n{display} : ' \
-                                           + ','.join([merged_events[key][x]['name'] for x in event[key]])
+                    e.begin = begin_time
+                    e.end = format_end_date(begin_time, event['duration'])
                     e.geo = format_geolocation(classrooms)
-                    if 'classrooms' in event:
-                        e.location = ';'.join(format_ics_location(classrooms[cl])
-                                               for cl in event['classrooms'])
+                    e.location = ';'.join(map(format_ics_location, classrooms))
                     # e.last_modified = event['lastUpdate']
-                    e.description = description
+                    e.description = format_description(resources)
                     calendar.events.add(e)
-
-                with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                    fh.write(str(calendar))
             else:
                 logger.error(f'Too much events for {self.username} : {size}')
                 e = Event()
                 e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
-                e.begin = datetime.strptime('01/01/2000 00:00', '%d/%m/%Y %H:%M')
-                e.end = datetime.strptime('01/01/2100 00:00', '%d/%m/%Y %H:%M')
+                e.begin = format_ics_date('01/01/2000 00:00')
+                e.end = format_ics_date('01/01/2100 00:00')
                 calendar.events.add(e)
-                with default_storage.open(self.ics_calendar_filename, 'w') as fh:
-                    fh.write(str(calendar))
+
+            with default_storage.open(filename, 'w') as fh:
+                return fh.write(str(calendar))
 
 
 class Access(models.Model):
@@ -214,3 +240,11 @@ class Access(models.Model):
 
     def __str__(self):
         return '{0.key} ({0.name})'.format(self)
+
+    @property
+    def is_last_access(self):
+        return not self.customization.accesses.count() > 1
+
+    def delete(self, *args, **kwargs):
+        if not self.is_last_access:
+            super().delete(*args, **kwargs)

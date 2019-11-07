@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -6,6 +7,7 @@ from .utils import force_https
 
 
 class ResourceSerializer(serializers.ModelSerializer):
+
     def to_representation(self, obj):
         fields = obj.fields or {}
         if 'children' in fields:
@@ -20,6 +22,10 @@ class ResourceSerializer(serializers.ModelSerializer):
             new_list = sorted(
                 fields['children'], key=lambda k: k['name'].lower())
             fields['children'] = new_list
+
+        nb_events = obj.nb_events
+        fields['selectable'] = (
+            nb_events and not nb_events > settings.ADE_MAX_EVENTS)
         return fields
 
     class Meta:
