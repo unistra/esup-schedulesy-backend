@@ -30,7 +30,9 @@ class ResourceSerializer(serializers.ModelSerializer):
                     request=self.context['request']))
                 nb_events = children_nb_events.get(child_id)
                 child['selectable'] = bool(
-                    nb_events and not nb_events > settings.ADE_MAX_EVENTS)
+                    obj.parent is not None
+                    and nb_events
+                    and not nb_events > settings.ADE_MAX_EVENTS)
             new_list = sorted(
                 fields['children'], key=lambda k: k['name'].lower())
             fields['children'] = new_list
