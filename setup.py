@@ -30,7 +30,8 @@ def recursive_requirements(requirement_file, libs, links, path=''):
 
 libraries, dependency_links = [], []
 recursive_requirements('requirements.txt', libraries, dependency_links)
-version = __import__('schedulesy').get_version()
+#version = __import__('schedulesy').get_version()
+version="1.1.0-rc"
 
 setup(
     name='schedulesy',
