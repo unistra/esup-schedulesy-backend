@@ -441,6 +441,7 @@ AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=3600',
 }
+ICS_EXPIRATION = 3600
 
 #########
 # STAGE #

@@ -1,7 +1,9 @@
 import logging
+import time
 import uuid
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
 from django.db.models.expressions import RawSQL
@@ -82,7 +84,14 @@ def calendar_export(request, uuid):
     lc = get_object_or_404(LocalCustomization, accesses__key=uuid)
     filename = lc.ics_calendar_filename
 
+    class ExpiredFileError(Exception):
+        pass
+
     def file_response():
+        if not default_storage.exists(filename):
+            raise FileNotFoundError
+        if time.time() - default_storage.get_modified_time(filename).timestamp() > settings.ICS_EXPIRATION:
+            raise ExpiredFileError
         return FileResponse(
             default_storage.open(filename),
             as_attachment=True,
@@ -91,12 +100,13 @@ def calendar_export(request, uuid):
 
     try:
         return file_response()
-    except FileNotFoundError as fnfe:
+    except (FileNotFoundError, OSError, ExpiredFileError):
         try:
             # Generate the ICS if it does not exist
+            logger.debug("Regenerated file")
             lc.generate_ics_calendar(filename=filename)
             return file_response()
-        except Exception as e:
+        except Exception:
             raise Http404()
     except Exception:
         raise Http404()
