@@ -1,7 +1,9 @@
 import logging
+import time
 import uuid
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, JsonResponse
@@ -41,7 +43,7 @@ def refresh(request):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_event(request, ext_id):  # pragma: no cover
-# http://localhost:8000/api/refresh/event/1?resources=2&resources=3
+    # http://localhost:8000/api/refresh/event/1?resources=2&resources=3
     resources = request.GET.get('resources')
     resource_task.delay(ext_id, resources, 1, str(uuid.uuid4()))
     return JsonResponse({})
@@ -49,26 +51,62 @@ def refresh_event(request, ext_id):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def sync_customization(request):
-    customizations = Customization.objects.all()
+    customizations = Customization.objects.values_list('id', flat=True)
     lcl = LocalCustomization.objects.values_list('customization_id', flat=True)
-    missing = 0
-    for c in (x for x in customizations if x.id not in lcl):
+
+    deleting = 0
+    for lc in (x for x in lcl if x not in customizations):
         try:
-            missing += 1
-            c._sync()
+            lc = LocalCustomization.objects.get(customization_id=lc)
+            logger.debug(f'Deleting local customization for {lc.username} (missing matching customization)')
+            lc.delete()
+            deleting += 1
         except Exception as e:
             logger.error(e)
-    return JsonResponse({"Created": missing, "Total": len(customizations)})
+
+    missing = 0
+    for c in (x for x in customizations if x not in lcl):
+        try:
+            missing += 1
+            customization = Customization.objects.get(id=c)
+            logger.debug(f'Creating missing mirror {customization.username}')
+            customization._sync()
+        except Exception as e:
+            logger.error(e)
+
+    return JsonResponse({"Created": missing,
+                         "Deleted": deleting,
+                         "Total": len(customizations)})
 
 
 def calendar_export(request, uuid):
     lc = get_object_or_404(LocalCustomization, accesses__key=uuid)
-    try:
+    filename = lc.ics_calendar_filename
+
+    class ExpiredFileError(Exception):
+        pass
+
+    def file_response():
+        if not default_storage.exists(filename):
+            raise FileNotFoundError
+        if time.time() - default_storage.get_modified_time(filename).timestamp() > settings.ICS_EXPIRATION:
+            raise ExpiredFileError
         return FileResponse(
-            default_storage.open(lc.ics_calendar_filename),
+            default_storage.open(filename),
             as_attachment=True,
-            content_type='text/calendar'
-        )
+            content_type='text/calendar',
+            filename=f'{lc.username}.ics')
+
+    try:
+        return file_response()
+    except (FileNotFoundError, OSError, ExpiredFileError):
+        try:
+            # Generate the ICS if it does not exist
+            logger.debug("Regenerated file")
+            lc.generate_ics_calendar(filename=filename)
+            return file_response()
+        except Exception:
+            raise Http404()
     except Exception:
         raise Http404()
 

@@ -84,10 +84,6 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
                     sorted(e.replace('\\', '') for e in d[k]),
                     sorted(v if isinstance(v, list) else [v]))
 
-    def test_ics_calendar_filename(self):
-        lc = LocalCustomization(username='owner')
-        self.assertEqual(lc.ics_calendar_filename, 'owner.ics')
-
     def test_with_empty_resources(self):
         lc = LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')

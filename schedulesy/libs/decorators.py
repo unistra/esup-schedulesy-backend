@@ -1,4 +1,34 @@
+import logging
 import time
+
+import redis
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+has_redis = 'cacheops' in settings.INSTALLED_APPS
+
+
+def refresh_if_necessary(func):
+    def wrapper(*args, **kwargs):
+        # TODO: for unit test, find a better way to test this
+        if not has_redis:
+            func(*args, **kwargs)
+            return
+
+        r = redis.Redis(host=settings.CACHEOPS_REDIS_SERVER,
+                        port=settings.CACHEOPS_REDIS_PORT,
+                        db=settings.CACHEOPS_REDIS_DB)
+        suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
+        key = f'{func.__name__}-{suffix}'
+        order_time = kwargs.get('order_time', time.time())
+        with r.lock(f'{key}-lock', timeout=300) as lock:
+            if not r.exists(key) or float(r.get(key)) < order_time:
+                func(*args, **kwargs)
+                r.set(key, time.time(), ex=3600)
+            else:
+                logger.debug(f'Prevented useless {key}')
+
+    return wrapper
 
 
 class MemoizeWithTimeout(object):
@@ -36,5 +66,6 @@ class MemoizeWithTimeout(object):
                 v = cache[key] = result
                 self._caches[f] = cache
             return v[0]
+
         func.func_name = f.__name__
         return func
