@@ -7,7 +7,7 @@ import time
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
-from django.db import models
+from django.db import connection, models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
@@ -221,6 +221,25 @@ class LocalCustomization(models.Model):
 
             with default_storage.open(filename, 'w') as fh:
                 return fh.write(str(calendar))
+
+    @cached_property
+    def events_ids(self):
+        """Fast way to get all the events' ids for a customization
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT distinct(x.id)
+                FROM ade_api_resource,
+                     ade_api_localcustomization_resources,
+                     jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
+                WHERE ade_api_resource.id = ade_api_localcustomization_resources.resource_id
+                      AND ade_api_localcustomization_resources.localcustomization_id = %s
+                ORDER BY x.id
+                """, params=[self.pk]
+            )
+            row = [r[0] for r in cursor.fetchall()]
+        return row
 
 
 class Access(models.Model):

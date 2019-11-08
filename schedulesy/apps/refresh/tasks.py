@@ -99,7 +99,7 @@ def refresh_resources(body, message):
             FROM ade_api_resource,
             jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
             WHERE x.id in %s
-            """, params=[tuple(list(map(int, (value["id"] for value in data['events']))))]
+            """, params=[tuple(map(int, (value["id"] for value in data['events'])))]
         )
         old_resources_ids = {r.ext_id for r in old_resources}
         # Getting linked resources in new events

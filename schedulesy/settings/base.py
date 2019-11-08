@@ -438,6 +438,9 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_S3_FILE_OVERWRITE = True
 AWS_DEFAULT_ACL = None
 AWS_AUTO_CREATE_BUCKET = True
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=3600',
+}
 
 #########
 # STAGE #
