@@ -6,9 +6,9 @@ from celery import Celery
 from kombu import Exchange, Queue
 from skinos.custom_consumer import CustomConsumer
 
-from schedulesy.libs.decorators import MemoizeWithTimeout
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'schedulesy.settings.{{ goal }}')
+
+from schedulesy.libs.decorators import MemoizeWithTimeout
 
 from django.conf import settings
 
