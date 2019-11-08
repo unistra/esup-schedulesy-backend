@@ -50,23 +50,32 @@ def refresh_event(request, ext_id):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def sync_customization(request):
-    customizations = Customization.objects.all()
+    customizations = Customization.objects.values_list('id', flat=True)
     lcl = LocalCustomization.objects.values_list('customization_id', flat=True)
-    missing = 0
-    for c in (x for x in customizations if x.id not in lcl):
+
+    deleting = 0
+    for lc in (x for x in lcl if x not in customizations):
         try:
-            missing += 1
-            c._sync()
+            lc = LocalCustomization.objects.get(customization_id=lc)
+            logger.debug(f'Deleting local customization for {lc.username} (missing matching customization)')
+            lc.delete()
+            deleting += 1
         except Exception as e:
             logger.error(e)
 
-    for lc in [x for x in local_customizations if x.ext_id not in [x.id for x in customizations]]:
+    missing = 0
+    for c in (x for x in customizations if x not in lcl):
         try:
-            logger.warning(f'Deleting local customization for {lc.username} (missing matching customization)')
-            lc.delete()
+            missing += 1
+            customization = Customization.objects.get(id=c)
+            logger.debug(f'Creating missing mirror {customization.username}')
+            customization._sync()
         except Exception as e:
             logger.error(e)
-    return JsonResponse({"Created": missing, "Total": len(customizations)})
+
+    return JsonResponse({"Created": missing,
+                         "Deleted": deleting,
+                         "Total": len(customizations)})
 
 
 def calendar_export(request, uuid):
