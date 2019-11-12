@@ -1,3 +1,5 @@
+import pprint
+
 import boto3
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -6,6 +8,8 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+        pp = pprint.PrettyPrinter(indent=4)
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
         client = boto3.client(
             's3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -14,7 +18,7 @@ class Command(BaseCommand):
         )
 
         client.put_bucket_lifecycle_configuration(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Bucket=bucket,
             LifecycleConfiguration={
                 'Rules': [
                     {
@@ -28,3 +32,7 @@ class Command(BaseCommand):
                 ]
             }
         )
+
+        print(f'{bucket} rules :')
+        pp.pprint(
+            client.get_bucket_lifecycle_configuration(Bucket=bucket)['Rules'])
