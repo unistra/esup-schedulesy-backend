@@ -143,15 +143,18 @@ class ResourceDetailTestCase(TestCase):
             {
                 'has_children': True,
                 'id': 'https://testserver/api/resource/30623.json/',
-                'name': 'ESPE COLMAR AILE JOFFRE'
+                'name': 'ESPE COLMAR AILE JOFFRE',
+                'selectable': False,
             }, {
                 'has_children': True,
                 'id': 'https://testserver/api/resource/30628.json/',
-                'name': 'ESPE COLMAR BATIMENT PRINCIPAL'
+                'name': 'ESPE COLMAR BATIMENT PRINCIPAL',
+                'selectable': False,
             }, {
                 'has_children': True,
                 'id': 'https://testserver/api/resource/30715.json/',
-                'name': 'Gymnases IUFM COLMAR'
+                'name': 'Gymnases IUFM COLMAR',
+                'selectable': False,
             }
         ])
 
