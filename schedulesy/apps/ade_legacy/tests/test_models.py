@@ -6,6 +6,8 @@ from ..models import Customization
 
 class CustomizationModelTestCase(TestCase):
 
+    databases = '__all__'
+
     def tearDown(self):
         super().tearDown()
         Customization.objects.all().delete()

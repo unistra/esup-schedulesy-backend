@@ -11,6 +11,8 @@ User = get_user_model()
 
 class CustomizationListTestCase(TestCase):
 
+    databases = '__all__'
+
     def setUp(self):
         self.view_url = '/legacy/customization.json'
 
