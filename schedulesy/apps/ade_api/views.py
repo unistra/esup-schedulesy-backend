@@ -91,11 +91,13 @@ def calendar_export(request, uuid):
             raise FileNotFoundError
         if time.time() - default_storage.get_modified_time(filename).timestamp() > settings.ICS_EXPIRATION:
             raise ExpiredFileError
-        return FileResponse(
+        response = FileResponse(
             default_storage.open(filename),
             as_attachment=True,
             content_type='text/calendar',
             filename=f'{lc.username}.ics')
+        response.setdefault('Content-Length', default_storage.size(filename))
+        return response
 
     try:
         return file_response()

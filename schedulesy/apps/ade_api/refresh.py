@@ -100,7 +100,7 @@ class Refresh:
         :param Resource resource:
         :return:
         """
-        if 'category' in resource.fields:
+        if resource.fields is not None and 'category' in resource.fields:
             tree = ade_resources(resource.fields['category'], operation_id)
             ade_data = dict(reversed(list(Flatten(tree['data']).f_data.items())))
             v = ade_data[resource.ext_id]

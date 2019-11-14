@@ -197,9 +197,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'schedulesy.middleware.StatsMiddleware',
     'django_cas.middleware.CASMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 
@@ -368,7 +370,7 @@ ADE_WEB_API = {
 }
 ADE_DEFAULT_TIMEZONE = 'Europe/Paris'
 ADE_DEFAULT_DURATION = 15
-ADE_MAX_EVENTS = 5000  # Max events per customization
+ADE_MAX_EVENTS = 12000  # Max events per customization
 
 
 ########
