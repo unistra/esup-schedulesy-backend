@@ -1,10 +1,10 @@
-Django<2.3,!=2.2.6
+Django<2.3
 djangorestframework-simplejwt<4.2
 djangorestframework<3.10
 django-cors-headers<2.6
 psycopg2-binary<2.9
 sentry-sdk<0.12
--e git+https://github.com/unistra/django-cas.git@99516583dad3b5cab6b3f7f7aa6d454ad363ba3b#egg=django-cas-sso
+django-cas-sso<1.1.9
 celery<4.4
 django-storages[boto3]<1.8
 cryptography<2.8
