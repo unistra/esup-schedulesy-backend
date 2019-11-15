@@ -14,6 +14,7 @@ from django.conf import settings
 
 DEFAULT = '.default'
 CALENDAR = '.ics'
+STATS = '.stats'
 SYNC = '.sync'
 
 
@@ -44,7 +45,8 @@ exchange = Exchange(message_name, type='topic', durable=False, delivery_mode=1)
 
 celery_app.conf.task_queues = (
     Queue(message_name, exchange, routing_key=message_name + DEFAULT),
-    Queue(message_name + CALENDAR, exchange, routing_key=message_name + CALENDAR),
+    #Queue(message_name + CALENDAR, exchange, routing_key=message_name + CALENDAR),
+    Queue(message_name + STATS, exchange, routing_key=message_name + STATS),
 )
 
 celery_app.conf.task_default_queue = message_name
@@ -56,6 +58,10 @@ celery_app.conf.task_routes = [
         'schedulesy.apps.refresh.tasks.generate_ics': {
             'queue': message_name + CALENDAR,
             'routing_key': message_name + CALENDAR,
+        },
+        'schedulesy.apps.ade_api.tasks.stats': {
+            'queue': message_name + STATS,
+            'routing_key': message_name + STATS,
         },
     },
 ]
