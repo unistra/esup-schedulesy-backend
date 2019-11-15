@@ -28,7 +28,7 @@ class StatsMiddleware(object):
         total = time.time() - request.start_time
         size = response.get('Content-Length') if isinstance(response, FileResponse) else len(response.content)
         data = {'application': 'schedulesy',
-                '@timestamp': datetime.now().isoformat(sep='T', timespec='auto'),
+                '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
                 'ip': request.META.get('REMOTE_ADDR'),
                 'path': request.path,
                 'method': request.method,
