@@ -24,7 +24,7 @@ def refresh_all():
     return refresh_agent.data
 
 
-@shared_task(autoretry_for=(KeyError,), default_retry_delay=60)
+@shared_task(autoretry_for=(Exception,), default_retry_delay=60)
 def refresh_resource(ext_id, *args, **kwargs):
     _refresh_resource(ext_id, *args, **kwargs)
 
@@ -42,7 +42,7 @@ def _refresh_resource(ext_id, *args, **kwargs):
     return None
 
 
-@shared_task()
+@shared_task(autoretry_for=(Exception,), default_retry_delay=60)
 def refresh_event(ext_id, activity_id, resources, batch_size, operation_id):
     # TODO improve number of requests with batch size (file with uuid4)
     refresh_agent = Refresh()
@@ -59,18 +59,6 @@ def bulldoze():
     operation_id = str(uuid.uuid4())
     for resource in resources:
         refresh_resource.delay(resource.ext_id, batch_size=batch_size, operation_id=operation_id, order_time=time.time())
-
-
-@shared_task()
-def generate_ics(r_id, order_time):
-    _generate_ics(r_id, order_time)
-
-
-#@refresh_if_necessary
-def _generate_ics(r_id, order_time):
-    #lc = LocalCustomization.objects.get(pk=r_id)
-    #lc.generate_ics_calendar()
-    logger.debug("Ignoring ICS")
 
 
 @CustomConsumer.consumer(sync_queue_name(), sync_queue_name(), sync_queue_name() + '.ade.*')

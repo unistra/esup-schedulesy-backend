@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 has_elasticsearch = 'schedulesy.middleware.StatsMiddleware' in settings.MIDDLEWARE
 
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), default_retry_delay=60)
 def stats(payload):
     if has_elasticsearch:
         es = Elasticsearch([{'host': settings.ELASTIC_SEARCH_SERVER, 'port': settings.ELASTIC_SEARCH_PORT}])
