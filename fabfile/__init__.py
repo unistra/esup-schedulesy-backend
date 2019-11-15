@@ -143,7 +143,7 @@ def preprod():
     """Define preprod stage"""
     env.roledefs = {
         'web': ['django-pprd-w1.u-strasbg.fr', 'django-pprd-w2.u-strasbg.fr'],
-        'lb': ['rp3.u-strasbg.fr'],
+        'lb': ['django-rp-pprd.di.unistra.fr'],
         'celery-worker': ['django-pprd-w1.u-strasbg.fr'],
         'broker': ['rabbitmq-pprd.di.unistra.fr']
     }
@@ -152,7 +152,7 @@ def preprod():
     env.server_name = 'schedulesy-pprd.app.unistra.fr'
     env.short_server_name = 'schedulesy-pprd'
     env.static_folder = '/site_media/'
-    env.server_ip = '130.79.254.28'
+    env.server_ip = '130.79.254.50'
     env.no_shared_sessions = False
     env.server_ssl_on = True
     env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
