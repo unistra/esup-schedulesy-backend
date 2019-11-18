@@ -29,7 +29,7 @@ class StatsMiddleware(object):
         size = response.get('Content-Length') if isinstance(response, FileResponse) else len(response.content)
         data = {'application': 'schedulesy',
                 '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
-                'ip': request.META.get('REMOTE_ADDR'),
+                'ip': StatsMiddleware.get_client_ip(request),
                 'path': request.path,
                 'method': request.method,
                 'server': socket.gethostname(),
@@ -45,3 +45,7 @@ class StatsMiddleware(object):
         except Exception as e:
             logger.error(e)
         return response
+
+    def get_client_ip(request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
