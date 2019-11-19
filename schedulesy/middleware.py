@@ -2,6 +2,7 @@ import json
 import logging
 import socket
 import time
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -26,7 +27,6 @@ class StatsMiddleware(object):
 
     def process_response(self, request, response):
         total = time.time() - request.start_time
-        size = response.get('Content-Length') if isinstance(response, FileResponse) else len(response.content)
         data = {'application': 'schedulesy',
                 '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
                 'ip': StatsMiddleware.get_client_ip(request),
@@ -36,10 +36,10 @@ class StatsMiddleware(object):
                 'http_user_agent': request.META.get('HTTP_USER_AGENT'),
                 'time': total,
                 'status_code': response.status_code,
-                'size': size,
+                'size': response.get('Content-Length') if isinstance(response, FileResponse) else len(response.content),
                 'environment': settings.STAGE,
+                'user': StatsMiddleware.get_user(request)
                 }
-        # Add the header.
         try:
             stats.delay(json.dumps(data))
         except Exception as e:
@@ -49,3 +49,7 @@ class StatsMiddleware(object):
     def get_client_ip(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+
+    def get_user(request):
+        user = request.user.username if request.user.is_authenticated else 'anonymous'
+        return str(uuid.uuid3(uuid.NAMESPACE_DNS, user))
