@@ -112,6 +112,28 @@ Exemple avec l'utilisateur **ade** :
     ALTER TABLE public.w_edtperso
         ALTER COLUMN id SET DEFAULT nextval('public.w_edtperso_id_seq');
 
+Redis
++++++
+
+Un serveur Redis permet d'améliorer les performances pour les utilisateurs finaux.
+
+Voici un exemple avec *Docker*, en mode *Least Frequently Used* pour la gestion de l'espace :
+
+*redis.conf* :
+
+.. code::
+
+    maxmemory 7gb
+    maxmemory-policy allkeys-lru
+
+Dockerfile :
+
+.. code::
+
+    FROM redis
+    COPY redis.conf /usr/local/etc/redis/redis.conf
+    CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
 .. [1]
    Uniquement dans la version poste de travail
 
