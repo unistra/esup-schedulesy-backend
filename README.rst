@@ -134,6 +134,18 @@ Dockerfile :
     COPY redis.conf /usr/local/etc/redis/redis.conf
     CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
 
+Construire l'image Docker :
+
+.. code::
+
+    docker build -t redis_lru .
+
+Lancer le conteneur :
+
+.. code::
+
+    docker run -d -p 6379:6379 --shm-size 7.5g --name schedulesy-redis --rm redis_lru
+
 .. [1]
    Uniquement dans la version poste de travail
 
