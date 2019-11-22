@@ -15,4 +15,4 @@ ics<0.7
 britney
 britney-utils
 celery-skinos<0.3
-elasticsearch==7.1.0
+elasticsearch<7.2

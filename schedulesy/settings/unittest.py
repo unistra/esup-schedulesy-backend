@@ -38,6 +38,13 @@ ALLOWED_HOSTS = [
 ]
 
 
+############################
+# Middleware configuration #
+############################
+
+MIDDLEWARE.remove('schedulesy.middleware.StatsMiddleware')
+
+
 #############################
 # Application configuration #
 #############################
