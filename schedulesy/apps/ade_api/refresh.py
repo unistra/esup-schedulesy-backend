@@ -193,16 +193,27 @@ class Refresh:
             nb_created = 0
             nb_updated = 0
 
+            # Fixes errors
+            for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
+                v = test[resource.ext_id]
+                logger.debug(f'Fixing missing fields for {resource.ext_id}')
+                resource.fields = v
+                if "parent" in v:
+                    resource.parent = indexed_resources[v["parent"]]
+                resource.save()
+                nb_updated += 1
+
             for k, v in test.items():
                 if k not in indexed_resources:
                     # Non existing elements
                     resource = Resource(ext_id=k, fields=v)
+                    logger.debug(f'{k} : {v}')
                     if "parent" in v:
                         resource.parent = indexed_resources[v["parent"]]
                     try:
                         resource.save()
                     except IntegrityError as error:
-                        logger.warning(error)
+                        logger.error(error)
                     indexed_resources[k] = resource
                     nb_created += 1
                 else:
@@ -219,6 +230,7 @@ class Refresh:
             for resource in [v for k,v in indexed_resources.items() if k not in test.keys()]:
                 logger.debug("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
                 resource.delete()
+
             if o_fp:
                 o_fp.fingerprint = n_fp
             else:
