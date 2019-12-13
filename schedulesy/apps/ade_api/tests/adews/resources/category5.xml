@@ -1,0 +1,58 @@
+<tree>
+    <category category="category5">
+        <branch id="19439" name="Iief" path="" category="category5">
+            <branch id="28982" name="Semestre 2" path="Iief." category="category5">
+                <branch id="19286" name="DUEF C1" path="Iief.Semestre 2." category="category5">
+                    <leaf id="36703" name="CO/PO/CE/PE C1 Sc" path="Iief.Semestre 2.DUEF C1." category="category5"/>
+                    <leaf id="36704" name="CO/PO/CE/PE C1 Sd" path="Iief.Semestre 2.DUEF C1." category="category5"/>
+                </branch>
+                <branch id="31930" name="DUEF C2" path="Iief.Semestre 2." category="category5">
+                    <leaf id="36712" name="CO/PO/CE/PE C2 Sb2" path="Iief.Semestre 2.DUEF C2." category="category5"/>
+                    <leaf id="32356" name="CO/PO/CE/PE C2 Sa2" path="Iief.Semestre 2.DUEF C2." category="category5"/>
+                </branch>
+                <branch id="31917" name="DUEF B2" path="Iief.Semestre 2." category="category5">
+                    <leaf id="37753" name="CO/PO/CE/BE B2 sg" path="Iief.Semestre 2.DUEF B2." category="category5"/>
+                    <leaf id="37754" name="CO/PO/CE/PE B2 sa" path="Iief.Semestre 2.DUEF B2." category="category5"/>
+                    <branch id="36741" name="DUEF B2 option" path="Iief.Semestre 2.DUEF B2." category="category5">
+                        <leaf id="19689" name="Le français du luxe et de l&apos;art" path="Iief.Semestre 2.DUEF B2.DUEF B2 option." category="category5"/>
+                        <leaf id="19679" name="Mouvements artistiques" path="Iief.Semestre 2.DUEF B2.DUEF B2 option." category="category5"/>
+                        <leaf id="36796" name="Oeuvres littéraires et leur adapatation au cinéma" path="Iief.Semestre 2.DUEF B2.DUEF B2 option." category="category5"/>
+                    </branch>
+                    <leaf id="37873" name="CO/PO/CE/PE B2 sh" path="Iief.Semestre 2.DUEF B2." category="category5"/>
+                </branch>
+            </branch>
+            <branch id="28981" name="Semestre 1" path="Iief." category="category5">
+                <branch id="29696" name="ERASMUS" path="Iief.Semestre 1." category="category5"/>
+                <branch id="29398" name="DUEF C2" path="Iief.Semestre 1." category="category5"/>
+                <branch id="29332" name="DUEF C1" path="Iief.Semestre 1." category="category5">
+                    <leaf id="24568" name="Légendes et Mystères" path="Iief.Semestre 1.DUEF C1." category="category5"/>
+                    <leaf id="27780" name="Réaliser un film" path="Iief.Semestre 1.DUEF C1." category="category5"/>
+                    <leaf id="24288" name="CO/PO/CE/PE C1 Sb" path="Iief.Semestre 1.DUEF C1." category="category5"/>
+                </branch>
+                <branch id="29060" name="DUEF B2" path="Iief.Semestre 1." category="category5">
+                    <leaf id="29143" name="Examen Société française - Actualités" path="Iief.Semestre 1.DUEF B2." category="category5"/>
+                    <leaf id="24018" name="CO/PO/CE/PE B2 Sg" path="Iief.Semestre 1.DUEF B2." category="category5"/>
+                </branch>
+            </branch>
+        </branch>
+        <branch id="18564" name="Théo catho" path="" category="category5">
+            <branch id="19507" name="4" path="Théo catho." category="category5">
+                <branch id="12236" name="MR2" path="Théo catho.4." category="category5">
+                    <branch id="2274" name="HISTOIRE DU CATHOLICISME EN ALSACE - TC10LM13" path="Théo catho.4.MR2." category="category5"/>
+                    <branch id="2041" name="HISTOIRE DE L&apos;EGLISE ANCIENNE - TC10LM12" path="Théo catho.4.MR2." category="category5"/>
+                </branch>
+            </branch>
+            <branch id="18576" name="A" path="Théo catho." category="category5">
+                <branch id="18577" name="L1" path="Théo catho.A." category="category5">
+                    <branch id="20004" name="Action pastorale - TC351M50" path="Théo catho.A.L1." category="category5"/>
+                    <branch id="19900" name="Stage de capacité - TC201M50" path="Théo catho.A.L1." category="category5"/>
+                </branch>
+                <branch id="12288" name="DU1" path="Théo catho.A." category="category5">
+                    <branch id="2171" name="LIRE LA BIBLE - TC301M12" path="Théo catho.A.DU1." category="category5"/>
+                    <branch id="2078" name="ETRE CHRETIEN - TC321M12" path="Théo catho.A.DU1." category="category5"/>
+                    <branch id="2004" name="INTRODUCTION AU MYSTERE CHRETIEN - TC351M10" path="Théo catho.A.DU1." category="category5"/>
+                </branch>
+            </branch>
+        </branch>
+    </category>
+</tree>

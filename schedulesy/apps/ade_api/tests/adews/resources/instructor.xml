@@ -1,0 +1,19 @@
+<tree>
+    <category category="instructor">
+        <branch id="25190" name="G" path="" category="instructor">
+            <leaf id="23390" name="Gerard Toto" path="G." category="instructor"/>
+            <leaf id="222" name="Gerber Titi" path="G." category="instructor"/>
+            <leaf id="29750" name="Guth Tutu" path="G." category="instructor"/>
+        </branch>
+        <branch id="25240" name="Z" path="" category="instructor">
+            <leaf id="27965" name="Za Toto" path="Z." category="instructor"/>
+            <leaf id="25475" name="Ze Titi" path="Z." category="instructor"/>
+            <leaf id="23465" name="Zu Tutu" path="Z." category="instructor"/>
+        </branch>
+        <branch id="25230" name="Y" path="" category="instructor">
+            <leaf id="26840" name="Yao Toto" path="Y." category="instructor"/>
+            <leaf id="8580" name="Yun Titi" path="Y." category="instructor"/>
+            <leaf id="27795" name="Yang Toto" path="Y." category="instructor"/>
+        </branch>
+    </category>
+</tree>

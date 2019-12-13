@@ -2,3 +2,10 @@
 source = schedulesy/
 omit = schedulesy/settings/*
        schedulesy/wsgi.py
+       */commands/*
+       */migrations/*
+       */tests/*
+       */ade_api/ade.py
+       */ade_api/exception.py
+       */libs/api/*
+       */tasks.py

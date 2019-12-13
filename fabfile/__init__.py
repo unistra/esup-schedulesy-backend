@@ -8,7 +8,9 @@ from os.path import join
 
 import pydiploy
 
-import sentry
+from . import celery
+from . import rabbitmq
+from . import sentry
 
 # edit config here !
 
@@ -31,8 +33,10 @@ env.locale = 'fr_FR.UTF-8'  # locale to use on remote
 env.timezone = 'Europe/Paris'  # timezone for remote
 env.keep_releases = 2  # number of old releases to keep before cleaning
 env.extra_goals = ['preprod']  # add extra goal(s) to defaults (test,dev,prod)
-env.dipstrap_version = 'latest'
 env.verbose_output = False  # True for verbose output
+
+# celery parameters
+env.celery_version = '4.3'
 
 # optional parameters
 
@@ -93,6 +97,8 @@ def test():
     env.roledefs = {
         'web': ['schedulesy-test.app.unistra.fr'],
         'lb': ['schedulesy-test.app.unistra.fr'],
+        'celery-worker': ['schedulesy-test.app.unistra.fr'],
+        'broker': ['django-test2.u-strasbg.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = ['127.0.0.1']
@@ -119,7 +125,16 @@ def test():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
+        's3_access_key': "AWS_ACCESS_KEY_ID",
+        's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
+        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
+    env.rabbitmq_server = env.socket_host
     execute(build_env)
 
 
@@ -127,21 +142,23 @@ def test():
 def preprod():
     """Define preprod stage"""
     env.roledefs = {
-        'web': ['schedulesy-pprd.net'],
-        'lb': ['lb.schedulesy-pprd.net'],
+        'web': ['django-pprd-w1.u-strasbg.fr', 'django-pprd-w2.u-strasbg.fr'],
+        'lb': ['django-rp-pprd.di.unistra.fr'],
+        'celery-worker': ['django-pprd-w1.u-strasbg.fr'],
+        'broker': ['rabbitmq-pprd.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
-    env.server_name = 'schedulesy-pprd.net'
+    env.server_name = 'schedulesy-pprd.app.unistra.fr'
     env.short_server_name = 'schedulesy-pprd'
     env.static_folder = '/site_media/'
-    env.server_ip = ''
+    env.server_ip = '130.79.254.50'
     env.no_shared_sessions = False
     env.server_ssl_on = True
-    env.path_to_cert = '/etc/ssl/certs/schedulesy.net.pem'
-    env.path_to_cert_key = '/etc/ssl/private/schedulesy.net.key'
+    env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
+    env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'preprod'
-    env.socket_port = ''
+    env.socket_port = '8031'
     env.map_settings = {
         'default_db_host': "DATABASES['default']['HOST']",
         'default_db_user': "DATABASES['default']['USER']",
@@ -155,7 +172,16 @@ def preprod():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
+        's3_access_key': "AWS_ACCESS_KEY_ID",
+        's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
+        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
+    env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
 
 
@@ -163,19 +189,21 @@ def preprod():
 def prod():
     """Define prod stage"""
     env.roledefs = {
-        'web': ['schedulesy.net'],
-        'lb': ['lb.schedulesy.net']
+        'web': ['django-w3.u-strasbg.fr', 'django-w4.u-strasbg.fr'],
+        'lb': ['rp10-m.di.unistra.fr', 'rp10-s.di.unistra.fr'],
+        'celery-worker': ['django-w3.u-strasbg.fr'],
+        'broker': ['rabbitmq-prod.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
     env.server_name = 'schedulesy.net'
     env.short_server_name = 'schedulesy'
     env.static_folder = '/site_media/'
-    env.server_ip = ''
+    env.server_ip = '130.79.254.87'
     env.no_shared_sessions = False
     env.server_ssl_on = True
-    env.path_to_cert = '/etc/ssl/certs/schedulesy.net.pem'
-    env.path_to_cert_key = '/etc/ssl/private/schedulesy.net.key'
+    env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
+    env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'prod'
     env.socket_port = ''
     env.map_settings = {
@@ -191,7 +219,16 @@ def prod():
         'ade_ws_user': "ADE_WEB_API['USER']",
         'ade_ws_password': "ADE_WEB_API['PASSWORD']",
         'ade_ws_host': "ADE_WEB_API['HOST']",
+        'ade_ws_project_id': "ADE_WEB_API['PROJECT_ID']",
+        's3_access_key': "AWS_ACCESS_KEY_ID",
+        's3_secret_key': "AWS_SECRET_ACCESS_KEY",
+        'rabbitmq_user': "RABBITMQ_USER",
+        'rabbitmq_password': "RABBITMQ_PASSWORD",
+        'rabbitmq_server': "RABBITMQ_SERVER",
+        'rabbitmq_vhost': "RABBITMQ_VHOST",
+        'infocentrews_token': "INFOCENTREWS_TOKEN",
     }
+    env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
 
 # dont touch after that point if you don't know what you are doing !
@@ -235,6 +272,7 @@ def deploy(update_pkg=False):
     execute(deploy_backend, update_pkg)
     execute(declare_release_to_sentry)
     execute(deploy_frontend)
+    execute(deploy_backend_celery)
 
 
 @roles('web')
@@ -242,6 +280,12 @@ def deploy(update_pkg=False):
 def deploy_backend(update_pkg=False):
     """Deploy code on server"""
     execute(pydiploy.django.deploy_backend, update_pkg)
+
+
+@roles('celery-worker')
+@task
+def deploy_backend_celery():
+    execute(celery.deploy_backend_celery)
 
 
 @roles('lb')
@@ -293,9 +337,11 @@ def reload():
     execute(reload_frontend)
     execute(reload_backend)
 
+
 @task
 def declare_release_to_sentry():
     execute(sentry.declare_release)
+
 
 @roles('lb')
 @task
@@ -328,3 +374,32 @@ def set_up():
 def custom_manage_cmd(cmd):
     """ Execute custom command in manage.py """
     execute(pydiploy.django.custom_manage_command, cmd)
+
+
+# Custom celery commands
+@roles('celery-worker')
+@task
+def install_celery():
+    """Install celery on remote"""
+    execute(celery.install_celery)
+
+
+@roles('broker')
+@task
+def install_rabbitmq():
+    execute(rabbitmq.install)
+    execute(rabbitmq.enable_management)
+
+
+@roles('celery-worker')
+@task
+def celery_start():
+    """Start celery service on remote"""
+    execute(celery.celery_start)
+
+
+@roles('celery-worker')
+@task
+def celery_restart():
+    """Restart celery service on remote"""
+    execute(celery.celery_restart)

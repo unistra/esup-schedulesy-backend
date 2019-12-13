@@ -1,0 +1,20 @@
+stages:
+  - test
+
+services:
+  - postgres:9.5
+
+variables:
+  POSTGRES_DB: schedulesy
+  POSTGRES_USER: schedulesy
+  POSTGRES_PASSWORD: schedulesy
+
+unittest:
+  stage: test
+  tags:
+    - python3.6
+  script:
+    - pip3 install -r requirements/dev.txt
+    - coverage erase
+    - coverage run run_tests.py
+    - coverage report

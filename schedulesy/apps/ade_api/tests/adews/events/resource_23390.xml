@@ -1,0 +1,18 @@
+<events>
+    <event id="191050" activityId="65849" session="0" repetition="3" name="M2 GROUPE C1 INTERC" endHour="12:30" startHour="10:30" date="14/01/2020" absoluteSlot="8690" slot="10" day="1" week="22" additionalResources="0" duration="8" info="" note="" color="102,153,255" isLockPosition="false" lastUpdate="09/23/2019 14:51" creation="09/23/2019 11:42" isLockResources="false" isSoftKeepResources="false">
+        <resources>
+            <resource fromWorkflow="false" nodeId="543958" nodeOrId="543957" quantity="1" category="trainee" name="M2 Biotechnologie HD" id="32291"/>
+            <resource fromWorkflow="false" nodeId="144164" nodeOrId="144117" quantity="1" category="classroom" name="BCD Media" id="1616"/>
+            <resource fromWorkflow="false" nodeId="543169" nodeOrId="543166" quantity="1" category="instructor" name="Gerard Toto" id="23390"/>
+        </resources>
+        <additional/>
+    </event>
+    <event id="187912" activityId="60716" session="0" repetition="0" name="Introduction cours d&apos;informatique de gestion" endHour="14:00" startHour="11:00" date="03/10/2019" absoluteSlot="2924" slot="12" day="3" week="7" additionalResources="0" duration="12" info="" note="" color="255,102,102" isLockPosition="true" lastUpdate="09/27/2019 11:12" creation="09/19/2019 14:56" isLockResources="true" isSoftKeepResources="false">
+        <resources>
+            <resource fromWorkflow="false" nodeId="533760" nodeOrId="-1" quantity="1" category="trainee" name="option NEI" id="23613"/>
+            <resource fromWorkflow="false" nodeId="533729" nodeOrId="533699" quantity="1" category="instructor" name="Yao Toto" id="26840"/>
+            <resource fromWorkflow="false" nodeId="533775" nodeOrId="533765" quantity="1" category="classroom" name="A1.13 Informatique So (A1.16)" id="2491"/>
+        </resources>
+        <additional/>
+    </event>
+</events>

@@ -1,0 +1,30 @@
+<tree>
+    <category category="classroom">
+        <branch id="30622" name="COL  -SITE COLMAR" path="" category="classroom">
+            <branch id="30628" name="ESPE COLMAR BATIMENT PRINCIPAL" path="COL  -SITE COLMAR." category="classroom">
+                <leaf id="1616" name="BCD Media" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL." category="classroom"/>
+                <leaf id="1359" name="209" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL." category="classroom"/>
+            </branch>
+            <branch id="30623" name="ESPE COLMAR AILE JOFFRE" path="COL  -SITE COLMAR." category="classroom">
+                <leaf id="1790" name="Aile Joffre 17 1er" path="COL  -SITE COLMAR.ESPE COLMAR AILE JOFFRE." category="classroom"/>
+                <leaf id="1674" name="Aile Joffre 16 1er" path="COL  -SITE COLMAR.ESPE COLMAR AILE JOFFRE." category="classroom"/>
+            </branch>
+            <branch id="30715" name="Gymnases IUFM COLMAR" path="COL  -SITE COLMAR." category="classroom">
+                <leaf id="2239" name="Gymnase2" path="COL  -SITE COLMAR.Gymnases IUFM COLMAR." category="classroom"/>
+                <leaf id="964" name="Gymnase1" path="COL  -SITE COLMAR.Gymnases IUFM COLMAR." category="classroom"/>
+            </branch>
+        </branch>
+        <branch id="30618" name="SCH  -SITE SCHILTIGHEIM" path="" category="classroom">
+            <branch id="30619" name="IUT LOUIS PASTEUR" path="SCH  -SITE SCHILTIGHEIM." category="classroom">
+                <branch id="30624" name="AMPHI" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR." category="classroom">
+                    <leaf id="8964" name="Amphi 1" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.AMPHI." category="classroom"/>
+                    <leaf id="8962" name="Amphi 4" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.AMPHI." category="classroom"/>
+                </branch>
+                <branch id="30621" name="TP" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR." category="classroom">
+                    <leaf id="8935" name="A0.14 DHPI - Labo" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.TP." category="classroom"/>
+                    <leaf id="2491" name="A1.13 Informatique So (A1.16)" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.TP." category="classroom"/>
+                </branch>
+            </branch>
+        </branch>
+    </category>
+</tree>

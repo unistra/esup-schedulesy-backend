@@ -2,24 +2,36 @@
 
 
 import os
+import shutil
 import sys
 
 import django
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'schedulesy.settings.unittest'
-django.setup()
-
-from django.test.runner import DiscoverRunner
+from django.apps import apps
+from django.conf import settings
+from django.test.utils import get_runner
 
 
-"""
-Run tests script
-"""
+def manage_model(model):
+    model._meta.managed = True
 
-test_runner = DiscoverRunner(pattern='test_*.py', verbosity=2,
+
+if __name__ == '__main__':
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'schedulesy.settings.unittest'
+    django.setup()
+
+    # Set all tested models to "managed = True"
+    for app in settings.LOCAL_APPS:
+        config = apps.get_app_config(app.split('.')[-1])
+        list(map(manage_model, config.get_models()))
+
+    test_apps = ['schedulesy'] if len(sys.argv) <= 1 else sys.argv[1:]
+
+    TestRunner = get_runner(settings)
+    test_runner = TestRunner(pattern='test_*.py', verbosity=2,
                              interactive=True, failfast=False)
+    failures = test_runner.run_tests(test_apps)
 
-test_apps = ['schedulesy']
-test_apps = test_apps if len(sys.argv) <= 1 else sys.argv[1:]
-failures = test_runner.run_tests(test_apps)
-sys.exit(failures)
+    # Delete temporary directory
+    shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    sys.exit(failures)

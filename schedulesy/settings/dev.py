@@ -49,10 +49,18 @@ ALLOWED_HOSTS = [
 
 LOGGING['handlers']['file']['filename'] = environ.get('LOG_DIR',
         normpath(join('/tmp', '%s.log' % SITE_NAME)))
+LOGGING['handlers']['infocentre_file']['filename'] = environ.get('LOG_DIR',
+        normpath(join('/tmp', 'infocentre_%s.log' % SITE_NAME)))
 LOGGING['handlers']['file']['level'] = 'DEBUG'
+LOGGING['handlers']['infocentre_file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'DEBUG'
+
+LOGGING['loggers']['django.db.backends'] = {
+    'handlers': ['console'],
+    'level': 'INFO',
+}
 
 
 ###########################
@@ -63,13 +71,6 @@ INSTALLED_APPS += [
     'coverage',
     'debug_toolbar',
 ]
-
-############
-# Dipstrap #
-############
-
-DIPSTRAP_VERSION = environ.get('DIPSTRAP_VERSION', 'latest')
-DIPSTRAP_STATIC_URL += '%s/' % DIPSTRAP_VERSION
 
 #################
 # Debug toolbar #
@@ -89,3 +90,53 @@ INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
 ADE_WEB_API['USER'] = environ.get('ADE_WS_USER')
 ADE_WEB_API['PASSWORD'] = environ.get('ADE_WS_PASSWORD')
 ADE_WEB_API['HOST'] = environ.get('ADE_WS_HOST')
+ADE_WEB_API['PROJECT_ID'] = environ.get('ADE_PROJECT_ID')
+
+#########
+# STAGE #
+#########
+
+STAGE = 'dev'
+
+##########
+# CELERY #
+##########
+RABBITMQ_USER = environ.get('RABBITMQ_USER')
+RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD')
+RABBITMQ_SERVER = environ.get('RABBITMQ_SERVER')
+RABBITMQ_VHOST = environ.get('RABBITMQ_VHOST')
+BROKER_URL = "amqp://{}:{}@{}/".format(
+    RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
+)
+
+
+###############################
+# Weberservices configuration #
+###############################
+
+INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
+INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
+INFOCENTREWS_TOKEN = environ.get('INFOCENTREWS_TOKEN')
+
+######
+# S3 #
+######
+
+AWS_S3_ENDPOINT_URL = environ.get('AWS_S3_ENDPOINT_URL')
+AWS_STORAGE_BUCKET_NAME = environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
+
+#########
+# Redis #
+#########
+CACHEOPS_REDIS_SERVER = environ.get('REDIS_SERVER')
+CACHEOPS_REDIS_PORT = int(environ.get('REDIS_PORT', 6379))
+CACHEOPS_REDIS_DB = int(environ.get('REDIS_DB', 0))
+CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
+
+#########
+# Stats #
+#########
+ELASTIC_SEARCH_SERVER = environ.get('ELASTIC_SEARCH_SERVER')
+ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT', 9200))

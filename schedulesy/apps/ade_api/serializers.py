@@ -1,21 +1,42 @@
+from django.conf import settings
+from django.db.models.expressions import RawSQL
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from .models import AdeConfig, Resource
+from .models import Access, AdeConfig, LocalCustomization, Resource
+from .utils import force_https
 
 
 class ResourceSerializer(serializers.ModelSerializer):
+
     def to_representation(self, obj):
-        if 'children' in obj.fields:
-            for child in obj.fields['children']:
-                child['id'] = reverse(
+        fields = obj.fields or {}
+        if 'children' in fields:
+            # Get number of events per child
+            children_nb_events = dict(
+                obj.children
+                .annotate(nb_events=RawSQL(
+                    "jsonb_array_length(events->'events')", ()))
+                .values_list('ext_id', 'nb_events'))
+
+            for child in fields['children']:
+                child_id = child['id']
+                child['id'] = force_https(reverse(
                     'api:resource',
                     kwargs={
-                        'ext_id': child['id'],
+                        'ext_id': child_id,
                         'format': self.context['format']
                     },
-                    request=self.context['request'])
-        return obj.fields
+                    request=self.context['request']))
+                nb_events = children_nb_events.get(child_id)
+                child['selectable'] = bool(
+                    obj.parent is not None
+                    and nb_events
+                    and not nb_events > settings.ADE_MAX_EVENTS)
+            new_list = sorted(
+                fields['children'], key=lambda k: k['name'].lower())
+            fields['children'] = new_list
+        return fields
 
     class Meta:
         model = Resource
@@ -30,3 +51,26 @@ class AdeConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdeConfig
+
+
+class AccessSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['customization'] = self.context.get('customization')
+        return super().create(validated_data)
+
+    class Meta:
+        model = Access
+        exclude = ('id',)
+        extra_kwargs = {
+            'customization': {
+                'write_only': True, 'required': False, 'default': ''
+            }
+        }
+
+
+class CalendarSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LocalCustomization
+        fields = ('events',)

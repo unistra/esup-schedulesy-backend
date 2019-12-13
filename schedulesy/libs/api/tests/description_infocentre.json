@@ -1,0 +1,25 @@
+{
+    "name": "Test API",
+    "authority": "Unistra:DI",
+    "base_url": "http://test.unistra.fr",
+    "formats": [
+        "json"
+    ],
+    "version": "1.0.0",
+
+    "methods": {
+        "list_buildings": {
+            "path": "/buildings.:format",
+            "required_params": ["format"],
+            "optional_params": ["fields"],
+            "method": "GET",
+            "authentication": true,
+            "documentation": "Get the list of the buildings"
+        }
+    },
+
+    "meta": {
+        "documentation": "",
+        "authors": "dip unistra"
+    }
+}

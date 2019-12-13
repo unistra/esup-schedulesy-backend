@@ -1,0 +1,43 @@
+<tree>
+    <category category="trainee">
+        <branch id="16991" name="Iep" path="" category="trainee">
+            <branch id="17069" name="MASTER DERE" path="Iep." category="trainee">
+                <leaf id="32717" name="Cours DERE mutualisé Droit" path="Iep.MASTER DERE." category="trainee"/>
+                <leaf id="18527" name="Option DERE" path="Iep.MASTER DERE." category="trainee"/>
+                <leaf id="18526" name="Cours DERE" path="Iep.MASTER DERE." category="trainee"/>
+            </branch>
+            <branch id="5304" name="M2 SEP" path="Iep." category="trainee">
+                <leaf id="9759" name="cours M2 SEP" path="Iep.M2 SEP." category="trainee"/>
+            </branch>
+            <branch id="26558" name="M2 RI" path="Iep." category="trainee">
+                <branch id="26775" name="M2 Nei" path="Iep.M2 RI." category="trainee">
+                    <leaf id="26776" name="Cours NEI" path="Iep.M2 RI.M2 Nei." category="trainee"/>
+                    <leaf id="23613" name="option NEI" path="Iep.M2 RI.M2 Nei." category="trainee"/>
+                </branch>
+                <branch id="26603" name="M2 Mond" path="Iep.M2 RI." category="trainee">
+                    <leaf id="26772" name="Cours mond" path="Iep.M2 RI.M2 Mond." category="trainee"/>
+                    <leaf id="38655" name="Groupe MOND" path="Iep.M2 RI.M2 Mond." category="trainee"/>
+                </branch>
+                <branch id="26599" name="M2 Front" path="Iep.M2 RI." category="trainee">
+                    <leaf id="26602" name="Cours Front" path="Iep.M2 RI.M2 Front." category="trainee"/>
+                    <leaf id="23607" name="Examens Front" path="Iep.M2 RI.M2 Front." category="trainee"/>
+                </branch>
+            </branch>
+        </branch>
+        <branch id="29625" name="Esbs" path="" category="trainee">
+            <branch id="16000" name="1A CBT" path="Esbs." category="trainee">
+                <leaf id="17575" name="1A CBT - GpC1" path="Esbs.1A CBT." category="trainee"/>
+                <leaf id="17579" name="1A CBT - GpC2" path="Esbs.1A CBT." category="trainee"/>
+                <leaf id="10949" name="1A CBT - GR 1 et 2" path="Esbs.1A CBT." category="trainee"/>
+            </branch>
+            <branch id="32271" name="M2 Biotechnologie HD" path="Esbs." category="trainee">
+                <leaf id="32291" name="M2 Biotechnologie HD" path="Esbs.M2 Biotechnologie HD." category="trainee"/>
+                <leaf id="14453" name="M2 Biotechnologie HD bis" path="Esbs.M2 Biotechnologie HD." category="trainee"/>
+            </branch>
+            <branch id="32256" name="M2 Biologie synthétique" path="Esbs." category="trainee">
+                <leaf id="14434" name="M2 Biologie synthétique bis" path="Esbs.M2 Biologie synthétique." category="trainee"/>
+                <leaf id="32290" name="M2 Biologie synthétique" path="Esbs.M2 Biologie synthétique." category="trainee"/>
+            </branch>
+        </branch>
+    </category>
+</tree>

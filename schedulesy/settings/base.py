@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from os.path import abspath, basename, dirname, join, normpath, isfile
 
 ######################
@@ -152,13 +151,6 @@ STATICFILES_FINDERS = [
 ]
 
 
-############
-# Dipstrap #
-############
-
-DIPSTRAP_STATIC_URL = '//django-static.u-strasbg.fr/dipstrap/'
-
-
 ##############
 # Secret key #
 ##############
@@ -205,8 +197,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'schedulesy.middleware.StatsMiddleware',
+    'django_cas.middleware.CASMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 
@@ -245,12 +240,14 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
+    'cacheops',
 ]
 
 LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
     'schedulesy.apps.ade_legacy',
+    'schedulesy.apps.refresh',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -309,6 +306,14 @@ LOGGING = {
             'maxBytes': 209715200,
             'backupCount': 3,
             'formatter': 'default'
+        },
+        'infocentre_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '',
+            'maxBytes': 209715200,
+            'backupCount': 3,
+            'formatter': 'default'
         }
     },
     'loggers': {
@@ -325,7 +330,12 @@ LOGGING = {
             'handlers': ['mail_admins', 'file'],
             'level': 'ERROR',
             'propagate': True
-        }
+        },
+        'infocentre': {
+            'handlers': ['infocentre_file'],
+            'level': 'ERROR',
+            'propagate': True
+        },
     }
 }
 
@@ -358,6 +368,9 @@ ADE_WEB_API = {
     'PASSWORD': '',
     'HOST': ''
 }
+ADE_DEFAULT_TIMEZONE = 'Europe/Paris'
+ADE_DEFAULT_DURATION = 15
+ADE_MAX_EVENTS = 12000  # Max events per customization
 
 
 ########
@@ -371,7 +384,6 @@ CAS_USER_CREATION = True
 CAS_ADMIN_AUTH = True
 #CAS_CUSTOM_FORBIDDEN = 'forbidden-view'
 CAS_USERNAME_FORMAT = lambda username: username.lower().strip()
-CAS_REDIRECT_URL = '/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -387,7 +399,7 @@ SIMPLE_JWT = {
 
 
 def check_key(filename, key_type):
-    full_path = join(dirname(abspath(__file__)), "../../keys", filename)
+    full_path = join(SITE_ROOT, "keys", filename)
     if isfile(full_path):
         SIMPLE_JWT[key_type] = open(full_path, 'rb').read()
 
@@ -404,8 +416,48 @@ def sentry_init(environment):
     from os import path
 
     sentry_sdk.init(
-        dsn="https://8a0f03ff2a9842c69b195a63c57335f7@sentry-test.app.unistra.fr/20",
+        dsn="https://b1ed0f04a9bf4b269baae2720440278c@sentry-test.app.unistra.fr/24",
         integrations=[DjangoIntegration()],
         environment=environment,
-        release=open(path.join(dirname(abspath(__file__)), "../../", "build.txt"), 'r').read()
+        release=open(path.join(SITE_ROOT, "build.txt")).read()
     )
+
+
+##########
+# CELERY #
+##########
+
+CELERY_NAME = "schedulesy"
+CELERY_RESULT_BACKEND = "rpc://"
+BROKER_URL = ""
+
+
+######
+# S3 #
+######
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_FILE_OVERWRITE = True
+AWS_DEFAULT_ACL = None
+AWS_AUTO_CREATE_BUCKET = True
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=3600',
+}
+ICS_EXPIRATION = 3600
+
+#########
+# STAGE #
+#########
+
+STAGE = None
+
+#########
+# Redis #
+#########
+CACHEOPS_DEFAULTS = {
+    'timeout': 60*15
+}
+CACHEOPS = {
+    'ade_api.*': {'ops': 'all'},
+    '*.*': {},
+}
