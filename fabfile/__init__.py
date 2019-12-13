@@ -133,6 +133,11 @@ def test():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
+        'redis_server': "REDIS_SERVER",
+        'redis_port': "REDIS_PORT",
+        'redis_db': "REDIS_DB",
+        'elastic_search_server': "ELASTIC_SEARCH_SERVER",
+        'elastic_search_port': "ELASTIC_SEARCH_PORT",
     }
     env.rabbitmq_server = env.socket_host
     execute(build_env)
@@ -180,6 +185,11 @@ def preprod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
+        'redis_server': "REDIS_SERVER",
+        'redis_port': "REDIS_PORT",
+        'redis_db': "REDIS_DB",
+        'elastic_search_server': "ELASTIC_SEARCH_SERVER",
+        'elastic_search_port': "ELASTIC_SEARCH_PORT",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
@@ -196,7 +206,7 @@ def prod():
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
-    env.server_name = 'schedulesy.net'
+    env.server_name = 'monemploidutemps.unistra.fr'
     env.short_server_name = 'schedulesy'
     env.static_folder = '/site_media/'
     env.server_ip = '130.79.254.87'
@@ -205,7 +215,7 @@ def prod():
     env.path_to_cert = '/etc/ssl/certs/mega_wildcard.pem'
     env.path_to_cert_key = '/etc/ssl/private/mega_wildcard.key'
     env.goal = 'prod'
-    env.socket_port = ''
+    env.socket_port = '8038'
     env.map_settings = {
         'default_db_host': "DATABASES['default']['HOST']",
         'default_db_user': "DATABASES['default']['USER']",
@@ -227,6 +237,11 @@ def prod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
+        'redis_server': "REDIS_SERVER",
+        'redis_port': "REDIS_PORT",
+        'redis_db': "REDIS_DB",
+        'elastic_search_server': "ELASTIC_SEARCH_SERVER",
+        'elastic_search_port': "ELASTIC_SEARCH_PORT",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
