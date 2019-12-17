@@ -5,9 +5,3 @@
         name: django_deploy
       vars:
         django_deploy_app_name: schedulesy
-        django_deploy_app_envvars:
-          - POSTGRES_USER
-          - POSTGRES_PASSWORD
-          - POSTGRES_HOST
-          - POSTGRES_PORT
-          - POSTGRES_DB
