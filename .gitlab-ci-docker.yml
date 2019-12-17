@@ -13,7 +13,7 @@ Build:
   stage: build
   script:
     - docker pull docker-registry-test.di.unistra.fr/schedulesy_app:latest || true
-    - docker build -f ./docker/uwsgi/Dockerfile -t schedulesy_app
+    - docker build -f ./deploy/docker/uwsgi/Dockerfile -t schedulesy_app
       --cache-from docker-registry-test.di.unistra.fr/schedulesy_app:latest
       --build-arg VCS_REF=$CI_COMMIT_SHA
       --build-arg VCS_URL=$CI_PROJECT_URL .
