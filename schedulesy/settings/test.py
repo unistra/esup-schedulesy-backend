@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from os import environ
 from os.path import normpath
 from .base import *
 
@@ -14,10 +15,10 @@ DEBUG = True
 # Database configuration #
 ##########################
 
-DATABASES['default']['HOST'] = '{{ default_db_host }}'
-DATABASES['default']['USER'] = '{{ default_db_user }}'
-DATABASES['default']['PASSWORD'] = '{{ default_db_password }}'
-DATABASES['default']['NAME'] = '{{ default_db_name }}'
+DATABASES['default']['HOST'] = environ.get('POSTGRES_HOST')
+DATABASES['default']['USER'] = environ.get('POSTGRES_USER')
+DATABASES['default']['PASSWORD'] = environ.get('POSTGRES_PASSWORD')
+DATABASES['default']['NAME'] = environ.get('POSTGRES_DB')
 
 DATABASES['ade']['HOST'] = '{{ ade_db_host}}'
 DATABASES['ade']['USER'] = '{{ ade_db_user }}'
