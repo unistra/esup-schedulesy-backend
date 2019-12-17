@@ -14,8 +14,8 @@
     # recreate: always
     # restart: yes
     name: "{{ app_name }}_uwsgi"
-    # image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:{{ git_commit }}"
-    image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:latest"
+    image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:{{ git_commit }}"
+    # image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:latest"
     volumes:
       - "/var/log/uwsgi/{{ app_name }}:/var/log/uwsgi"
     ports:
