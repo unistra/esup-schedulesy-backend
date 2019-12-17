@@ -1,0 +1,10 @@
+TODO :
+
+* [ ] Extras ?
+  - [ ] Services
+  - [ ] Volumes
+  - [ ] Networks
+  - [ ] asserts
+
+* Env vars ?
+  - [ ] -e "GIT_COMMIT=$CI_COMMIT_SHA"

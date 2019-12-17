@@ -1,0 +1,7 @@
+---
+# defaults file for django_deploy
+django_deploy_registry_url: "docker-registry-test.di.unistra.fr"
+
+# Environment variables for the containers
+django_deploy_web_server_envvars: {}
+django_deploy_app_envvars: {}

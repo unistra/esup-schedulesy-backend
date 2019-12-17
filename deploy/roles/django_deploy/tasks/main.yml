@@ -1,0 +1,93 @@
+---
+- set_fact:
+    app_name: "{{ django_deploy_app_name | mandatory }}"
+    git_commit: "{{ django_deploy_git_commit | mandatory }}"
+
+- docker_network:
+    name: "{{ app_name }}_network"
+    # connected:
+    #   - "{{ app_name }}_nginx"
+    #   - "{{ app_name }}_uwsgi"
+
+- docker_container:
+    recreate: "{{ django_deploy_recreate|default('no')|bool }}"
+    # recreate: always
+    # restart: yes
+    name: "{{ app_name }}_uwsgi"
+    # image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:{{ git_commit }}"
+    image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:latest"
+    volumes:
+      - "/var/log/uwsgi/{{ app_name }}:/var/log/uwsgi"
+    ports:
+      - 8081:8080
+    networks:
+      - name: "{{ app_name }}_network"
+    purge_networks: yes
+    env: "{{ django_deploy_app_envvars|default({}) }}"
+  no_log: false
+
+- debug:
+    msg: "{{ django_deploy_web_server_envvars|default({}) }}"
+
+- docker_container:
+    recreate: "{{ django_deploy_recreate|default('no')|bool }}"
+    # restart: yes
+    name: "{{ app_name }}_nginx"
+    image: "{{ django_deploy_registry_url }}/{{ app_name }}_nginx:latest"
+    ports:
+      - 80:80
+    volumes:
+      - "/var/log/nginx/{{ app_name }}:/var/log/nginx"
+    networks:
+      - name: "{{ app_name }}_network"
+        aliases: [app]
+    purge_networks: yes
+    env: "{{ django_deploy_web_server_envvars|default({}) }}"
+  no_log: false
+# DEBUG
+# - name: docker-compose up
+#   docker_compose:
+#     project_name: "{{ app_name }}"
+#     # recreate: always
+#     # restarted: yes
+#     definition:
+#       version: '3.5'
+
+#       services:
+#         web_server:
+#           container_name: "{{ app_name }}_nginx"
+#           image: "{{ django_deploy_registry_url }}/{{ app_name }}_nginx:latest"
+#           ports:
+#             - 80:80
+#           volumes:
+#             - web_log:/var/log/nginx
+#           depends_on:
+#             - app
+#           networks:
+#             - app_net
+#           environment: "{{ django_deploy_web_server_envvars|default({}) }}"
+
+#         app:
+#           container_name: "{{ app_name }}_uwsgi"
+#           image: "{{ django_deploy_registry_url }}/{{ app_name }}_app:{{ git_commit }}"
+#           volumes:
+#             - uwsgi_log:/var/log/uwsgi
+#           ports:
+#             - 8080:8080
+#           networks:
+#             - app_net
+#           environment: "{{ django_deploy_app_envvars|default({}) }}"
+
+
+#       networks:
+#         app_net:
+
+#   register: output
+
+- debug:
+    var: output
+
+# - assert:
+#     that:
+#       - "web_server.{{ app_name }}_nginx.state.running"
+#       - "app.{{ app_name }}_uwsgi.state.running"
