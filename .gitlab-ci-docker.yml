@@ -1,0 +1,73 @@
+---
+.docker_default: &docker_default
+  tags:
+    - docker
+  # variables:
+  #   DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker info
+    - echo -n $CI_JOB_TOKEN
+
+Build:
+  <<: *docker_default
+  stage: build
+  script:
+    - docker pull docker-registry-test.di.unistra.fr/dockerz_app:latest || true
+    - docker build -f ./docker/uwsgi/Dockerfile -t dockerz_app
+      --cache-from docker-registry-test.di.unistra.fr/dockerz_app:latest
+      --build-arg VCS_REF=$CI_COMMIT_SHA
+      --build-arg VCS_URL=$CI_PROJECT_URL .
+    - docker tag dockerz_app docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+    - docker push docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+
+#  master branch = latest
+Push latest:
+  <<: *docker_default
+  stage: push
+  only:
+    - master
+  script:
+    - docker pull docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+    - docker tag dockerz_app docker-registry-test.di.unistra.fr/dockerz_app:latest
+    - docker push docker-registry-test.di.unistra.fr/dockerz_app:latest
+    # TODO: check if needed 
+    - docker push docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+# docker tag a git tag
+Push tag:
+  <<: *docker_default
+  stage: push
+  only:
+    - tags
+  script:
+    - docker pull docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+    - docker tag dockerz_app docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_REF_NAME
+    - docker push docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_REF_NAME
+    # TODO: check if needed 
+    - docker push docker-registry-test.di.unistra.fr/dockerz_app:$CI_COMMIT_SHA
+
+deploy:
+  tags:
+    - python3.6
+  variables:
+    GIT_STRATEGY: clone
+  # TOKEEP: could be useful later !!!!
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - apt-get update && apt-get install -y lftp openssh-client
+    - mkdir -p ~/.ssh
+    - echo -e "Host *\nStrictHostKeyChecking no" > ~/.ssh/config
+
+  stage: deploy
+  script:
+    - echo $ANSIBLE_VAULT_PASSWORD > .vault_password.txt
+    - pip install ansible
+
+    # - sed -i 's/${GALAXY_TOKEN}/'"$GALAXY_TOKEN"'/' deploy/requirements.yml
+    # - ansible-galaxy install -r deploy/requirements.yml
+
+    - ansible-playbook -vvv 
+      -i deploy/inventories/test/hosts.yml
+      --vault-password-file .vault_password.txt
+      deploy/site.yml
+  # when: manual
