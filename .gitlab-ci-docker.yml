@@ -68,6 +68,7 @@ deploy:
 
     - ansible-playbook -vvv 
       -i deploy/inventories/test/hosts.yml
+      -e "GIT_COMMIT=$CI_COMMIT_SHA"
       --vault-password-file .vault_password.txt
       deploy/site.yml
   # when: manual
