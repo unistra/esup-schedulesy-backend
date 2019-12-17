@@ -3,9 +3,10 @@ FROM docker-registry-test.di.unistra.fr/docker_django_base:3.6
 EXPOSE 8080
 WORKDIR /app 
 
-COPY ./app /app
-COPY docker/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
-COPY docker/uwsgi/prestart.sh /prestart.sh
+COPY . /app
+# TODO: rm deploy ?
+COPY deploy/docker/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY deploy/docker/uwsgi/prestart.sh /prestart.sh
 
 RUN chmod +x /prestart.sh
 
