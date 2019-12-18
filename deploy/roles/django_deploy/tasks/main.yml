@@ -40,10 +40,30 @@
       - "/var/log/nginx/{{ app_name }}:/var/log/nginx"
     networks:
       - name: "{{ app_name }}_network"
-        aliases: [app]
+        # aliases:
+        #   - "{{ app_name}}"
     purge_networks: yes
     env: "{{ django_deploy_web_server_envvars|default({}) }}"
   no_log: false
+
+# FIXME: additional docker_containers
+# - docker_container:
+#     recreate: "{{ django_deploy_recreate|default('no')|bool }}"
+#     # restart: yes
+#     name: "{{ app_name }}_redis"
+#     image: redis:latest"
+#     ports:
+#       - 80:80
+#     # volumes:
+#     #   - "/var/log/nginx/{{ app_name }}:/var/log/nginx"
+#     networks:
+#       - name: "{{ app_name }}_network"
+#         # aliases:
+#         #   - "{{ app_name}}"
+#     purge_networks: yes
+#     env: "{{ django_deploy_web_server_envvars|default({}) }}"
+#   no_log: false
+
 # DEBUG
 # - name: docker-compose up
 #   docker_compose:

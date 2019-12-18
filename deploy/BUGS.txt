@@ -1,2 +1,0 @@
-- fatal: git fetch-pack: expected shallow list :
-    https://sysadmin.cyklodev.com/fatal-git-fetch-pack-expected-shallow-list/

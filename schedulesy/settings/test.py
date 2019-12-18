@@ -114,12 +114,12 @@ INFOCENTREWS_TOKEN = '{{ infocentrews_token }}'
 # Redis #
 #########
 CACHEOPS_REDIS_SERVER = '{{ redis_server }}'
-CACHEOPS_REDIS_PORT = int('{{ redis_port }}')
-CACHEOPS_REDIS_DB = int('{{ redis_db }}')
+CACHEOPS_REDIS_PORT = int(environ.get('CACHEOPS_REDIS_PORT'))
+CACHEOPS_REDIS_DB = int(environ.get('CACHEOPS_REDIS_DB'))
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
 
 #########
 # Stats #
 #########
 ELASTIC_SEARCH_SERVER = '{{ elastic_search_server }}'
-ELASTIC_SEARCH_PORT = int('{{ elastic_search_port }}')
+ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT'))
