@@ -10,6 +10,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.http import FileResponse
+from sentry_sdk import capture_exception
 
 from schedulesy.apps.ade_api.tasks import stats
 
@@ -48,6 +49,7 @@ class StatsMiddleware:
             self.process_response(request, response)
             self._send_log(request.log)
         except Exception as call_exception:
+            capture_exception(call_exception)
             request.log.update({'status_code': 500})
             self._send_log(request.log)
             raise call_exception
