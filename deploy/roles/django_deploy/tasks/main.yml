@@ -16,7 +16,7 @@
     ports:
       - 6379:6379
     volumes:
-      - "data/{{ app_name }}_redis:/data"
+      - "/data/{{ app_name }}_redis:/data"
     networks:
       - name: "{{ app_name }}_network"
     purge_networks: yes
@@ -29,7 +29,7 @@
     ports:
       - 5432:5432
     volumes:
-      - "data/{{ app_name }}_postgres:/var/lib/postgresql"
+      - "/data/{{ app_name }}_postgres:/var/lib/postgresql"
     networks:
       - name: "{{ app_name }}_network"
     purge_networks: yes
