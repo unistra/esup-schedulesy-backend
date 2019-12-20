@@ -19,6 +19,8 @@
       - "/data/{{ app_name }}_redis:/data"
     networks:
       - name: "{{ app_name }}_network"
+        aliases:
+          - redis
     purge_networks: yes
     env: "{{ redis_envvars|default({}) }}"
 
@@ -32,6 +34,8 @@
       - "/data/{{ app_name }}_postgres:/var/lib/postgresql"
     networks:
       - name: "{{ app_name }}_network"
+        aliases:
+          - postgres
     purge_networks: yes
     env: "{{ postgres_envvars|default({}) }}"
 
@@ -51,9 +55,11 @@
       - 8081:8080
     networks:
       - name: "{{ app_name }}_network"
-    links:
-      - "{{ app_name }}_postgres:postgres"
-      - "{{ app_name }}_redis:redis"
+        aliases:
+          - "{{ app_name }}"
+    # links:
+    #   - "{{ app_name }}_postgres:postgres"
+    #   - "{{ app_name }}_redis:redis"
     purge_networks: yes
     env: "{{ django_deploy_app_envvars|default({}) }}"
 
@@ -63,14 +69,14 @@
     # restart: yes
     name: "{{ app_name }}_nginx"
     image: "{{ django_deploy_registry_url }}/{{ app_name }}_nginx:latest"
-    ports:
-      - 80:80
+    exposed_ports:
+      - 80
     volumes:
       - "/var/log/nginx/{{ app_name }}:/var/log/nginx"
     networks:
       - name: "{{ app_name }}_network"
-        # aliases:
-        #   - "{{ app_name}}"
+        aliases:
+          - nginx
     purge_networks: yes
     env: "{{ django_deploy_web_server_envvars|default({}) }}"
 
