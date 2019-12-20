@@ -43,6 +43,8 @@
 
 - name: App container
   docker_container:
+    # DEBUG
+    debug: true
     recreate: "{{ django_deploy_recreate|default('no')|bool }}"
     # recreate: always
     # restart: yes
@@ -65,6 +67,8 @@
 
 - name: Nginx container
   docker_container:
+    # DEBUG
+    debug: true
     recreate: "{{ django_deploy_recreate|default('no')|bool }}"
     # restart: yes
     name: "{{ app_name }}_nginx"
