@@ -9,8 +9,8 @@
     #   - "{{ app_name }}_nginx"
     #   - "{{ app_name }}_uwsgi"
 
-
-- docker_container:
+- name: Redis container
+  docker_container:
     name: "{{ app_name }}_redis"
     image: redis
     ports:
@@ -20,19 +20,25 @@
     networks:
       - name: "{{ app_name }}_network"
     purge_networks: yes
+    env: "{{ redis_envvars|default({}) }}"
 
-- docker_container:
+- name: Postgres container
+  docker_container:
     name: "{{ app_name }}_postgres"
     image: postgres:11.6
     ports:
       - 5432:5432
     volumes:
       - "data/{{ app_name }}_postgres:/var/lib/postgresql"
-      networks:
+    networks:
       - name: "{{ app_name }}_network"
     purge_networks: yes
+    env: "{{ postgres_envvars|default({}) }}"
 
-- docker_container:
+########## ROLE TASKS ##########
+
+- name: App container
+  docker_container:
     recreate: "{{ django_deploy_recreate|default('no')|bool }}"
     # recreate: always
     # restart: yes
@@ -45,13 +51,14 @@
       - 8081:8080
     networks:
       - name: "{{ app_name }}_network"
+    links:
+      - "{{ app_name }}_postgres:postgres"
+      - "{{ app_name }}_redis:redis"
     purge_networks: yes
     env: "{{ django_deploy_app_envvars|default({}) }}"
 
-- debug:
-    msg: "{{ django_deploy_web_server_envvars|default({}) }}"
-
-- docker_container:
+- name: Nginx container
+  docker_container:
     recreate: "{{ django_deploy_recreate|default('no')|bool }}"
     # restart: yes
     name: "{{ app_name }}_nginx"
@@ -67,6 +74,7 @@
     purge_networks: yes
     env: "{{ django_deploy_web_server_envvars|default({}) }}"
 
+################################
 
 # FIXME: additional docker_containers
 # - docker_container:
