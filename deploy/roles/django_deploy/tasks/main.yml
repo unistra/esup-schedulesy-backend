@@ -59,9 +59,9 @@
       - name: "{{ app_name }}_network"
         aliases:
           - "{{ app_name }}"
-    # links:
-    #   - "{{ app_name }}_postgres:postgres"
-    #   - "{{ app_name }}_redis:redis"
+        links:
+          - "{{ app_name }}_postgres:postgres"
+          - "{{ app_name }}_redis:redis"
     purge_networks: yes
     env: "{{ django_deploy_app_envvars|default({}) }}"
 
