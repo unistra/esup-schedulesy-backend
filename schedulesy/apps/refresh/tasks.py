@@ -91,7 +91,7 @@ def refresh_resources(body, message):
         )
         old_resources_ids = {r.ext_id for r in old_resources}
         # Getting linked resources in new events
-        resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events']])
+        resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events'] if 'resources' in value])
 
         batch_size = len(resources_ids)
         logger.info(
