@@ -35,13 +35,13 @@ class StatsMiddleware:
         """
         request.log = {'application': 'schedulesy',
                        '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
-                       'ip': StatsMiddleware.get_client_ip(request),
+                       'ip': self.get_client_ip(request),
                        'path': request.path,
                        'method': request.method,
                        'server': socket.gethostname(),
                        'http_user_agent': request.META.get('HTTP_USER_AGENT'),
                        'environment': settings.STAGE,
-                       'user': StatsMiddleware.get_user(request)
+                       'user': self.get_user(request)
                        }
         self.process_request(request)
         try:
@@ -97,8 +97,7 @@ class StatsMiddleware:
         request.log.update(data)
         return response
 
-    @staticmethod
-    def get_client_ip(request):
+    def get_client_ip(self, request):
         """
         Gets client IP
         :param request: Django request
@@ -109,8 +108,7 @@ class StatsMiddleware:
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
 
-    @staticmethod
-    def get_user(request):
+    def get_user(self, request):
         """
         Generates an uuid3 for username (or anonymous)
         :param request: Django request
