@@ -75,7 +75,7 @@
     name: "{{ app_name }}_nginx"
     image: "{{ django_deploy_registry_url }}/{{ app_name }}_nginx:latest"
     exposed_ports:
-      - 80
+      - 80:80
     volumes:
       - "/var/log/nginx/{{ app_name }}:/var/log/nginx"
       - "/static/{{ app_name }}:/usr/share/nginx/html:ro"
