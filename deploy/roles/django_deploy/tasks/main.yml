@@ -83,6 +83,8 @@
       - name: "{{ app_name }}_network"
         aliases:
           - nginx
+        links:
+          - "{{ app_name }}_uwsgi:app"
     purge_networks: yes
     env: "{{ django_deploy_web_server_envvars|default({}) }}"
 
