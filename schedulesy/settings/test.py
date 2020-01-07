@@ -78,7 +78,7 @@ STAGE = '{{ goal }}'
 ##########
 # Sentry #
 ##########
-sentry_init(STAGE)
+# sentry_init(STAGE)
 
 ######
 # S3 #
