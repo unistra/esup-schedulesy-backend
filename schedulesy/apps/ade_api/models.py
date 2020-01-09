@@ -138,7 +138,7 @@ class LocalCustomization(models.Model):
                   for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
 
-        for rt in ('trainees', 'instructors', 'classrooms'):
+        for rt in ('trainees', 'instructors', 'classrooms', 'category5s'):
             # Merge each resource type
             result[rt] = collections.ChainMap(*get_event_type(rt))
         return result
