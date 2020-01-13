@@ -428,7 +428,7 @@ def sentry_init(environment):
 ##########
 
 CELERY_NAME = "schedulesy"
-CELERY_RESULT_BACKEND = "rpc://"
+CELERY_RESULT_BACKEND = ""
 BROKER_URL = ""
 
 
