@@ -212,7 +212,7 @@ class LocalCustomization(models.Model):
                     e.description = format_description(resources)
                     calendar.events.add(e)
             else:
-                logger.error(f'Too much events for {self.username} : {size}')
+                logger.warning(f'Too much events for {self.username} : {size}')
                 e = Event()
                 e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
                 e.begin = format_ics_date('01/01/2000 00:00')
