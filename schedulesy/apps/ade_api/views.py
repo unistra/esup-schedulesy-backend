@@ -18,6 +18,7 @@ from schedulesy.apps.refresh.tasks import (
     bulldoze as resource_bulldoze, refresh_all,
     refresh_resource as resource_task)
 from schedulesy.libs.permissions import IsOwnerPermission
+from .exception import TooMuchEventsError
 from .models import (
     Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
@@ -157,10 +158,10 @@ class AccessDeletePermission(permissions.BasePermission):
 class AccessDelete(generics.DestroyAPIView):
     queryset = Access.objects.all()
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES + [
-            partial(IsOwnerPermission, 'customization__username'),
-            AccessDeletePermission
-        ]
+            api_settings.DEFAULT_PERMISSION_CLASSES + [
+        partial(IsOwnerPermission, 'customization__username'),
+        AccessDeletePermission
+    ]
     )
 
     def get_object(self):
@@ -177,8 +178,8 @@ class AccessList(generics.ListCreateAPIView):
     queryset = Access.objects.all()
     serializer_class = AccessSerializer
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES +
-        [partial(IsOwnerPermission, 'customization__username')])
+            api_settings.DEFAULT_PERMISSION_CLASSES +
+            [partial(IsOwnerPermission, 'customization__username')])
 
     def get_queryset(self):
         return self.queryset \
@@ -196,8 +197,14 @@ class CalendarDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = CalendarSerializer
     permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+            api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
     lookup_field = 'username'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except TooMuchEventsError as e:
+            return JsonResponse(e.context(), status=413)
 
 
 class InfoDetail(generics.RetrieveAPIView):

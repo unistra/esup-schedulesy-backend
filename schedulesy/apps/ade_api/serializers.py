@@ -3,6 +3,7 @@ from django.db.models.expressions import RawSQL
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from .exception import TooMuchEventsError
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
 from ..ade_legacy.models import Customization

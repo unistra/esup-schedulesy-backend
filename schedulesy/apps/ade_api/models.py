@@ -1,8 +1,7 @@
 import collections
-from datetime import datetime, timedelta
 import hashlib
 import logging
-import time
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -13,8 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
 from schedulesy.libs.decorators import MemoizeWithTimeout
+from .exception import TooMuchEventsError
 from .utils import generate_uuid, get_ade_timezone
-
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +59,6 @@ class DisplayType(models.Model):
 
 
 class AdeConfig(models.Model):
-
     ade_url = models.URLField(_('ADE URL'))
     parameters = JSONField(_('Parameters'))
 
@@ -124,6 +122,7 @@ class LocalCustomization(models.Model):
         Merges all events
         :return:
         """
+
         def get_event_type(t):
             return (x.events[t] for x in resources
                     if x.events and t in x.events)
@@ -137,6 +136,11 @@ class LocalCustomization(models.Model):
         events = {item['id']: item
                   for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
+        if len(result['events']) > settings.ADE_DEFAULT_DURATION:
+            raise TooMuchEventsError(
+                {'resources': [[f['name'] for f in r.fields['genealogy']]
+                 + [r.fields['name']] for r in resources],
+                 'nb_events': len(result['events'])})
 
         for rt in ('trainees', 'instructors', 'classrooms', 'category5s'):
             # Merge each resource type
@@ -243,7 +247,6 @@ class LocalCustomization(models.Model):
 
 
 class Access(models.Model):
-
     key = models.CharField(
         max_length=36, unique=True, default=generate_uuid)
     creation_date = models.DateTimeField(auto_now_add=True)
