@@ -136,7 +136,7 @@ class LocalCustomization(models.Model):
         events = {item['id']: item
                   for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
-        if len(result['events']) > settings.ADE_DEFAULT_DURATION:
+        if len(result['events']) > settings.ADE_MAX_EVENTS:
             raise TooMuchEventsError(
                 {'resources': [[f['name'] for f in r.fields['genealogy']]
                  + [r.fields['name']] for r in resources],
