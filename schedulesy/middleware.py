@@ -47,6 +47,12 @@ class StatsMiddleware:
         try:
             response = self.get_response(request)
             self.process_response(request, response)
+            LOGGER.debug(f'response status code {response.status_code}')
+            if response.status_code >= 300:
+                try:
+                    request.log.update({'message': json.loads(response.content)})
+                except Exception:
+                    pass
             self._send_log(request.log)
         except Exception as call_exception:
             capture_exception(call_exception)

@@ -17,6 +17,6 @@ class TooMuchEventsError(Exception):
         self.message = message
 
     def context(self):
-        return {**{"error": "too much events",
-                   "limit": settings.ADE_MAX_EVENTS},
+        return {**{"code": "too_much_events",
+                   "detail": f'Excedeed limit of {settings.ADE_MAX_EVENTS} events'},
                 **self.message}
