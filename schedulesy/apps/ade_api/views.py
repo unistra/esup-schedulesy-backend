@@ -22,7 +22,7 @@ from .models import (
     Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
     AccessSerializer, AdeConfigSerializer, CalendarSerializer,
-    ResourceSerializer)
+    ResourceSerializer, InfoSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -197,4 +197,12 @@ class CalendarDetail(generics.RetrieveAPIView):
     serializer_class = CalendarSerializer
     permission_classes = (
         api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+    lookup_field = 'username'
+
+
+class InfoDetail(generics.RetrieveAPIView):
+    queryset = LocalCustomization.objects.all()
+    serializer_class = InfoSerializer
+    permission_classes = (
+        permissions.IsAdminUser,)
     lookup_field = 'username'
