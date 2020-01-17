@@ -26,6 +26,8 @@ ws_urlpatterns = [
 
     path('resource/<str:ext_id>', views.ResourceDetail.as_view(), name='resource'),
     path('calendar/<str:username>', views.CalendarDetail.as_view(), name='calendar'),
+
+    path('info/<str:username>', views.InfoDetail.as_view(), name='info'),
 ]
 
 urlpatterns += format_suffix_patterns(ws_urlpatterns, suffix_required=True)

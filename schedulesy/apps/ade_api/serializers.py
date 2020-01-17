@@ -3,8 +3,10 @@ from django.db.models.expressions import RawSQL
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from .exception import TooMuchEventsError
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
+from ..ade_legacy.models import Customization
 
 
 class ResourceSerializer(serializers.ModelSerializer):
@@ -15,9 +17,9 @@ class ResourceSerializer(serializers.ModelSerializer):
             # Get number of events per child
             children_nb_events = dict(
                 obj.children
-                .annotate(nb_events=RawSQL(
+                    .annotate(nb_events=RawSQL(
                     "jsonb_array_length(events->'events')", ()))
-                .values_list('ext_id', 'nb_events'))
+                    .values_list('ext_id', 'nb_events'))
 
             for child in fields['children']:
                 child_id = child['id']
@@ -70,7 +72,27 @@ class AccessSerializer(serializers.ModelSerializer):
 
 
 class CalendarSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = LocalCustomization
         fields = ('events',)
+
+
+class AdeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customization
+        fields = '__all__'
+
+
+class InfoSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        customization = Customization.objects.get(username=obj.username)
+        ade_serializer = AdeSerializer()
+        data.update({'ade': ade_serializer.to_representation(customization)})
+        return data
+
+    class Meta:
+        model = LocalCustomization
+        depth = 1
+        fields = '__all__'
