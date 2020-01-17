@@ -53,6 +53,7 @@ class StatsMiddleware:
                     request.log.update({'message': json.loads(response.content)})
                 except Exception:
                     pass
+            request.log.update({'user': self.get_user(request)})
             self._send_log(request.log)
         except Exception as call_exception:
             capture_exception(call_exception)
