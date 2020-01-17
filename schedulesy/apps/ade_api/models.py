@@ -116,6 +116,7 @@ class LocalCustomization(models.Model):
         if is_new:
             Access.objects.create(name=self.username, customization=self)
 
+
     @cached_property
     def events(self):
         """
@@ -233,7 +234,7 @@ class LocalCustomization(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT distinct(x.id)
+                SELECT DISTINCT(x.id)
                 FROM ade_api_resource,
                      ade_api_localcustomization_resources,
                      jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
@@ -244,6 +245,24 @@ class LocalCustomization(models.Model):
             )
             row = [r[0] for r in cursor.fetchall()]
         return row
+
+    @cached_property
+    def events_nb(self):
+        """Fast way to count the number of unique events
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(DISTINCT(x.id))
+                FROM ade_api_resource,
+                     ade_api_localcustomization_resources,
+                     jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
+                WHERE ade_api_resource.id = ade_api_localcustomization_resources.resource_id
+                      AND ade_api_localcustomization_resources.localcustomization_id = %s
+                """, params=[self.pk]
+            )
+            row = cursor.fetchone()
+        return row[0]
 
 
 class Access(models.Model):
