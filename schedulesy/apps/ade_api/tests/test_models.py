@@ -106,7 +106,7 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
             os.path.join(settings.MEDIA_ROOT, lc.ics_calendar_filename),
             {
                 'LOCATION': 'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)',
-                'DESCRIPTION': 'Filières : M2 Biotechnologie HD,Intervenants : Gerard Toto',
+                'DESCRIPTION': 'Filières : M2 Biotechnologie HDnIntervenants : Gerard Toto',
                 'GEO': '48.072084;7.352045'
             }
         )
@@ -130,8 +130,8 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
                     'A1.13 Informatique So (A1.16) (SCH  -SITE SCHILTIGHEIM, IUT LOUIS PASTEUR, TP)'
                 ],
                 'DESCRIPTION': [
-                    'Filières : option NEI,Intervenants : Yao Toto',
-                    'Filières : M2 Biotechnologie HD,Intervenants : Gerard Toto'
+                    'Filières : option NEInIntervenants : Yao Toto',
+                    'Filières : M2 Biotechnologie HDnIntervenants : Gerard Toto'
                 ],
                 'GEO': [
                     '48.072084;7.352045'
