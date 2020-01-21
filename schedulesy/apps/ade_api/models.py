@@ -116,7 +116,6 @@ class LocalCustomization(models.Model):
         if is_new:
             Access.objects.create(name=self.username, customization=self)
 
-
     @cached_property
     def events(self):
         """
@@ -128,6 +127,10 @@ class LocalCustomization(models.Model):
             return (x.events[t] for x in resources
                     if x.events and t in x.events)
 
+        if self.events_nb > settings.ADE_MAX_EVENTS:
+            raise TooMuchEventsError(
+                {'nb_events': self.events_nb})
+
         resources = self.resources.all()
         if len(resources) == 0:
             return {}
@@ -137,11 +140,6 @@ class LocalCustomization(models.Model):
         events = {item['id']: item
                   for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
-        if len(result['events']) > settings.ADE_MAX_EVENTS:
-            raise TooMuchEventsError(
-                {'resources': [[f['name'] for f in r.fields['genealogy']]
-                 + [r.fields['name']] for r in resources],
-                 'nb_events': len(result['events'])})
 
         for rt in ('trainees', 'instructors', 'classrooms', 'category5s'):
             # Merge each resource type
