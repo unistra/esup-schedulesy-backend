@@ -139,7 +139,7 @@ def test():
         'elastic_search_server': "ELASTIC_SEARCH_SERVER",
         'elastic_search_port': "ELASTIC_SEARCH_PORT",
     }
-    env.rabbitmq_server = env.socket_host
+    # env.rabbitmq_server = env.socket_host
     execute(build_env)
 
 
