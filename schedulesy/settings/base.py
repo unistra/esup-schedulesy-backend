@@ -370,7 +370,7 @@ ADE_WEB_API = {
 }
 ADE_DEFAULT_TIMEZONE = 'Europe/Paris'
 ADE_DEFAULT_DURATION = 15
-ADE_MAX_EVENTS = 12000  # Max events per customization
+ADE_MAX_EVENTS = 7000  # Max events per customization
 
 
 ########
