@@ -182,6 +182,7 @@ class LocalCustomization(models.Model):
                         ','.join([x['name'] for x in resources[key]]))
             return '\n'.join(descriptions)
 
+        filename = filename or self.ics_calendar_filename
         calendar = Calendar()
 
         if self.events_nb > settings.ADE_MAX_EVENTS:
@@ -223,8 +224,9 @@ class LocalCustomization(models.Model):
                     e.description = format_description(resources)
                     calendar.events.add(e)
 
-        with default_storage.open(filename, 'w') as fh:
-            return fh.write(str(calendar))
+        if self.events_nb > 0:
+            with default_storage.open(filename, 'w') as fh:
+                return fh.write(str(calendar))
 
     @cached_property
     def events_ids(self):
