@@ -175,23 +175,31 @@ class LocalCustomization(models.Model):
             # TODO: i18n ?
             for key, display in {'trainees': 'Filières',
                                  'instructors': 'Intervenants',
-                                 'category5': 'Matières'}.items():
+                                 'category5s': 'Matières'}.items():
                 if key in resources:
                     descriptions.append(
                         f'{display} : ' +
                         ','.join([x['name'] for x in resources[key]]))
-            return ','.join(descriptions)
+            return '\n'.join(descriptions)
 
-        merged_events = self.events
-        events = merged_events.get('events', [])
-        # merged_events = {r: merged_events.get(r, {}) for r in res_list}
-        if events:
-            filename = filename or self.ics_calendar_filename
-            res_list = ('classrooms', 'trainees', 'instructors', 'category5')
-            calendar = Calendar()
-            size = len(events)
+        calendar = Calendar()
 
-            if size < settings.ADE_MAX_EVENTS:
+        if self.events_nb > settings.ADE_MAX_EVENTS:
+            logger.warning(f'Too much events for {self.username} : {self.events_nb}')
+            e = Event()
+            e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
+            e.begin = format_ics_date('01/01/2000 00:00')
+            e.end = format_ics_date('01/01/2100 00:00')
+            calendar.events.add(e)
+
+        else:
+            merged_events = self.events
+            events = merged_events.get('events', [])
+            # merged_events = {r: merged_events.get(r, {}) for r in res_list}
+            if events:
+                filename = filename or self.ics_calendar_filename
+                res_list = ('trainees', 'instructors', 'classrooms', 'category5s')
+
                 for event in events:
                     # Keeps adding 5000 events under 1 sec
                     resources = {}
@@ -214,16 +222,9 @@ class LocalCustomization(models.Model):
                     # e.last_modified = event['lastUpdate']
                     e.description = format_description(resources)
                     calendar.events.add(e)
-            else:
-                logger.warning(f'Too much events for {self.username} : {size}')
-                e = Event()
-                e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
-                e.begin = format_ics_date('01/01/2000 00:00')
-                e.end = format_ics_date('01/01/2100 00:00')
-                calendar.events.add(e)
 
-            with default_storage.open(filename, 'w') as fh:
-                return fh.write(str(calendar))
+        with default_storage.open(filename, 'w') as fh:
+            return fh.write(str(calendar))
 
     @cached_property
     def events_ids(self):
