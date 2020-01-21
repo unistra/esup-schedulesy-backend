@@ -3,7 +3,6 @@ from django.db.models.expressions import RawSQL
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from .exception import TooMuchEventsError
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
 from ..ade_legacy.models import Customization
@@ -88,11 +87,15 @@ class InfoSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super().to_representation(obj)
         customization = Customization.objects.get(username=obj.username)
+        resources_data = [
+            {'id': r.ext_id, 'name': r.fields['name'], 'path': ' - '.join([g['name'] for g in r.fields['genealogy']])}
+            for r in obj.resources.all()]
         ade_serializer = AdeSerializer()
-        data.update({'ade': ade_serializer.to_representation(customization)})
+        data.update({'nb_events': obj.events_nb,
+                     'ade': ade_serializer.to_representation(customization),
+                     'resources': resources_data})
         return data
 
     class Meta:
         model = LocalCustomization
-        depth = 1
-        fields = '__all__'
+        fields = ['id', 'customization_id', 'directory_id', 'username', 'configuration']

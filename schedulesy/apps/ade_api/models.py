@@ -127,6 +127,10 @@ class LocalCustomization(models.Model):
             return (x.events[t] for x in resources
                     if x.events and t in x.events)
 
+        if self.events_nb > settings.ADE_MAX_EVENTS:
+            raise TooMuchEventsError(
+                {'nb_events': self.events_nb})
+
         resources = self.resources.all()
         if len(resources) == 0:
             return {}
@@ -136,11 +140,6 @@ class LocalCustomization(models.Model):
         events = {item['id']: item
                   for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
-        if len(result['events']) > settings.ADE_MAX_EVENTS:
-            raise TooMuchEventsError(
-                {'resources': [[f['name'] for f in r.fields['genealogy']]
-                 + [r.fields['name']] for r in resources],
-                 'nb_events': len(result['events'])})
 
         for rt in ('trainees', 'instructors', 'classrooms', 'category5s'):
             # Merge each resource type
@@ -176,23 +175,31 @@ class LocalCustomization(models.Model):
             # TODO: i18n ?
             for key, display in {'trainees': 'Filières',
                                  'instructors': 'Intervenants',
-                                 'category5': 'Matières'}.items():
+                                 'category5s': 'Matières'}.items():
                 if key in resources:
                     descriptions.append(
                         f'{display} : ' +
                         ','.join([x['name'] for x in resources[key]]))
-            return ','.join(descriptions)
+            return '\n'.join(descriptions)
 
-        merged_events = self.events
-        events = merged_events.get('events', [])
-        # merged_events = {r: merged_events.get(r, {}) for r in res_list}
-        if events:
-            filename = filename or self.ics_calendar_filename
-            res_list = ('classrooms', 'trainees', 'instructors', 'category5')
-            calendar = Calendar()
-            size = len(events)
+        calendar = Calendar()
 
-            if size < settings.ADE_MAX_EVENTS:
+        if self.events_nb > settings.ADE_MAX_EVENTS:
+            logger.warning(f'Too much events for {self.username} : {self.events_nb}')
+            e = Event()
+            e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
+            e.begin = format_ics_date('01/01/2000 00:00')
+            e.end = format_ics_date('01/01/2100 00:00')
+            calendar.events.add(e)
+
+        else:
+            merged_events = self.events
+            events = merged_events.get('events', [])
+            # merged_events = {r: merged_events.get(r, {}) for r in res_list}
+            if events:
+                filename = filename or self.ics_calendar_filename
+                res_list = ('trainees', 'instructors', 'classrooms', 'category5s')
+
                 for event in events:
                     # Keeps adding 5000 events under 1 sec
                     resources = {}
@@ -215,16 +222,9 @@ class LocalCustomization(models.Model):
                     # e.last_modified = event['lastUpdate']
                     e.description = format_description(resources)
                     calendar.events.add(e)
-            else:
-                logger.warning(f'Too much events for {self.username} : {size}')
-                e = Event()
-                e.name = "Votre calendrier dépasse le nombre d'événements autorisé"
-                e.begin = format_ics_date('01/01/2000 00:00')
-                e.end = format_ics_date('01/01/2100 00:00')
-                calendar.events.add(e)
 
-            with default_storage.open(filename, 'w') as fh:
-                return fh.write(str(calendar))
+        with default_storage.open(filename, 'w') as fh:
+            return fh.write(str(calendar))
 
     @cached_property
     def events_ids(self):
@@ -233,7 +233,7 @@ class LocalCustomization(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT distinct(x.id)
+                SELECT DISTINCT(x.id)
                 FROM ade_api_resource,
                      ade_api_localcustomization_resources,
                      jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
@@ -244,6 +244,24 @@ class LocalCustomization(models.Model):
             )
             row = [r[0] for r in cursor.fetchall()]
         return row
+
+    @cached_property
+    def events_nb(self):
+        """Fast way to count the number of unique events
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(DISTINCT(x.id))
+                FROM ade_api_resource,
+                     ade_api_localcustomization_resources,
+                     jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
+                WHERE ade_api_resource.id = ade_api_localcustomization_resources.resource_id
+                      AND ade_api_localcustomization_resources.localcustomization_id = %s
+                """, params=[self.pk]
+            )
+            row = cursor.fetchone()
+        return row[0]
 
 
 class Access(models.Model):
