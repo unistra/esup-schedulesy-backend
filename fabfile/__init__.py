@@ -139,7 +139,7 @@ def test():
         'elastic_search_server': "ELASTIC_SEARCH_SERVER",
         'elastic_search_port': "ELASTIC_SEARCH_PORT",
     }
-    env.rabbitmq_server = env.socket_host
+    # env.rabbitmq_server = env.socket_host
     execute(build_env)
 
 
@@ -286,7 +286,7 @@ def deploy(update_pkg=False):
     """Deploy code on server"""
     execute(deploy_backend, update_pkg)
     execute(declare_release_to_sentry)
-    execute(deploy_frontend)
+    # execute(deploy_frontend)
     execute(deploy_backend_celery)
 
 
