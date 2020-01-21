@@ -175,19 +175,19 @@ class LocalCustomization(models.Model):
             # TODO: i18n ?
             for key, display in {'trainees': 'Filières',
                                  'instructors': 'Intervenants',
-                                 'category5': 'Matières'}.items():
+                                 'category5s': 'Matières'}.items():
                 if key in resources:
                     descriptions.append(
                         f'{display} : ' +
                         ','.join([x['name'] for x in resources[key]]))
-            return ','.join(descriptions)
+            return '\n'.join(descriptions)
 
         merged_events = self.events
         events = merged_events.get('events', [])
         # merged_events = {r: merged_events.get(r, {}) for r in res_list}
         if events:
             filename = filename or self.ics_calendar_filename
-            res_list = ('classrooms', 'trainees', 'instructors', 'category5')
+            res_list = ('trainees', 'instructors', 'classrooms', 'category5s')
             calendar = Calendar()
             size = len(events)
 
