@@ -51,6 +51,15 @@ def refresh_event(request, ext_id):  # pragma: no cover
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
+def refresh_all_events(request):  # pragma: no cover
+    resources = Resource.objects.all().values_list('ext_id', flat=True)
+    operation_id = str(uuid.uuid4())
+    for resource in resources:
+        resource_task.delay(resource, len(resources), operation_id)
+    return JsonResponse({})
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def sync_customization(request):
     customizations = Customization.objects.values_list('id', flat=True)
     lcl = LocalCustomization.objects.values_list('customization_id', flat=True)

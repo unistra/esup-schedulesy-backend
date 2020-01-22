@@ -8,6 +8,7 @@ app_name = "api"
 urlpatterns = [
     path('bulldoze/', views.bulldoze, name='bulldoze'),
     path('refresh/', views.refresh, name='refresh'),
+    path('refresh/event/all', views.refresh_all_events, name='refresh_all_events'),
     path('refresh/event/<str:ext_id>', views.refresh_event, name='refresh_event'),
     path('refresh/resource/<str:ext_id>', views.refresh_resource, name='refresh_resource'),
     path('sync/', views.sync_customization, name='sync_customization'),
