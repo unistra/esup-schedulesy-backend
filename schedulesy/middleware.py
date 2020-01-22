@@ -72,7 +72,7 @@ class StatsMiddleware:
         """
         try:
             LOGGER.debug(data)
-            stats.delay(json.dumps(data))
+            stats.delay(data)
         except Exception as e_log:
             LOGGER.error(e_log)
 
