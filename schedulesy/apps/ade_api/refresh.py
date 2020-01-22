@@ -62,7 +62,7 @@ class Refresh:
     METHOD_GET_RESOURCE = "getResources"
     EVENTS_ATTRIBUTE_FILTERS = (
         'id', 'activityId', 'name', 'endHour', 'startHour', 'date', 'duration',
-        'lastUpdate', 'category', 'color'
+        'lastUpdate', 'category', 'color', 'note'
     )
 
     def __init__(self):
