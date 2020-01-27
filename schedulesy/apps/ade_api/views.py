@@ -55,7 +55,7 @@ def refresh_all_events(request):  # pragma: no cover
     resources = Resource.objects.all().values_list('ext_id', flat=True)
     operation_id = str(uuid.uuid4())
     for resource in resources:
-        resource_task.delay(resource, len(resources), operation_id)
+        resource_task.delay(resource, len(resources), operation_id=operation_id)
     return JsonResponse({})
 
 
