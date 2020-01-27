@@ -9,7 +9,7 @@ from django.db.models import Q
 from sentry_sdk import capture_exception
 from skinos.custom_consumer import CustomConsumer
 
-from schedulesy.apps.ade_api.models import Resource, LocalCustomization
+from schedulesy.apps.ade_api.models import Resource
 from schedulesy.apps.ade_api.refresh import Refresh
 from schedulesy.celery import sync_queue_name
 from schedulesy.libs.decorators import refresh_if_necessary
@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 def refresh_all():
     refresh_agent = Refresh()
     refresh_agent.refresh_all()
-    return refresh_agent.data
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)
