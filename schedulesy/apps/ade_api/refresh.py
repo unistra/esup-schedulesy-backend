@@ -193,6 +193,7 @@ class Refresh:
 
             nb_created = 0
             nb_updated = 0
+            nb_deleted = 0
 
             # Fixes errors
             for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
@@ -239,6 +240,7 @@ class Refresh:
                         r_del = Resource.objects.get(ext_id=k)
                         logger.info("Resource {} - {} to delete".format(r_del.ext_id, r_del.fields['name']))
                         r_del.delete()
+                        nb_deleted += 1
                         create(k, v)
                         nb_created += 1
 
@@ -246,6 +248,7 @@ class Refresh:
             for resource in [v for k, v in indexed_resources.items() if k not in test.keys()]:
                 logger.info("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
                 resource.delete()
+                nb_deleted += 1
 
             if o_fp:
                 o_fp.fingerprint = n_fp
@@ -257,6 +260,7 @@ class Refresh:
                 'status': 'modified',
                 'updated': nb_updated,
                 'created': nb_created,
+                'deleted': nb_deleted,
                 'elapsed': elapsed
             })
 

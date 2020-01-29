@@ -40,12 +40,15 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
             fingerprint='unittest')
         res_bcd_media = Resource.objects.create(
             ext_id=1616, fields={'category': self.category})
+        Resource.objects.create(
+            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
 
         self.refresh.refresh_category(self.category)
 
         self.assertEqual(Resource.objects.count(), 19)
         self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
         self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
+        self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
         self.assertNotEqual(
             (
                 Fingerprint.objects
