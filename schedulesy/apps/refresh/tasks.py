@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 def refresh_all():
     refresh_agent = Refresh()
     refresh_agent.refresh_all()
+    return refresh_agent.data
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)

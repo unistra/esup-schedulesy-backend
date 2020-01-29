@@ -222,6 +222,7 @@ class Refresh:
             for k, v in test.items():
                 if k not in indexed_resources and k not in all_ext_ids:
                     create(k, v)
+                    nb_created += 1
                 else:
                     # Existing elements
                     try:
@@ -239,6 +240,7 @@ class Refresh:
                         logger.info("Resource {} - {} to delete".format(r_del.ext_id, r_del.fields['name']))
                         r_del.delete()
                         create(k, v)
+                        nb_created += 1
 
             # Clean resources
             for resource in [v for k, v in indexed_resources.items() if k not in test.keys()]:

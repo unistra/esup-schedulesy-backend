@@ -38,8 +38,8 @@ def bulldoze(request):  # pragma: no cover
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh(request):  # pragma: no cover
     if request.method == "GET":
-        refresh_all.delay()
-        return JsonResponse({"response": "refresh scheduled"})
+        result = refresh_all.delay()
+        return JsonResponse(result.get())
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
