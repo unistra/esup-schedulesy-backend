@@ -14,6 +14,7 @@ from ics import Calendar, Event
 from schedulesy.libs.decorators import MemoizeWithTimeout
 from .exception import TooMuchEventsError
 from .utils import generate_uuid, get_ade_timezone
+from schedulesy.apps.ade_legacy import models as legacy
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,17 @@ class Resource(models.Model):
 
     def __str__(self):
         return '{0.ext_id}'.format(self)
+
+    @cached_property
+    def local_customizations(self):
+        return LocalCustomization.objects.filter(resources__id=self.id)
+
+    def delete(self, using=None, keep_parents=False):
+        for customization in [lc.customization for lc in self.local_customizations]:
+            customization.resources = ",".join(
+                filter(lambda x: x != self.ext_id, customization.resources.split(',')))
+            customization.save()
+        return super().delete(using, keep_parents)
 
 
 class Fingerprint(models.Model):
@@ -97,6 +109,13 @@ class LocalCustomization(models.Model):
 
     def __str__(self):
         return '{0.username}'.format(self)
+
+    @cached_property
+    def customization(self):
+        try:
+            return legacy.Customization.objects.get(id=self.customization_id)
+        except:
+            return None
 
     @property
     def ics_calendar_filename(self):
