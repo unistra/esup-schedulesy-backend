@@ -195,18 +195,17 @@ class Refresh:
             nb_updated = 0
             nb_deleted = 0
 
-            # Fixes errors
-            for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
-                v = test[resource.ext_id]
-                logger.debug(f'Fixing missing fields for {resource.ext_id}')
-                resource.fields = v
-                if "parent" in v:
-                    try:
-                        resource.parent = indexed_resources[v["parent"]]
-                    except KeyError:
-                        logger.warning(f"Missing parent resource for {resource.ext_id}")
-                resource.save()
-                nb_updated += 1
+            def update(to_update, data):
+                if to_update.fields != data:
+                    to_update.fields = data
+                    if "parent" in data:
+                        try:
+                            to_update.parent = indexed_resources[data["parent"]]
+                        except KeyError:
+                            logger.warning(f"Missing parent resource for {to_update.ext_id}")
+                    to_update.save()
+                    return True
+                return False
 
             def create(ext_id, data):
                 # Non existing elements
@@ -220,6 +219,13 @@ class Refresh:
                     logger.error(error)
                 indexed_resources[ext_id] = r
 
+            # Fixes errors
+            for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
+                v = test[resource.ext_id]
+                logger.debug(f'Fixing missing fields for {resource.ext_id}')
+                if update(resource, v):
+                    nb_updated += 1
+
             for k, v in test.items():
                 if k not in indexed_resources and k not in all_ext_ids:
                     create(k, v)
@@ -228,12 +234,7 @@ class Refresh:
                     # Existing elements
                     try:
                         resource = indexed_resources[k]
-                        if resource.fields != v:
-                            resource.fields = v
-                            if "parent" in v:
-                                resource.parent = indexed_resources[v["parent"]]
-                            resource.save()
-                            indexed_resources[k] = resource
+                        if update(resource, v):
                             nb_updated += 1
                     except KeyError:
                         logger.warning(f"Fixing inconsistency for resource {k}")
