@@ -184,6 +184,7 @@ class Refresh:
 
         if not o_fp or o_fp.fingerprint != n_fp:
             start = time.clock()
+            all_ext_ids = Resource.objects.all().values_list('ext_id', flat=True)
             resources = Resource.objects.filter(fields__category=r_type)
             indexed_resources = {r.ext_id: r for r in resources}
             # Dict id reversed to preserve links of parenthood
@@ -192,44 +193,63 @@ class Refresh:
 
             nb_created = 0
             nb_updated = 0
+            nb_deleted = 0
+
+            def update(to_update, data):
+                if to_update.fields != data:
+                    to_update.fields = data
+                    if "parent" in data:
+                        try:
+                            to_update.parent = indexed_resources[data["parent"]]
+                        except KeyError:
+                            logger.warning(f"Missing parent resource for {to_update.ext_id}")
+                    to_update.save()
+                    return True
+                return False
+
+            def create(ext_id, data):
+                # Non existing elements
+                r = Resource(ext_id=ext_id, fields=data)
+                logger.debug(f'Creating resource {ext_id} : {data}')
+                if "parent" in data:
+                    r.parent = indexed_resources[data["parent"]]
+                try:
+                    r.save()
+                except IntegrityError as error:
+                    logger.error(error)
+                indexed_resources[ext_id] = r
 
             # Fixes errors
             for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
                 v = test[resource.ext_id]
                 logger.debug(f'Fixing missing fields for {resource.ext_id}')
-                resource.fields = v
-                if "parent" in v:
-                    resource.parent = indexed_resources[v["parent"]]
-                resource.save()
-                nb_updated += 1
+                if update(resource, v):
+                    nb_updated += 1
 
             for k, v in test.items():
-                if k not in indexed_resources:
-                    # Non existing elements
-                    resource = Resource(ext_id=k, fields=v)
-                    logger.debug(f'{k} : {v}')
-                    if "parent" in v:
-                        resource.parent = indexed_resources[v["parent"]]
-                    try:
-                        resource.save()
-                    except IntegrityError as error:
-                        logger.error(error)
-                    indexed_resources[k] = resource
+                if k not in indexed_resources and k not in all_ext_ids:
+                    create(k, v)
                     nb_created += 1
                 else:
                     # Existing elements
-                    resource = indexed_resources[k]
-                    if resource.fields != v:
-                        resource.fields = v
-                        if "parent" in v:
-                            resource.parent = indexed_resources[v["parent"]]
-                        resource.save()
-                        indexed_resources[k] = resource
-                        nb_updated += 1
+                    try:
+                        resource = indexed_resources[k]
+                        if update(resource, v):
+                            nb_updated += 1
+                    except KeyError:
+                        logger.warning(f"Fixing inconsistency for resource {k}")
+                        r_del = Resource.objects.get(ext_id=k)
+                        logger.info("Resource {} - {} to delete".format(r_del.ext_id, r_del.fields['name']))
+                        r_del.delete()
+                        nb_deleted += 1
+                        create(k, v)
+                        nb_created += 1
+
             # Clean resources
-            for resource in [v for k,v in indexed_resources.items() if k not in test.keys()]:
-                logger.debug("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
+            for resource in [v for k, v in indexed_resources.items() if k not in test.keys()]:
+                logger.info("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
                 resource.delete()
+                nb_deleted += 1
 
             if o_fp:
                 o_fp.fingerprint = n_fp
@@ -241,6 +261,7 @@ class Refresh:
                 'status': 'modified',
                 'updated': nb_updated,
                 'created': nb_created,
+                'deleted': nb_deleted,
                 'elapsed': elapsed
             })
 
