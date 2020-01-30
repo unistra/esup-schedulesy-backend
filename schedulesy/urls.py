@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
+from django.utils.text import slugify
 
 from . import get_version
 from .views import home
@@ -19,13 +20,13 @@ urlpatterns = [
 ]
 
 # debug toolbar for dev
-if settings.DEBUG and 'debug_toolbar'in settings.INSTALLED_APPS:
+if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
+
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]
 
 # Must be the last url
-urlpatterns += [
-    url(r'^.*$', home, name='home'),
-]
+urlpatterns += [path(r, home, name=slugify(r))
+                for r in ['config', 'consult/calendar', 'consult/list', 'auth/cas/logout']]
