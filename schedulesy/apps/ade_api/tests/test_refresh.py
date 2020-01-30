@@ -2,8 +2,9 @@ from django.test import TestCase
 import responses
 
 from .utils import ADEMixin, InfocentreMixin
-from ..models import Fingerprint, Resource
+from ..models import Fingerprint, Resource, LocalCustomization
 from ..refresh import Refresh
+from ...ade_legacy.models import Customization
 
 
 class RefreshCategoryTestCase(ADEMixin, TestCase):
@@ -40,12 +41,15 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
             fingerprint='unittest')
         res_bcd_media = Resource.objects.create(
             ext_id=1616, fields={'category': self.category})
+        Resource.objects.create(
+            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
 
         self.refresh.refresh_category(self.category)
 
         self.assertEqual(Resource.objects.count(), 19)
         self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
         self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
+        self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
         self.assertNotEqual(
             (
                 Fingerprint.objects
@@ -59,6 +63,45 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         res_bcd_media = Resource.objects.get(ext_id=1616, **fields)
 
         self.assertEqual(res_bcd_media.parent, res_espe_colmar)
+
+    def test_classroom_refresh_customization_cascade(self):
+        Fingerprint.objects.create(
+            ext_id=self.category, method='getResources',
+            fingerprint='unittest')
+        r_1616 = Resource.objects.create(
+            ext_id=1616, fields={'category': self.category})
+        # inconsistency due to id recycling (verified category is classroom but this id
+        # already exists with category 'wrong'
+        r_1359 = Resource.objects.create(
+            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
+        # local has 2 resources : 1616 and 1359
+        local = LocalCustomization.objects.create(customization_id=1)
+        local.resources.add(r_1359, r_1616)
+        Customization.objects.create(
+            id=1, resources='1616,1359', directory_id='42', username='user1')
+        # lc2 has 1 resource : 1359
+        lc2 = LocalCustomization.objects.create(customization_id=2, username='cascade')
+        lc2.resources.add(r_1359, r_1616)
+        Customization.objects.create(
+            id=2, resources='1359', directory_id='69', username='cascade')
+
+        # Main action
+        self.refresh.refresh_category(self.category)
+
+        # Tests
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
+        self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
+        self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
+
+        # New count of linked resources
+        self.assertEqual(local.resources.count(), 1)
+        self.assertFalse(local.resources.filter(ext_id='1359').exists())
+        self.assertTrue(local.resources.filter(ext_id='1616').exists())
+        # Cascade in customization table
+        ade1 = Customization.objects.get(id=1)
+        self.assertEqual(ade1.resources, '1616')
+        ade2 = Customization.objects.get(id=2)
+        self.assertEqual(ade2.resources, '')
 
 
 class RefreshResourceTestCase(ADEMixin, TestCase):

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from schedulesy.apps.ade_api.models import LocalCustomization, Resource
+from schedulesy.apps.ade_api import models as api
 
 
 class Customization(models.Model):
@@ -28,8 +28,8 @@ class Customization(models.Model):
     @cached_property
     def local_customization(self):
         try:
-            return LocalCustomization.objects.get(customization_id=self.id)
-        except LocalCustomization.DoesNotExist:
+            return api.LocalCustomization.objects.get(customization_id=self.id)
+        except api.LocalCustomization.DoesNotExist:
             return self._sync()
 
     # TODO: atomic
@@ -39,7 +39,7 @@ class Customization(models.Model):
 
     def _sync(self):
         # Saves must be reflected in local customization
-        lc, created = LocalCustomization.objects.get_or_create(
+        lc, created = api.LocalCustomization.objects.get_or_create(
             customization_id=self.id,
             defaults={
                 'directory_id': self.directory_id,
@@ -59,7 +59,7 @@ class Customization(models.Model):
 
         # Adding missing resources
         lc.resources.add(*(
-            Resource.objects.get_or_create(ext_id=x)[0] for x in
+            api.Resource.objects.get_or_create(ext_id=x)[0] for x in
             (resource_ids - existing_ids)))
         return lc
 
