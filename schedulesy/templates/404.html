@@ -1,7 +1,183 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="fr">
 
-{% load i18n %}
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-title" content="Support">
+    <title></title>
 
-{% block content %}
-{% trans "Page not found" %}
-{% endblock %}
+    <link rel="shortcut icon"
+          href="https://typodun2016.unistra.fr/fileadmin/templates/common/web-elements/favicon/favicon-unistra-32px.png"
+          type="image/png">
+    <link rel="stylesheet"
+          href="https://s3.unistra.fr/master/common/assets/fonts/unistra-font/1.0.0/css/unistra-font.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=Ros22u4Tp0Dy106qr0rRkGBPoJM=&Expires=1870971370">
+    <link rel="stylesheet" type="text/css"
+          href="https://s3.unistra.fr/master/common/assets/fonts/unistra-symbol/1.0.4/css/unistra-symbol.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=lfTwAVnRXjgZc9ryRpAcWhiMbCA%3D&Expires=1876298241"
+          media="all">
+    <link rel="stylesheet" type="text/css"
+          href="https://s3.unistra.fr/master/common/assets/fonts/nova-icons/1.0.2/css/nova-icons.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=hFFKhRhE9%2B1xVyIi%2F%2BQPD%2BftVbk%3D&Expires=1887617035"
+          media="all">
+    <link rel="stylesheet" type="text/css"
+          href="https://s3.unistra.fr/master/common/assets/fonts/fontawesome/4.7.0/css/font-awesome.css?AWSAccessKeyId=M2M78RKXPAP75Y692QZX&Signature=snnhBqegenRmkB3%2F8aGO0MmaQiU%3D&Expires=1887617417"
+          media="all">
+
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js" type="text/javascript"></script><![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js" type="text/javascript"></script><![endif]-->
+</head>
+
+<body id="top" data-spy="scroll" data-target="#navbar">
+
+<div id="nav-mobile" class="nav-mobile collapsed"></div>
+
+<div id="body-container">
+    <header id="page-header" class="header-mh-xs">
+        <nav class="navbar navbar-default navbar-fixed-top" id="navbar">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-target="#nav-mobile"
+                            aria-expanded="false">
+                        <span class="sr-only">Afficher / Masquer le menu</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <ul id="nav-main" class="nav-main nav navbar-nav">
+                    <li><a href="#top" title="Accueil"><i class="nv nv-home hidden-sm hidden-xs"></i> <span
+                            class="sr-only hidden-sm hidden-xs">Accueil</span><span
+                            class="hidden-md hidden-lg">Accueil</span></a></li>
+                    <li><a href="{% url 'home' %}" target="_blank">Mon emploi du temps</a></li>
+                </ul>
+                <!-- Modal -->
+                <div class="modal" id="about" tabindex="-1" role="dialog" aria-labelledby="a-propos">
+                    <div class="flex-container">
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div id="fixed-header" class="fixed-header hidden-xs hidden-sm" aria-hidden="true">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-md-11 col-md-offset-1">
+                        <div class="sun sun-gray">
+                                <span class="sun-row sun-offset-3">
+                                    <span class="sun-cell sun-text-primary">
+                                        <span class="sun-inner-cell"><i class="us us-wifi"></i> <i
+                                                class="us us-meeting"></i> <i class="us us-windows"></i></span>
+                                </span>
+                                <a href="https://www.unistra.fr/index.php?id=14804" class="sun-cell sun-primary"
+                                   data-sun-link="structure" title="Mon emploi du temps">
+                                        <span class="sun-inner-cell">
+                                            <strong>Mon emploi du temps</strong><span
+                                                class="sr-only">Mon emploi du temps</span>
+                                        </span>
+                                    </a>
+                                <span class="sun-cell sun-empty-9"></span>
+                                <span class="sun-cell sun-empty-1"></span>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-md-11 col-md-offset-1">
+                    <div id="signature-unistra">
+                        <div class="sun sun-gray">
+                                <span class="sun-row sun-offset-3">
+                                    <span class="sun-cell sun-text-primary">
+                                        <span class="sun-inner-cell"><i class="us us-wifi"></i> <i
+                                                class="us us-meeting"></i> <i class="us us-windows"></i></span>
+                                    </span>
+                                    <a href="{% url 'home' %}" class="sun-cell sun-primary"
+                                       data-sun-link="structure" title="Mon emploi du temps">
+                                        <h1 class="sun-inner-cell">
+                                            <strong>Mon emploi du temps</strong><span
+                                                class="sr-only">Direction du Numérique</span>
+                                        </h1>
+                                    </a>
+                                    <span class="sun-cell sun-empty-9"></span>
+                                    <span class="sun-cell sun-empty-1"></span>
+                                </span>
+                            <span class="sun-row"><a
+                                    href="https://services-numeriques.unistra.fr"
+                                    title="Direction du numérique" class="sun-cell"
+                            ><span
+                                    class="sun-cell-inner">Direction</span></a><a
+                                    href="https://services-numeriques.unistra.fr"
+                                    title="Direction du numérique"
+                                    class="sun-cell"
+                            ><span
+
+                                    class="sun-cell-inner">du <strong>numérique</strong></span></a><span
+                                    class="sun-cell sun-empty-15"></span></span>
+                            <span class="sun-row sun-offset-5">
+                                    <span class="sun-cell sun-empty-12"></span>
+                                    <span class="sun-cell sun-empty-1"></span>
+                                    <span class="sun-cell sun-empty-1"></span>
+                                    <a href="http://www.unistra.fr" class="sun-cell sun-gray" data-sun-link="unistra"
+                                       title="Université de Strasbourg">
+                                        <span class="sun-inner-cell">Université de Strasbourg</span>
+                                    </a>
+                                    <span class="sun-cell sun-empty-5"></span>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-container">
+
+
+        <section id="go-help" class="anchor-offset">
+            <div class="bg-">
+                <div class="container">
+                    <div class="panel panel-transparent">
+                        <div class="panel-heading">
+                            <h1>
+                                <i class="nv nv-link-broken"></i><em>Oups !</em> Page non trouvée
+
+                            </h1>
+
+                        </div>
+
+                        <div class="v-card">
+                            <a href="{% url 'home' %}" alt="Retourner sur la page d'accueil">Retourner sur la page d'accueil</a>
+                            <a href="{% url 'home' %}" alt="Retourner sur la page d'accueil">
+                            <img src="https://cdn.pixabay.com/photo/2017/03/09/12/31/error-2129569_960_720.jpg" alt="Page non trouvée">
+                        </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+    <footer id="page-footer">
+        <div class="container text-center">
+            <p id="page-footer-content"><strong>Direction du numérique</strong> - Université de Strasbourg - Tous
+                droits réservés</p>
+        </div>
+    </footer>
+</div>
+<div id="to-top" class="sun sun-gray hidden-xs" style="display: block;">
+        <span class="sun-row sun-2x">
+            <a href="#top" title="Retour en haut de page" class="sun-cell sun-primary" data-bcup-haslogintext="no">
+              <span class="sun-inner-cell"><i class="us us-arrow-top"></i></span>
+        </a>
+        </span>
+</div>
+
+</body>
+
+</html>
