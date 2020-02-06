@@ -16,6 +16,7 @@ DEFAULT = '.default'
 CALENDAR = '.ics'
 STATS = '.stats'
 SYNC = '.sync'
+SYNC_LOG = SYNC + '.log'
 
 
 @MemoizeWithTimeout()
@@ -45,7 +46,7 @@ exchange = Exchange(message_name, type='topic', durable=False, delivery_mode=1)
 
 celery_app.conf.task_queues = (
     Queue(message_name, exchange, routing_key=message_name + DEFAULT),
-    #Queue(message_name + CALENDAR, exchange, routing_key=message_name + CALENDAR),
+    Queue(message_name + SYNC_LOG, exchange, routing_key=message_name + SYNC_LOG),
     Queue(message_name + STATS, exchange, routing_key=message_name + STATS),
 )
 
@@ -62,6 +63,10 @@ celery_app.conf.task_routes = [
         'schedulesy.apps.ade_api.tasks.stats': {
             'queue': message_name + STATS,
             'routing_key': message_name + STATS,
+        },
+        'schedulesy.apps.ade_api.tasks.sync_log': {
+            'queue': message_name + SYNC_LOG,
+            'routing_key': message_name + SYNC_LOG,
         },
     },
 ]

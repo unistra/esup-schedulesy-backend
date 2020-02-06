@@ -14,7 +14,16 @@ has_elasticsearch = 'schedulesy.middleware.StatsMiddleware' in settings.MIDDLEWA
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)
+def sync_log(payload):
+    log(payload, 'ade-sync')
+
+
+@shared_task(autoretry_for=(Exception,), default_retry_delay=60)
 def stats(payload):
+    log(payload, 'schedulesy')
+
+
+def log(payload, prefix):
     if has_elasticsearch:
         if 'http_user_agent' in payload:
             try:
@@ -23,4 +32,4 @@ def stats(payload):
                 logger.error(f'{e}')
         es = Elasticsearch([{'host': settings.ELASTIC_SEARCH_SERVER, 'port': settings.ELASTIC_SEARCH_PORT}])
         suffix = datetime.now().strftime('%Y%m')
-        es.index(index=f'schedulesy-{suffix}', doc_type='doc', id=str(uuid.uuid4()), body=json.dumps(payload))
+        es.index(index=f'{prefix}-{suffix}', doc_type='doc', id=str(uuid.uuid4()), body=json.dumps(payload))

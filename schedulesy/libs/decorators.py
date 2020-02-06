@@ -1,11 +1,37 @@
 import logging
+import socket
 import time
 
 import redis
 from django.conf import settings
 
+from schedulesy.apps.ade_api.tasks import sync_log
+
 logger = logging.getLogger(__name__)
 has_redis = 'cacheops' in settings.INSTALLED_APPS
+
+
+def async_log(func):
+    def wrapper(*args, **kwargs):
+        payload = {'task': func.__qualname__,
+                   'args': [str(x) for x in args if type(x) in (int, float, str)],
+                   'kwargs': kwargs,
+                   'server': socket.gethostname(),
+                   'environment': settings.STAGE,
+                   }
+        start = time.perf_counter()
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            payload.update({'error': str(e)})
+            raise e
+        finally:
+            end = time.perf_counter()
+            payload.update({
+                       'total': end - start})
+            sync_log.delay(payload)
+
+    return wrapper
 
 
 def refresh_if_necessary(func):

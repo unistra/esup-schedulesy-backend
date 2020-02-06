@@ -12,7 +12,7 @@ from skinos.custom_consumer import CustomConsumer
 from schedulesy.apps.ade_api.models import Resource
 from schedulesy.apps.ade_api.refresh import Refresh
 from schedulesy.celery import sync_queue_name
-from schedulesy.libs.decorators import refresh_if_necessary
+from schedulesy.libs.decorators import refresh_if_necessary, async_log
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,7 @@ def refresh_resource(ext_id, *args, **kwargs):
     _refresh_resource(ext_id, *args, **kwargs)
 
 
+@async_log
 @refresh_if_necessary
 def _refresh_resource(ext_id, *args, **kwargs):
     # TODO improve number of requests with batch size (file with uuid4)
@@ -63,6 +64,11 @@ def bulldoze():
 
 @CustomConsumer.consumer(sync_queue_name(), sync_queue_name(), sync_queue_name() + '.ade.*')
 def refresh_resources(body, message):
+    _refresh_resources(body, message)
+
+
+@async_log
+def _refresh_resources(body, message):
     """
     Awaited resources to refresh. All signals are from ADE sync
     :param body: JSON data / {"operation_id":"1e777a3f-0f9f-4bdb-8c07-61bb5286622e",
@@ -73,10 +79,7 @@ def refresh_resources(body, message):
     """
     try:
         data = json.loads(body)
-        if 'operation_id' not in data:
-            operation_id = str(uuid.uuid4())
-        else:
-            operation_id = data['operation_id']
+        operation_id = str(uuid.uuid4()) if 'operation_id' not in data else data['operation_id']
 
         # Getting linked resources in old events
         logger.info("{operation_id} / Will refresh {batch_size} events"
