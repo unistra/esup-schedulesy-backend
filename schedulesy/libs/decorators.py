@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import socket
 import time
@@ -18,6 +19,7 @@ def async_log(func):
                    'kwargs': kwargs,
                    'server': socket.gethostname(),
                    'environment': settings.STAGE,
+                   '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
                    }
         start = time.perf_counter()
         try:
