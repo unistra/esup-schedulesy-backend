@@ -6,6 +6,7 @@ import time
 import redis
 from django.conf import settings
 
+from schedulesy import VERSION
 from schedulesy.apps.ade_api.tasks import sync_log
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ def async_log(func):
                    'kwargs': kwargs,
                    'server': socket.gethostname(),
                    'environment': settings.STAGE,
+                   'version': '.'.join([str(x) for x in VERSION]),
                    '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
                    }
         start = time.perf_counter()
