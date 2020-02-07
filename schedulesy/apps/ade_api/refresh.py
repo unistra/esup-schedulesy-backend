@@ -80,19 +80,16 @@ class Refresh:
             # Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
 
-        try:
-            r = self.myade.getEvents(
-                resources=ext_id, detail=0,
-                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+        r = self.myade.getEvents(
+            resources=ext_id, detail=0,
+            attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
 
-            if resource is None:
-                resource = Resource.objects.get(ext_id=ext_id)
+        if resource is None:
+            resource = Resource.objects.get(ext_id=ext_id)
 
-            events = self._reformat_events(r['data'])
-            resource.events = events
-            resource.save()
-        except Exception as e:
-            logger.error(e)
+        events = self._reformat_events(r['data'])
+        resource.events = events
+        resource.save()
 
 
     def _simple_resource_refresh(self, resource, operation_id):
