@@ -12,6 +12,7 @@ from django.conf import settings
 from django.http import FileResponse
 from sentry_sdk import capture_exception
 
+from schedulesy import VERSION
 from schedulesy.apps.ade_api.tasks import stats
 
 LOGGER = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ class StatsMiddleware:
                        'server': socket.gethostname(),
                        'http_user_agent': request.META.get('HTTP_USER_AGENT'),
                        'environment': settings.STAGE,
+                       'version': '.'.join([str(x) for x in VERSION]),
                        'user': self.get_user(request)
                        }
         self.process_request(request)
