@@ -38,19 +38,20 @@ class Resource(models.Model):
     def local_customizations(self):
         return LocalCustomization.objects.filter(resources__id=self.id)
 
-    def lineage(self):
+    @staticmethod
+    def lineage(values):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
                 WITH RECURSIVE parent_resource(id) AS (
-                        SELECT r.id, r.ext_id FROM ade_api_resource r where id = %s
+                        SELECT r.id, r.ext_id FROM ade_api_resource r where ext_id in %s
                       UNION ALL
                         SELECT r.id, r.ext_id
                         FROM ade_api_resource r, parent_resource pr
                         WHERE r.parent_id = pr.id
                     )
                     SELECT * from parent_resource
-                """, params=[self.pk]
+                """, params=[tuple(values)]
             )
             row = [r[1] for r in cursor.fetchall()]
         return row

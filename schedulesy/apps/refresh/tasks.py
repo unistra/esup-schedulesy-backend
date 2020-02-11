@@ -59,7 +59,8 @@ def bulldoze():
     batch_size = len(resources)
     operation_id = str(uuid.uuid4())
     for resource in resources:
-        refresh_resource.delay(resource.ext_id, batch_size=batch_size, operation_id=operation_id, order_time=time.time())
+        refresh_resource.delay(resource.ext_id, batch_size=batch_size, operation_id=operation_id,
+                               order_time=time.time())
 
 
 @CustomConsumer.consumer(sync_queue_name(), sync_queue_name(), sync_queue_name() + '.ade.*')
@@ -94,7 +95,11 @@ def _refresh_resources(body, message):
         )
         old_resources_ids = {r.ext_id for r in old_resources}
         # Getting linked resources in new events
-        resources_ids = set().union(old_resources_ids, *[value['resources'] for value in data['events'] if 'resources' in value])
+        resources = {str(item) for sublist in [value['resources']
+                                                         for value in data['events'] if 'resources' in value]
+                                    for item in sublist}
+        lineage = Resource.lineage(resources)
+        resources_ids = set().union(old_resources_ids, lineage)
 
         batch_size = len(resources_ids)
         logger.info(
@@ -103,7 +108,8 @@ def _refresh_resources(body, message):
                 batch_size=batch_size))
 
         for resource_id in resources_ids:
-            refresh_resource.delay(resource_id, batch_size=batch_size, operation_id=operation_id, order_time=time.time())
+            refresh_resource.delay(resource_id, batch_size=batch_size, operation_id=operation_id,
+                                   order_time=time.time())
     except JSONDecodeError as e:
         logger.error("Content : {}\n{}".format(body, e))
         capture_exception(e)
