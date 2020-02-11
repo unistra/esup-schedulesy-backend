@@ -161,3 +161,23 @@ class AccessTestCase(TestCase):
         Access.objects.create(name='access', customization=lc)
         access.delete()
         self.assertFalse(Access.objects.filter(pk=access.pk).exists())
+
+class ResourceTestCase(TestCase):
+
+    def test_lineage(self):
+        r = Resource(ext_id='1337')
+        r.save()
+        self.assertIn('1337', r.lineage())
+        r2 = Resource(ext_id='666', parent=r)
+        r2.save()
+        self.assertIn('666', r.lineage())
+        r3 = Resource(ext_id='42', parent=r)
+        r3.save()
+        r21 = Resource(ext_id='314', parent=r2)
+        r21.save()
+        r22 = Resource(ext_id='3141', parent=r2)
+        r22.save()
+        r23 = Resource(ext_id='31415', parent=r2)
+        r23.save()
+        self.assertIn('31415', r.lineage())
+        self.assertEqual(len(r.lineage()), 6)

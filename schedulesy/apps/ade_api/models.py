@@ -11,10 +11,10 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ics import Calendar, Event
 
+from schedulesy.apps.ade_legacy import models as legacy
 from schedulesy.libs.decorators import MemoizeWithTimeout
 from .exception import TooMuchEventsError
 from .utils import generate_uuid, get_ade_timezone
-from schedulesy.apps.ade_legacy import models as legacy
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,23 @@ class Resource(models.Model):
     @cached_property
     def local_customizations(self):
         return LocalCustomization.objects.filter(resources__id=self.id)
+
+    def lineage(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                WITH RECURSIVE parent_resource(id) AS (
+                        SELECT r.id, r.ext_id FROM ade_api_resource r where id = %s
+                      UNION ALL
+                        SELECT r.id, r.ext_id
+                        FROM ade_api_resource r, parent_resource pr
+                        WHERE r.parent_id = pr.id
+                    )
+                    SELECT * from parent_resource
+                """, params=[self.pk]
+            )
+            row = [r[1] for r in cursor.fetchall()]
+        return row
 
     def delete(self, using=None, keep_parents=False):
         for customization in [lc.customization for lc in self.local_customizations]:
