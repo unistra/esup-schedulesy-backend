@@ -169,7 +169,7 @@ class ResourceTestCase(TestCase):
         self.assertIn('1337', Resource.lineage(['1337']))
         r2 = Resource.objects.create(ext_id='666', parent=r)
         self.assertIn('666', Resource.lineage(['1337']))
-        r3 = Resource.objects.create(ext_id='42', parent=r)
+        Resource.objects.create(ext_id='42', parent=r)
         Resource.objects.create(ext_id='314', parent=r2)
         Resource.objects.create(ext_id='3141', parent=r2)
         Resource.objects.create(ext_id='31415', parent=r2)
@@ -178,4 +178,7 @@ class ResourceTestCase(TestCase):
         s = Resource.objects.create(ext_id='314159')
         Resource.objects.create(ext_id='3141592', parent=s)
         self.assertEqual(len(Resource.lineage(['1337', '314159'])), 8)
+        # Using set as argument
         self.assertEqual(len(Resource.lineage({'1337', '314159'})), 8)
+        # Non existing resource
+        self.assertEqual(len(Resource.lineage({'1337', '314159', '111'})), 8)
