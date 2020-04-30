@@ -42,7 +42,7 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
 
     def test_with_single_resource(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
-        lc = LocalCustomization.objects.create(
+        LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
@@ -53,7 +53,7 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
     def test_with_multiple_resources(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         instructor = Resource.objects.get(ext_id='23390')
-        lc = LocalCustomization.objects.create(
+        LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
@@ -94,7 +94,7 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
 
     def test_with_single_resource(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
-        lc = LocalCustomization.objects.create(
+        LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
@@ -114,7 +114,7 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
     def test_with_multiple_resources(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         instructor = Resource.objects.get(ext_id='23390')
-        lc = LocalCustomization.objects.create(
+        LocalCustomization.objects.create(
             customization_id='1', directory_id='42', username='owner')
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')

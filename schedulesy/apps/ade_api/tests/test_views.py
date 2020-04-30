@@ -3,12 +3,43 @@ import json
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
+from django.urls import reverse
 
 from ..models import Access, AdeConfig, LocalCustomization, Resource
 from ..views import AccessDeletePermission
-
+from ...ade_legacy.models import Customization
 
 User = get_user_model()
+
+
+class AdminTestCase(TestCase):
+    fixtures = ['tests/users.json']
+
+    def test_sync_customization_no_auth(self):
+        self.client.login(username='no_auth', password='password')
+        response = self.client.get(reverse('api:sync_customization'))
+        self.assertEqual(302, response.status_code)
+
+    def test_sync_customization_super_user(self):
+        Customization.objects.create(
+            id=1, resources='10', directory_id='42', username='user1')
+        LocalCustomization.objects.get(customization_id=1).delete()
+        c2 = Customization.objects.create(
+            id=2, resources='10', directory_id='666', username='user2')
+        c2.delete()
+        Customization.objects.create(
+            id=3, resources='10', directory_id='111', username='user3')
+        self.client.login(username='super_user', password='password')
+        response = self.client.get(reverse('api:sync_customization'))
+        self.assertEqual(200, response.status_code)
+        self.assertIsNotNone(Customization.objects.get(username='user1'))
+        self.assertIsNotNone(LocalCustomization.objects.get(username='user1'))
+        self.assertIsNotNone(Customization.objects.get(username='user3'))
+        self.assertIsNotNone(LocalCustomization.objects.get(username='user3'))
+        with self.assertRaises(Customization.DoesNotExist):
+            self.assertIsNotNone(Customization.objects.get(username='user2'))
+        with self.assertRaises(LocalCustomization.DoesNotExist):
+            self.assertIsNotNone(LocalCustomization.objects.get(username='user2'))
 
 
 class AccessListTestCase(TestCase):
@@ -160,7 +191,6 @@ class ResourceDetailTestCase(TestCase):
 
 
 class CalendarExportTestCase(TestCase):
-
     fixtures = ['tests/resources']
 
     def test_calendar_export(self):

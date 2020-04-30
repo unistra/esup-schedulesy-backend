@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import uuid
+from datetime import timedelta
 from os import environ
 from os.path import normpath
 import tempfile
@@ -104,3 +105,12 @@ INFOCENTREWS_DESCRIPTION = join(
     DJANGO_ROOT, 'libs', 'api', 'tests', 'description_infocentre.json')
 INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
 INFOCENTREWS_TOKEN = 'TOK3N'
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'username',
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': str(uuid.uuid4()),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+
+}
