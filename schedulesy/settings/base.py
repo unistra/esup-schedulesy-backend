@@ -416,7 +416,7 @@ def sentry_init(environment):
     from os import path
 
     sentry_sdk.init(
-        dsn="https://b1ed0f04a9bf4b269baae2720440278c@sentry-test.app.unistra.fr/24",
+        dsn="https://2ab6b76118c54c5a982d095a1c9cdcc2@sentry.app.unistra.fr/5",
         integrations=[DjangoIntegration()],
         environment=environment,
         release=open(path.join(SITE_ROOT, "build.txt")).read()
