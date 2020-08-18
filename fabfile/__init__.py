@@ -200,9 +200,9 @@ def prod():
     """Define prod stage"""
     env.roledefs = {
         'web': ['django-w3.u-strasbg.fr', 'django-w4.u-strasbg.fr'],
-        'lb': ['rp10-m.di.unistra.fr', 'rp10-s.di.unistra.fr'],
-        'celery-worker': ['django-w3.u-strasbg.fr'],
-        'broker': ['django-celery-1.di.unistra.fr']
+        'lb': ['rp-dip-public-m.di.unistra.fr', 'rp-dip-public-s.di.unistra.fr'],
+        'celery-worker': ['django-celery-1.di.unistra.fr'],
+        'broker': ['rabbitmq-prod.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = env.roledefs['web']
