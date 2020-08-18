@@ -29,7 +29,10 @@ class Customization(models.Model):
     @cached_property
     def local_customization(self):
         try:
-            return api.LocalCustomization.objects.get(customization_id=self.id)
+            lc = api.LocalCustomization.objects.get(customization_id=self.id)
+            if lc.resources.count() <= 0:
+                self._sync()
+            return lc
         except api.LocalCustomization.DoesNotExist:
             return self._sync()
 
@@ -69,6 +72,7 @@ class Customization(models.Model):
                 error = True
         if error:
             self.resources = ','.join([f'{r.ext_id}' for r in lc.resources.all()])
+            self.save()
         return lc
 
     class Meta:

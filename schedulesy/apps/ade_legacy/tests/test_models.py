@@ -62,7 +62,7 @@ class CustomizationModelTestCase(TestCase):
     def test_save_adding_missing_resources_consistency(self):
         Resource.objects.create(ext_id='11')
         nb = Resource.objects.count()
-        local = LocalCustomization.objects.create(customization_id=1)
+        LocalCustomization.objects.create(customization_id=1)
         customization = Customization.objects.create(
             id=1, resources='11,12', directory_id='42', username='user1')
         self.assertEqual(Resource.objects.count(), nb)
