@@ -38,6 +38,10 @@ class Customization(models.Model):
 
     # TODO: atomic
     def save(self, *args, **kwargs):
+        # fix list of resources
+        if self.resources != '':
+            resources = api.Resource.objects.filter(ext_id__in=set(self.resources.split(',')))
+            self.resources = ','.join([f'{r.ext_id}' for r in resources])
         super().save(*args, **kwargs)
         self._sync()
 
@@ -68,11 +72,10 @@ class Customization(models.Model):
                 r = api.Resource.objects.get(ext_id=r_id)
                 lc.resources.add(r)
             except ObjectDoesNotExist:
-                # Missing ressource
+                # Missing resource, probably deleted by synchronization
                 error = True
         if error:
-            self.resources = ','.join([f'{r.ext_id}' for r in lc.resources.all()])
-            self.save()
+            self.resources = ','.join(lc.resources.values_list('ext_id', flat=True))
         return lc
 
     class Meta:
