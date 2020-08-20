@@ -57,7 +57,7 @@ class Resource(models.Model):
         return row
 
     def delete(self, using=None, keep_parents=False):
-        for customization in [lc.customization for lc in self.local_customizations]:
+        for customization in [lc.customization for lc in self.local_customizations if lc.customization]:
             customization.resources = ",".join(
                 filter(lambda x: x != self.ext_id, customization.resources.split(',')))
             customization.save()

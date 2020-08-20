@@ -4,6 +4,8 @@ from os.path import abspath, basename, dirname, join, normpath, isfile
 ######################
 # Path configuration #
 ######################
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 SITE_ROOT = dirname(DJANGO_ROOT)
@@ -417,7 +419,7 @@ def sentry_init(environment):
 
     sentry_sdk.init(
         dsn="https://2ab6b76118c54c5a982d095a1c9cdcc2@sentry.app.unistra.fr/5",
-        integrations=[DjangoIntegration()],
+        integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
         environment=environment,
         release=open(path.join(SITE_ROOT, "build.txt")).read()
     )

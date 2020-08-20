@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -28,7 +29,10 @@ class Customization(models.Model):
     @cached_property
     def local_customization(self):
         try:
-            return api.LocalCustomization.objects.get(customization_id=self.id)
+            lc = api.LocalCustomization.objects.get(customization_id=self.id)
+            if lc.resources.count() <= 0:
+                self._sync()
+            return lc
         except api.LocalCustomization.DoesNotExist:
             return self._sync()
 
@@ -58,9 +62,17 @@ class Customization(models.Model):
             *(lc.resources.filter(ext_id__in=(existing_ids - resource_ids))))
 
         # Adding missing resources
-        lc.resources.add(*(
-            api.Resource.objects.get_or_create(ext_id=x)[0] for x in
-            (resource_ids - existing_ids)))
+        error = False
+        for r_id in (resource_ids - existing_ids):
+            try:
+                r = api.Resource.objects.get(ext_id=r_id)
+                lc.resources.add(r)
+            except ObjectDoesNotExist:
+                # Missing ressource
+                error = True
+        if error:
+            self.resources = ','.join([f'{r.ext_id}' for r in lc.resources.all()])
+            self.save()
         return lc
 
     class Meta:

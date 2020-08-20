@@ -1,5 +1,6 @@
 import logging
 import time
+from collections import OrderedDict
 
 from django.conf import settings
 from django.db import IntegrityError
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class Flatten:
     def __init__(self, data):
         self.data = data
-        self.f_data = {}
+        self.f_data = OrderedDict()
         self._flatten()
 
     def _flatten(self, item=None, genealogy=None):
@@ -51,7 +52,8 @@ class Flatten:
                 if len(children_ref) > 0:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
-            result = {'id': key, 'name': item['name'], 'code': item.get('code', '')}
+            result = OrderedDict()
+            result.update({'id': key, 'name': item['name'], 'code': item.get('code', '')})
             result['has_children'] = len(children_ref) > 0
             return result
 
@@ -180,13 +182,13 @@ class Refresh:
         self.data[key] = {'status': 'unchanged', 'fingerprint': n_fp}
 
         if not o_fp or o_fp.fingerprint != n_fp:
-            start = time.clock()
+            start = time.time()
             all_ext_ids = Resource.objects.all().values_list('ext_id', flat=True)
             resources = Resource.objects.filter(fields__category=r_type)
             indexed_resources = {r.ext_id: r for r in resources}
             # Dict id reversed to preserve links of parenthood
 
-            test = dict(reversed(list(Flatten(tree['data']).f_data.items())))
+            test = OrderedDict(reversed(list(Flatten(tree['data']).f_data.items())))
 
             nb_created = 0
             nb_updated = 0
@@ -253,7 +255,7 @@ class Refresh:
             else:
                 o_fp = Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
             o_fp.save()
-            elapsed = time.clock() - start
+            elapsed = time.time() - start
             self.data[key].update({
                 'status': 'modified',
                 'updated': nb_updated,
