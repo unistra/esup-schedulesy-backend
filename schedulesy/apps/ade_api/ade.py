@@ -286,9 +286,9 @@ class ADEWebAPI():
                 params['sessionId'] = self.sessionId
 
         # self.logger.debug("send %s" % hide_dict_values(params))
-        start = time.clock()
+        start = time.time()
         response = requests.get(self.url, params=params)
-        elapsed_rq = time.clock() - start
+        elapsed_rq = time.time() - start
 
         response.encoding = 'UTF-8'
         data = response.text

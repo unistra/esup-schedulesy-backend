@@ -13,6 +13,7 @@ class CustomizationModelTestCase(TestCase):
         Customization.objects.all().delete()
 
     def test_read_without_local_customization(self):
+        Resource.objects.create(ext_id='10')
         customization = Customization.objects.create(
             id=1, resources='10', directory_id='42', username='user1')
         customization.configuration='{"mode":"dark"}'
@@ -25,6 +26,7 @@ class CustomizationModelTestCase(TestCase):
         self.assertTrue(lc.resources.filter(ext_id='10').exists())
 
     def test_save_without_local_customization(self):
+        Resource.objects.create(ext_id='10')
         Customization.objects.create(
             id=1, resources='10', directory_id='42', username='user1')
         local = LocalCustomization.objects.get(customization_id=1)
@@ -55,9 +57,20 @@ class CustomizationModelTestCase(TestCase):
         Customization.objects.create(
             id=1, resources='11,12', directory_id='42', username='user1')
 
-        self.assertEqual(local.resources.count(), 2)
+        self.assertEqual(local.resources.count(), 1)
+
+    def test_save_adding_missing_resources_consistency(self):
+        Resource.objects.create(ext_id='11')
+        nb = Resource.objects.count()
+        LocalCustomization.objects.create(customization_id=1)
+        customization = Customization.objects.create(
+            id=1, resources='11,12', directory_id='42', username='user1')
+        self.assertEqual(Resource.objects.count(), nb)
+        self.assertEqual(customization.resources, '11')
 
     def test_ics_calendar(self):
+        Resource.objects.create(ext_id='11')
+        Resource.objects.create(ext_id='12')
         customization = Customization.objects.create(
             id=1, resources='11,12', directory_id='42', username='user1')
         self.assertEqual("409a1639a5f7496086822b5f15e0e5bca85c161f.ics", customization.ics_calendar)
