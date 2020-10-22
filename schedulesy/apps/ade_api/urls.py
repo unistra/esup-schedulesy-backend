@@ -23,6 +23,7 @@ ws_urlpatterns = [
     path('display_types', views.DisplayTypeList.as_view(), name='display_types'),
     path('resource/<str:ext_id>', views.ResourceDetail.as_view(), name='resource'),
     path('events/<str:ext_id>', views.EventsDetail.as_view(), name='events'),
+    path('instructor', views.InstructorDetail.as_view(), name='instructor'),
     path('calendar/<str:username>', views.CalendarDetail.as_view(), name='calendar'),
     path('info/<str:username>', views.InfoDetail.as_view(), name='info'),
 ]

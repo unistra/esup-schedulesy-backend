@@ -18,7 +18,7 @@ from schedulesy.apps.refresh.tasks import (
     bulldoze as resource_bulldoze, refresh_all,
     refresh_resource as resource_task)
 from schedulesy.libs.permissions import IsOwnerPermission
-from .exception import TooMuchEventsError
+from .exception import TooMuchEventsError, SearchTooWideError
 from .models import (
     Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
@@ -141,6 +141,23 @@ class EventsDetail(generics.RetrieveAPIView):
     serializer_class = EventsSerializer
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'ext_id'
+
+
+class InstructorDetail(generics.ListAPIView):
+    serializer_class = ResourceSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = Resource.objects.all()
+        email = self.request.query_params.get('email', None)
+        if email is not None:
+            queryset = queryset.filter(fields__email=email)
+            return queryset
+        raise SearchTooWideError
 
 
 class DisplayTypeList(generics.ListAPIView):
