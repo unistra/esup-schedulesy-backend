@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework_simplejwt.tokens import AccessToken
 
 from ..models import Access, AdeConfig, LocalCustomization, Resource
 from ..views import AccessDeletePermission
@@ -12,8 +13,16 @@ from ...ade_legacy.models import Customization
 User = get_user_model()
 
 
-class AdminTestCase(TestCase):
+class AuthCase(TestCase):
     fixtures = ['tests/users.json']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.no_auth = User.objects.get(pk=5)
+        cls.non_authorized_access = AccessToken().for_user(cls.no_auth)
+
+
+class AdminTestCase(AuthCase):
 
     def test_sync_customization_no_auth(self):
         self.client.login(username='no_auth', password='password')
@@ -42,7 +51,7 @@ class AdminTestCase(TestCase):
             self.assertIsNotNone(LocalCustomization.objects.get(username='user2'))
 
 
-class AccessListTestCase(TestCase):
+class AccessListTestCase(AuthCase):
 
     def setUp(self):
         super().setUp()
@@ -119,16 +128,21 @@ class AccessDeleteTestCase(TestCase):
         self.assertFalse(Access.objects.filter(name='access1').exists())
 
 
-class AdeConfigDetailTestCase(TestCase):
+class AdeConfigDetailTestCase(AuthCase):
 
-    def test_view(self):
-        view_url = '/api/ade_config.json'
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.view_url = '/api/ade_config.json'
         AdeConfig.objects.create(
             ade_url='https://adewebcons-test.unistra.fr/',
             parameters={'projectId': '1'}
         )
 
-        response = self.client.get(view_url)
+    def test_view_auth(self):
+        response = self.client.get(self.view_url,
+                                   HTTP_AUTHORIZATION='Bearer ' + str(self.non_authorized_access))
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
 
         self.assertDictEqual(data, {
@@ -136,18 +150,29 @@ class AdeConfigDetailTestCase(TestCase):
             'params': {'projectId': '1'}
         })
 
+    def test_view_no_auth(self):
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 403)
 
-class ResourceDetailTestCase(TestCase):
 
-    def test_resource_with_empty_fields(self):
+class ResourceDetailTestCase(AuthCase):
+
+    def test_resource_with_empty_fields_auth(self):
         view_url = '/api/resource/{ext_id}.json'
         Resource.objects.create(ext_id=30622)
 
-        response = self.client.get(view_url.format(ext_id=30622))
+        response = self.client.get(view_url.format(ext_id=30622),
+                                   HTTP_AUTHORIZATION='Bearer ' + str(self.non_authorized_access))
         data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(data, {})
+
+    def test_resource_with_empty_fields_no_auth(self):
+        view_url = '/api/resource/{ext_id}.json'
+        Resource.objects.create(ext_id=30622)
+        response = self.client.get(view_url.format(ext_id=30622))
+        self.assertEqual(response.status_code, 403)
 
     def test_resource_with_fields(self):
         view_url = '/api/resource/{ext_id}.json'
@@ -166,7 +191,8 @@ class ResourceDetailTestCase(TestCase):
             ]
         })
 
-        response = self.client.get(view_url.format(ext_id=30622))
+        response = self.client.get(view_url.format(ext_id=30622),
+                                   HTTP_AUTHORIZATION='Bearer ' + str(self.non_authorized_access))
         data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(response.status_code, 200)
