@@ -23,7 +23,7 @@ from .models import (
     Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
     AccessSerializer, AdeConfigSerializer, CalendarSerializer,
-    ResourceSerializer, InfoSerializer)
+    ResourceSerializer, InfoSerializer, EventsSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -132,13 +132,20 @@ def refresh_resource(request, ext_id):  # pragma: no cover
 class ResourceDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = 'ext_id'
+
+
+class EventsDetail(generics.RetrieveAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = EventsSerializer
+    permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'ext_id'
 
 
 class DisplayTypeList(generics.ListAPIView):
     queryset = DisplayType.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         return Response(self.get_queryset().values_list('name', flat=True))
@@ -147,7 +154,7 @@ class DisplayTypeList(generics.ListAPIView):
 class AdeConfigDetail(generics.RetrieveAPIView):
     queryset = AdeConfig.objects.all()
     serializer_class = AdeConfigSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=1)
