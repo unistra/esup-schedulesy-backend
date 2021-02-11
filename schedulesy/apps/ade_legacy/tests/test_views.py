@@ -97,15 +97,19 @@ class CustomizationListTestCase(TestCase):
         data = json.loads(self.client.get(self.view_url).content.decode('utf-8'))
         self.assertEqual(data[0]['resources'], '')
 
-    def test_desync(self):
+    def test_reference_inconsistency(self):
         Customization.objects.create(id=1, directory_id='1', username='owner')
         lc = LocalCustomization.objects.get(username='owner')
         lc.customization_id = 2
         lc.save()
 
         self.client.login(username='owner', password='pass')
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
 
-        data = json.loads(self.client.get(self.view_url).content.decode('utf-8'))
+        # Tests inconsistency fix
+        lc = LocalCustomization.objects.get(username='owner')
+        self.assertEqual(lc.customization_id, 1)
 
 
 
