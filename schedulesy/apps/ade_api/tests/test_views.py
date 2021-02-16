@@ -162,7 +162,7 @@ class ResourceDetailTestCase(AuthCase):
         Resource.objects.create(ext_id=30622)
 
         response = self.client.get(view_url.format(ext_id=30622),
-                                   HTTP_AUTHORIZATION='Bearer ' + str(self.non_authorized_access))
+                                   HTTP_AUTHORIZATION=f'Bearer {self.non_authorized_access}')
         data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(response.status_code, 200)

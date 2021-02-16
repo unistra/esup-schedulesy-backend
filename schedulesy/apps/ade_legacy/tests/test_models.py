@@ -73,7 +73,7 @@ class CustomizationModelTestCase(TestCase):
         Resource.objects.create(ext_id='12')
         customization = Customization.objects.create(
             id=1, resources='11,12', directory_id='42', username='user1')
-        self.assertEqual("409a1639a5f7496086822b5f15e0e5bca85c161f.ics", customization.ics_calendar)
+        self.assertEqual("0306d239086e735258b6453727ef74cf3c2cf0f8.ics", customization.ics_calendar)
 
     def test_str(self):
         local = LocalCustomization.objects.create(customization_id=1, username='user1')
