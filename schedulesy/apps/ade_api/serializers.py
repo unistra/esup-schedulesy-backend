@@ -43,6 +43,16 @@ class ResourceSerializer(serializers.ModelSerializer):
         model = Resource
 
 
+class EventsSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        fields = obj.fields or {}
+        fields['events'] = obj.events
+        return fields
+
+    class Meta:
+        model = Resource
+
+
 class AdeConfigSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         return {

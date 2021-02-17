@@ -18,12 +18,12 @@ from schedulesy.apps.refresh.tasks import (
     bulldoze as resource_bulldoze, refresh_all,
     refresh_resource as resource_task)
 from schedulesy.libs.permissions import IsOwnerPermission
-from .exception import TooMuchEventsError
+from .exception import TooMuchEventsError, SearchTooWideError
 from .models import (
     Access, AdeConfig, LocalCustomization, DisplayType, Resource)
 from .serializers import (
     AccessSerializer, AdeConfigSerializer, CalendarSerializer,
-    ResourceSerializer, InfoSerializer)
+    ResourceSerializer, InfoSerializer, EventsSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -132,13 +132,37 @@ def refresh_resource(request, ext_id):  # pragma: no cover
 class ResourceDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'ext_id'
+
+
+class EventsDetail(generics.RetrieveAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = EventsSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = 'ext_id'
+
+
+class InstructorDetail(generics.ListAPIView):
+    serializer_class = ResourceSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = Resource.objects.all()
+        email = self.request.query_params.get('email', None)
+        if email is not None:
+            queryset = queryset.filter(fields__email=email)
+            return queryset
+        raise SearchTooWideError
 
 
 class DisplayTypeList(generics.ListAPIView):
     queryset = DisplayType.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         return Response(self.get_queryset().values_list('name', flat=True))
@@ -147,7 +171,7 @@ class DisplayTypeList(generics.ListAPIView):
 class AdeConfigDetail(generics.RetrieveAPIView):
     queryset = AdeConfig.objects.all()
     serializer_class = AdeConfigSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=1)
