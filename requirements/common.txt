@@ -7,7 +7,7 @@ sentry-sdk<0.12
 django-cas-sso<1.1.9
 celery<4.4
 django-storages[boto3]<1.8
-cryptography<2.8
+cryptography==3.2
 django-cacheops<4.3
 requests<2.23
 pytz==2019.2

@@ -34,7 +34,16 @@ class Customization(models.Model):
                 self._sync()
             return lc
         except api.LocalCustomization.DoesNotExist:
-            return self._sync()
+            try:
+                # Fixes inconsistency between databases
+                lc = api.LocalCustomization.objects.get(username=self.username)
+                lc.customization_id = self.id
+                lc.save()
+                if lc.resources.count() <= 0:
+                    self._sync()
+                return lc
+            except api.LocalCustomization.DoesNotExist:
+                return self._sync()
 
     # TODO: atomic
     def save(self, *args, **kwargs):
