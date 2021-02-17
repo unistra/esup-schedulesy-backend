@@ -299,9 +299,11 @@ class ADEWebAPI():
         try:
             self._parse_error(element)
         except Exception as e:
-            logger.error("{}".format(params))
-            logger.error("{}".format(data))
-            #raise e
+            if element.attrib['name'] == 'java.lang.NullPointerException':
+                raise e
+            else:
+                logger.error("{}".format(params))
+                logger.error("{}".format(data))
 
         if 'hash' in params and params['hash']:
             d_hash = hashlib.md5(data.encode('utf-8')).hexdigest()

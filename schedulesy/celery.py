@@ -21,7 +21,7 @@ SYNC_LOG = SYNC + '.log'
 
 @MemoizeWithTimeout()
 def queue_name():
-    suffix = socket.gethostname() if settings.STAGE == 'dev' else ''
+    suffix = socket.gethostname() + 'local' if settings.STAGE == 'dev' else ''
     return 'schedulesy' + suffix
 
 
