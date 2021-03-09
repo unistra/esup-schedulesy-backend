@@ -8,7 +8,7 @@ except ImportError:
     pass
 
 
-VERSION = (1, 1, 11)
+VERSION = (1, 1, 13)
 
 
 def get_version():
