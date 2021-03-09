@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from ..models import Customization
-from ...ade_api.models import Resource
+from ...ade_api.models import Resource, LocalCustomization
 
 User = get_user_model()
 
@@ -96,5 +96,21 @@ class CustomizationListTestCase(TestCase):
         tmp.delete()
         data = json.loads(self.client.get(self.view_url).content.decode('utf-8'))
         self.assertEqual(data[0]['resources'], '')
+
+    def test_reference_inconsistency(self):
+        Customization.objects.create(id=1, directory_id='1', username='owner')
+        lc = LocalCustomization.objects.get(username='owner')
+        lc.customization_id = 2
+        lc.save()
+
+        self.client.login(username='owner', password='pass')
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Tests inconsistency fix
+        lc = LocalCustomization.objects.get(username='owner')
+        self.assertEqual(lc.customization_id, 1)
+
+
 
 

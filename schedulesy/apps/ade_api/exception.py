@@ -1,4 +1,5 @@
 from django.conf import settings
+from rest_framework.exceptions import APIException
 
 
 class ExceptionFactory(object):
@@ -20,3 +21,8 @@ class TooMuchEventsError(Exception):
         return {**{"code": "too_much_events",
                    "detail": f'Excedeed limit of {settings.ADE_MAX_EVENTS} events'},
                 **self.message}
+
+
+class SearchTooWideError(APIException):
+    status_code = 412
+    default_detail = 'Your search is too wide. Please specify a filter'
