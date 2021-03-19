@@ -242,6 +242,7 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'cacheops',
 ]
 
