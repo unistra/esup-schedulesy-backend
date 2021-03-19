@@ -8,7 +8,12 @@
             "tag": "leaf",
             "name": "BCD Media",
             "path": "COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.",
-            "category": "classroom"
+            "category": "classroom",
+            "genealogy": [{
+                  "id": "classroom",
+                  "code": "",
+                  "name": "classroom"
+            }]
         },
         "events": {
             "events": [{

@@ -242,6 +242,7 @@ THIRD_PARTY_APPS = [
     'django_cas',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'cacheops',
 ]
 
@@ -348,6 +349,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'schedulesy.libs.authentication.CustomJWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
