@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
 from ..models import Access, AdeConfig, LocalCustomization, Resource
@@ -240,21 +242,49 @@ class InfoCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.no_auth = User.objects.get(pk=5)
-        Customization.objects.create(username='no_auth', directory_id='42')
+        Customization.objects.create(username='no_auth', directory_id='42', resources='1616')
         cls.view_url = reverse('api:info', kwargs={'username': 'no_auth', 'format': 'json'})
         cls.admin = User.objects.get(pk=1)
+        cls.staff = User.objects.get(pk=6)
+
+    def test_info_no_auth(self):
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_info_no_perm(self):
         self.client.login(username='no_auth', password='password')
         response = self.client.get(self.view_url)
         self.assertEqual(response.status_code, 403)
 
+    def check_data(self, response):
+        data = json.loads(response.content.decode('utf-8'))
+        keys = ['id', 'customization_id', 'directory_id', 'username', 'configuration', 'nb_events',
+                'ade', 'resources']
+        self.assertTrue(all(k in data for k in keys))
+        self.assertEqual(data['directory_id'], '42')
+        self.assertEqual(data['username'], 'no_auth')
+
     def test_info_admin(self):
         self.client.login(username='super_user', password='password')
         response = self.client.get(self.view_url)
         self.assertEqual(response.status_code, 200)
+        self.check_data(response)
+
+    def authenticated_client(self, user):
+        token = Token.objects.create(user=user)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        return client
+
+    def test_token_admin(self):
+        response = self.authenticated_client(self.admin).get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+        self.check_data(response)
+
+    def test_token_staff(self):
+        response = self.authenticated_client(self.staff).get(self.view_url)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
-        keys = ['id', 'customization_id', 'directory_id', 'username', 'configuration', 'nb_events', 'ade', 'resources']
+        keys = ['username', 'resources']
         self.assertTrue(all(k in data for k in keys))
-        self.assertEqual(data['directory_id'], '42')
-        self.assertEqual(data['username'], 'no_auth')
+        self.assertEqual(data['resources'], '1616')
