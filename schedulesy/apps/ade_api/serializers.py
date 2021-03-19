@@ -112,6 +112,9 @@ class InfoSerializer(serializers.ModelSerializer):
                          'ade': ade_serializer.to_representation(customization),
                          'resources': resources_data})
         else:
+            # curl --request GET \
+            #   --url https://my.path.com/api/info/example.json \
+            #   --header 'Authorization: Token monpetittoken'
             data.update({'username': obj.username, 'resources': customization.resources})
 
         return data
