@@ -95,15 +95,28 @@ class AdeSerializer(serializers.ModelSerializer):
 class InfoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
-        data = super().to_representation(obj)
+        user = None
+        data = {}
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
         customization = Customization.objects.get(username=obj.username)
-        resources_data = [
-            {'id': r.ext_id, 'name': r.fields['name'], 'path': ' - '.join([g['name'] for g in r.fields['genealogy']])}
-            for r in obj.resources.all()]
-        ade_serializer = AdeSerializer()
-        data.update({'nb_events': obj.events_nb,
-                     'ade': ade_serializer.to_representation(customization),
-                     'resources': resources_data})
+        if user.has_perm('ade_api.view_local_customization'):
+            data = super().to_representation(obj)
+            ade_serializer = AdeSerializer()
+            resources_data = [
+                {'id': r.ext_id, 'name': r.fields['name'],
+                 'path': ' - '.join([g['name'] for g in r.fields['genealogy']])}
+                for r in obj.resources.all()]
+            data.update({'nb_events': obj.events_nb,
+                         'ade': ade_serializer.to_representation(customization),
+                         'resources': resources_data})
+        else:
+            # curl --request GET \
+            #   --url https://my.path.com/api/info/example.json \
+            #   --header 'Authorization: Token monpetittoken'
+            data.update({'username': obj.username, 'resources': customization.resources})
+
         return data
 
     class Meta:
