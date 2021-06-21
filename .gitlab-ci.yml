@@ -18,3 +18,9 @@ unittest:
     - coverage erase
     - coverage run run_tests.py
     - coverage report
+
+safety:
+  stage: test
+  script:
+    - pip install safety
+    - safety check
