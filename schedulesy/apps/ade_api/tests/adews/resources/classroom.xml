@@ -1,11 +1,13 @@
 <tree>
     <category category="classroom">
         <branch id="30622" name="COL  -SITE COLMAR" path="" category="classroom">
-            <branch id="30628" name="ESPE COLMAR BATIMENT PRINCIPAL" path="COL  -SITE COLMAR." category="classroom">
-                <leaf id="1616" name="BCD Media" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL." category="classroom"/>
-                <leaf id="1359" name="209" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL." category="classroom"/>
+            <branch id="30628" name="ESPE COLMAR BATIMENT PRINCIPAL" path="COL  -SITE COLMAR." category="classroom" code="1059240">
+                <branch id="1111" name="ADDITIONAL BRANCH" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL" category="classroom">
+                    <leaf id="1616" name="BCD Media" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.ADDITIONAL BRANCH" category="classroom"/>
+                    <leaf id="1359" name="209" path="COL  -SITE COLMAR.ESPE COLMAR BATIMENT PRINCIPAL.ADDITIONAL BRANCH" category="classroom"/>
+                </branch>
             </branch>
-            <branch id="30623" name="ESPE COLMAR AILE JOFFRE" path="COL  -SITE COLMAR." category="classroom">
+            <branch id="30623" name="ESPE COLMAR AILE JOFFRE" path="COL  -SITE COLMAR." category="classroom" code="1065150">
                 <leaf id="1790" name="Aile Joffre 17 1er" path="COL  -SITE COLMAR.ESPE COLMAR AILE JOFFRE." category="classroom"/>
                 <leaf id="1674" name="Aile Joffre 16 1er" path="COL  -SITE COLMAR.ESPE COLMAR AILE JOFFRE." category="classroom"/>
             </branch>
@@ -15,7 +17,7 @@
             </branch>
         </branch>
         <branch id="30618" name="SCH  -SITE SCHILTIGHEIM" path="" category="classroom">
-            <branch id="30619" name="IUT LOUIS PASTEUR" path="SCH  -SITE SCHILTIGHEIM." category="classroom">
+            <branch id="30619" name="IUT LOUIS PASTEUR" path="SCH  -SITE SCHILTIGHEIM." category="classroom" code="852405">
                 <branch id="30624" name="AMPHI" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR." category="classroom">
                     <leaf id="8964" name="Amphi 1" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.AMPHI." category="classroom"/>
                     <leaf id="8962" name="Amphi 4" path="SCH  -SITE SCHILTIGHEIM.IUT LOUIS PASTEUR.AMPHI." category="classroom"/>
