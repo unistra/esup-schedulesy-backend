@@ -20,8 +20,8 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
     def test_initial_classroom_refresh(self):
         self.refresh.refresh_category(self.category)
 
-        self.assertEqual(Resource.objects.count(), 19)
-        self.assertEqual(self.refresh.data[self.data_key]['created'], 19)
+        self.assertEqual(Resource.objects.count(), 20)
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 20)
         self.assertTrue(Fingerprint.objects
                         .filter(ext_id=self.category, method=self.method)
                         .exists())
@@ -30,24 +30,26 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         fields = {'fields__category': self.category}
         res_colmar = Resource.objects.get(ext_id=30622, **fields)
         res_espe_colmar = Resource.objects.get(ext_id=30628, **fields)
+        res_espe_additional = Resource.objects.get(ext_id=1111, **fields)
         res_bcd_media = Resource.objects.get(ext_id=1616, **fields)
 
-        self.assertEqual(res_bcd_media.parent, res_espe_colmar)
+        self.assertEqual(res_bcd_media.parent, res_espe_additional)
+        self.assertEqual(res_espe_additional.parent, res_espe_colmar)
         self.assertEqual(res_espe_colmar.parent, res_colmar)
 
     def test_classroom_refresh_with_existing_elements(self):
         fp = Fingerprint.objects.create(
             ext_id=self.category, method='getResources',
             fingerprint='unittest')
-        res_bcd_media = Resource.objects.create(
-            ext_id=1616, fields={'category': self.category})
         Resource.objects.create(
             ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
+        Resource.objects.create(
+            ext_id=1111, fields={'category': 'classroom', 'name': 'wrong'})
 
         self.refresh.refresh_category(self.category)
 
-        self.assertEqual(Resource.objects.count(), 19)
-        self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
+        self.assertEqual(Resource.objects.count(), 20)
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 19)
         self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
         self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
         self.assertNotEqual(
@@ -59,10 +61,10 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
         # Testing genealogy
         fields = {'fields__category': self.category}
-        res_espe_colmar = Resource.objects.get(ext_id=30628, **fields)
+        res_espe_additional = Resource.objects.get(ext_id=1111, **fields)
         res_bcd_media = Resource.objects.get(ext_id=1616, **fields)
 
-        self.assertEqual(res_bcd_media.parent, res_espe_colmar)
+        self.assertEqual(res_bcd_media.parent, res_espe_additional)
 
     def test_classroom_refresh_customization_cascade(self):
         Fingerprint.objects.create(
@@ -89,7 +91,8 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         self.refresh.refresh_category(self.category)
 
         # Tests
-        self.assertEqual(self.refresh.data[self.data_key]['created'], 18)
+        self.assertEqual(Resource.objects.count(), 20)
+        self.assertEqual(self.refresh.data[self.data_key]['created'], 19)
         self.assertEqual(self.refresh.data[self.data_key]['updated'], 1)
         self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
 
@@ -104,7 +107,7 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         self.assertEqual(ade2.resources, '')
 
 
-class RefreshResourceTestCase(ADEMixin, TestCase):
+class RefreshResourceTestCase(ADEMixin, InfocentreMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -126,7 +129,7 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         res_bcd_media = Resource.objects.get(ext_id=1616)
 
         self.assertEqual(res_bcd_media.fields['name'], 'BCD Media')
-        self.assertEqual(res_bcd_media.parent.ext_id, '30628')
+        self.assertEqual(res_bcd_media.parent.ext_id, '1111')
 
     def test_refresh_resource_single_event(self):
         self.add_getresources_response()
@@ -141,9 +144,10 @@ class RefreshResourceTestCase(ADEMixin, TestCase):
         self.assertIn('1616', events['classrooms'])
         self.assertListEqual(
             events['classrooms']['1616']['genealogy'],
-            ['COL  -SITE COLMAR', 'ESPE COLMAR BATIMENT PRINCIPAL'])
+            ['COL  -SITE COLMAR', 'ESPE COLMAR BATIMENT PRINCIPAL', 'ADDITIONAL BRANCH'])
         self.assertDictEqual(
             events['instructors'], {'23390': {'name': 'Gerard Toto'}})
+        self.assertEqual(events['classrooms']['1616']['geolocation'], [48.607508, 7.708025, 0.0])
 
     def test_refresh_resource_multiple_events(self):
         self.add_getresources_response()

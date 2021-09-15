@@ -7,3 +7,4 @@ django-debug-toolbar
 django-extensions
 tox
 responses
+safety

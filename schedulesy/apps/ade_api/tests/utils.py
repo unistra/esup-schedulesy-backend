@@ -28,7 +28,6 @@ class ResponsesMixin:
 
 
 class ADEMixin(ResponsesMixin):
-
     SESSION_ID = '16d72108506'
     FIXTURES_PATH = os.path.join(os.path.dirname(__file__), 'adews')
     RESOURCES_MOCK = {
@@ -125,6 +124,21 @@ class InfocentreMixin(ResponsesMixin):
         responses.add(
             responses.GET,
             self.__ws_url(url_path='buildings.json'),
-            json=[],
+            json=[{
+                "id": 1059240,
+                "geolocation": [
+                    48.607508,
+                    7.708025,
+                    0.0
+                ],
+                "name": "NAME",
+                "address1": "ADDR1",
+                "address2": "",
+                "zip_code": "67000",
+                "interior_surface": 1337.55,
+                "type": "Enseignement",
+                "city": "CALAVILLE",
+                "site": 425774
+            }],
             status=200
         )

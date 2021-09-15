@@ -156,7 +156,8 @@ class Refresh:
                 parents.append(x['name'])
                 if index >= 2:
                     code = to_ade_id(x['code'])
-                    geolocation = get_geolocations().get(code, [])
+                    local_geolocation = get_geolocations().get(code, [])
+                    geolocation = local_geolocation if local_geolocation else geolocation
 
             tmp_r['genealogy'] = parents[1:]
             tmp_r['geolocation'] = geolocation
