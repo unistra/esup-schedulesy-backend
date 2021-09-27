@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db.models.expressions import RawSQL
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.reverse import reverse
 
 from .models import Access, AdeConfig, LocalCustomization, Resource
@@ -45,8 +46,21 @@ class ResourceSerializer(serializers.ModelSerializer):
 
 class EventsSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
+        def sanitize():
+            if obj.fields['category'] != 'classroom':
+                raise PermissionDenied('Only classrooms allowed')
+            fields['events'].pop('instructors')
+            for item in [x for x in fields['events']['events'] if 'instructors' in x]:
+                item.pop('instructors')
+
         fields = obj.fields or {}
         fields['events'] = obj.events
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+            if not user.is_authenticated:
+                sanitize()
+
         return fields
 
     class Meta:
