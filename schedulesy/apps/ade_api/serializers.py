@@ -50,7 +50,7 @@ class EventsSerializer(serializers.ModelSerializer):
             if obj.fields['category'] != 'classroom':
                 raise PermissionDenied('Only classrooms allowed')
             if fields['events']:
-                fields['events'].pop('instructors')
+                fields['events']['instructors'] = {}
                 for item in [x for x in fields['events']['events'] if 'instructors' in x]:
                     item.pop('instructors')
 
