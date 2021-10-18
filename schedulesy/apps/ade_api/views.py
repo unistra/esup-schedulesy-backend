@@ -140,8 +140,8 @@ class ResourceDetail(generics.RetrieveAPIView):
 class EventsDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = EventsSerializer
-#    permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'ext_id'
+    permission_classes = (permissions.AllowAny, )
 
 
 class InstructorDetail(generics.ListAPIView):

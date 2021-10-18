@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.utils.text import slugify
 
 from . import get_version
@@ -30,3 +30,4 @@ if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
 # Must be the last url
 urlpatterns += [path(r, home, name=slugify(r))
                 for r in ['config', 'consult/calendar', 'consult/list', 'auth/cas/logout']]
+urlpatterns += [re_path('public/.*', home, name='public')]
