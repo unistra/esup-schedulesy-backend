@@ -289,7 +289,7 @@ class Refresh:
             resource.save()
 
 
-@MemoizeWithTimeout()
+@MemoizeWithTimeout(timeout=30)
 def ade_connection():
     config = Config.create(url=settings.ADE_WEB_API['HOST'],
                            login=settings.ADE_WEB_API['USER'],
@@ -300,6 +300,6 @@ def ade_connection():
     return connection
 
 
-@MemoizeWithTimeout()
+@MemoizeWithTimeout(timeout=30)
 def ade_resources(category, operation_id='standard'):
     return ade_connection().getResources(category=category, detail=11, tree=True, hash=True)
