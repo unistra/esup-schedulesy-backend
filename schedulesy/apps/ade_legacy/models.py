@@ -94,4 +94,4 @@ class Customization(models.Model):
         verbose_name_plural = _('Customizations')
 
     def __str__(self):
-        return '{0.username}'.format(self)
+        return f'{self.username}'

@@ -61,7 +61,7 @@ def refresh_if_necessary(func):
     return wrapper
 
 
-class MemoizeWithTimeout(object):
+class MemoizeWithTimeout:
     """Memoize With Timeout"""
     _caches = {}
     _timeouts = {}

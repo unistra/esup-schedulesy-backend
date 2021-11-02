@@ -32,7 +32,7 @@ class Resource(models.Model):
         verbose_name_plural = _('Resources')
 
     def __str__(self):
-        return '{0.ext_id}'.format(self)
+        return f'{self.ext_id}'
 
     @cached_property
     def local_customizations(self):
@@ -85,7 +85,7 @@ class DisplayType(models.Model):
         verbose_name_plural = _('Display types')
 
     def __str__(self):
-        return '{0.name}'.format(self)
+        return f'{self.name}'
 
 
 class AdeConfig(models.Model):
@@ -126,7 +126,7 @@ class LocalCustomization(models.Model):
         verbose_name_plural = _('Local Customizations')
 
     def __str__(self):
-        return '{0.username}'.format(self)
+        return f'{self.username}'
 
     @cached_property
     def customization(self):

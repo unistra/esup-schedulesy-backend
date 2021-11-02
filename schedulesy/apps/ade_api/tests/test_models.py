@@ -74,7 +74,7 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
         self.user_owner = User.objects.create_user('owner', password='pass')
 
     def _assertIcsFields(self, filename, fields):
-        with open(filename, 'r') as fh:
+        with open(filename) as fh:
             d = collections.defaultdict(list)
             for k, v in map(lambda x: x.strip().split(':', 1), fh.readlines()):
                 d[k].append(v)

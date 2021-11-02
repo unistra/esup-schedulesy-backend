@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 from setuptools import setup
 from setuptools import find_packages
@@ -34,7 +32,7 @@ recursive_requirements('requirements.txt', libraries, dependency_links)
 try:
     version = __import__('schedulesy').get_version()
 except Exception as e:
-    version = open("build.txt", 'r').read()
+    version = open("build.txt").read()
 
 
 setup(

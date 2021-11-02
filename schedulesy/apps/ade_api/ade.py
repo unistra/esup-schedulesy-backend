@@ -73,7 +73,7 @@ def get_info(key, default_value=None):
             import os
             return (os.environ[ENV_VAR_KEY])
         except:
-            logging.warning("You should pass %s using --%s or using environment variable %r" % (key, key, ENV_VAR_KEY))
+            logging.warning(f"You should pass {key} using --{key} or using environment variable {ENV_VAR_KEY!r}")
             return (default_value)
     else:
         return (default_value)
@@ -85,7 +85,7 @@ class HiddenDict(dict):
     """
 
     def __init__(self, **kwargs):
-        super(HiddenDict, self).__init__()
+        super().__init__()
         for key, value in kwargs.items():
             if key not in ['hidden_keys', 'replace_keys']:
                 self[key] = value
@@ -115,7 +115,7 @@ class Config(HiddenDict):
 
     def __init__(self, **kwargs):
         # super(Config, self).__init__(hidden_keys=['password'], replace_keys={'url': 'server'}, **kwargs)
-        super(Config, self).__init__(hidden_keys=['password'], **kwargs)
+        super().__init__(hidden_keys=['password'], **kwargs)
 
     @staticmethod
     def create(**default_values):
@@ -133,7 +133,7 @@ def timestamp2datetime(ts, tz=pytz.utc):
     return (datetime.datetime.fromtimestamp(float(ts) / 1000.0, tz))
 
 
-class BaseObject(object):
+class BaseObject:
     """Base object class which can be easily initialize using
     keyword parameters
     Attributes can be access like a dict obj['myattribute']"""
@@ -150,7 +150,7 @@ class BaseObject(object):
         return (self.__dict__[key])
 
     def __repr__(self):
-        return ("%s(%s)" % (self.__class__.__name__, repr(self.__dict__)))
+        return (f"{self.__class__.__name__}({repr(self.__dict__)})")
 
 
 class Project(BaseObject):
@@ -204,7 +204,7 @@ class Date(BaseObject):
             self.__dict__['time'] = timestamp2datetime(float(self.__dict__['time']))
 
 
-class ObjectFactory(object):
+class ObjectFactory:
     """A factory (see pattern factory) which can create Resource, Trainee, Room,
     Instructor, Project, Activity, Event, Cost, Caracteristic, Date object"""
 
@@ -240,9 +240,9 @@ class ADEWebAPI():
         self.exception_factory = ExceptionFactory()
 
         self.opt_params = {
-            'connect': set([]),
-            'disconnect': set([]),
-            'setProject': set([]),
+            'connect': set(),
+            'disconnect': set(),
+            'setProject': set(),
             'getProjects': {'detail', 'id'},
             'getResources': {'tree', 'folders', 'leaves', 'id', 'name', 'category', 'type', 'email', 'url', 'size',
                              'quantity', 'code', 'address1', 'address2', 'zipCode', 'state', 'city', 'country',
@@ -254,7 +254,7 @@ class ADEWebAPI():
                           'attribute_filter'},
             'getCosts': {'id', 'name'},
             'getCaracteristics': {'id', 'name'},
-            'getDate': set([]),
+            'getDate': set(),
             'imageET': {'displayConfId', 'displayConfName', 'width', 'height', 'showLoad', 'id', 'name', 'type',
                         'email', 'url', 'size', 'capacity', 'quantity', 'code', 'address1', 'address2', 'zipCode',
                         'state', 'city', 'country', 'telephone', 'fax', 'timezone', 'jobCategory', 'manager', 'codeX',
@@ -290,7 +290,7 @@ class ADEWebAPI():
         response.encoding = 'UTF-8'
         data = response.text
 
-        add_breadcrumb(category='api', message="{}".format(data))
+        add_breadcrumb(category='api', message=f"{data}")
 
         element = ET.fromstring(data)
         try:
@@ -299,8 +299,8 @@ class ADEWebAPI():
             if element.attrib['name'] == 'java.lang.NullPointerException':
                 raise e
             else:
-                logger.error("{}".format(params))
-                logger.error("{}".format(data))
+                logger.error(f"{params}")
+                logger.error(f"{data}")
 
         if 'hash' in params and params['hash']:
             d_hash = hashlib.md5(data.encode('utf-8')).hexdigest()

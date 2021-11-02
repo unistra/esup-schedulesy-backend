@@ -6,21 +6,21 @@ from pydiploy.decorators import do_verbose
 def install():
     cmd = 'rabbitmqctl'
     user = env.application_name
-    vhost = '{}_{}'.format(env.application_name, env.goal)
+    vhost = f'{env.application_name}_{env.goal}'
 
     user_exists = sudo(
-        '{} list_users | grep {}'.format(cmd, user), warn_only=True
+        f'{cmd} list_users | grep {user}', warn_only=True
     )
     if user_exists.failed:
-        sudo('{} add_user {} {}'.format(cmd, user, env.rabbitmq_password))
-        sudo('{} set_user_tags {} management'.format(cmd, user))
+        sudo(f'{cmd} add_user {user} {env.rabbitmq_password}')
+        sudo(f'{cmd} set_user_tags {user} management')
 
     vhost_exists = sudo(
-        '{} list_vhosts | grep {}'.format(cmd, vhost), warn_only=True
+        f'{cmd} list_vhosts | grep {vhost}', warn_only=True
     )
 
     if vhost_exists.failed:
-        sudo('{} add_vhost {}'.format(cmd, vhost))
+        sudo(f'{cmd} add_vhost {vhost}')
 
     if vhost_exists.failed or user_exists.failed:
         sudo('{} set_permissions -p {} {} ".*" ".*" ".*"'.format(
@@ -28,10 +28,10 @@ def install():
         ))
 
     guest_exists = sudo(
-        '{} list_users | grep guest'.format(cmd), warn_only=True
+        f'{cmd} list_users | grep guest', warn_only=True
     )
     if guest_exists.succeeded:
-        sudo('{} delete_user guest'.format(cmd))
+        sudo(f'{cmd} delete_user guest')
 
 
 @do_verbose
@@ -39,9 +39,9 @@ def enable_management():
     cmd = 'rabbitmq-plugins'
     plugin = 'rabbitmq_management'
     management_enabled = sudo(
-        '{} list -e "^{}$'.format(cmd, plugin),
+        f'{cmd} list -e "^{plugin}$',
         warn_only=True
     )
 
     if management_enabled.failed:
-        sudo('{} enable {}'.format(cmd, plugin))
+        sudo(f'{cmd} enable {plugin}')

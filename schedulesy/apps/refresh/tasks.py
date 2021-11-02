@@ -94,7 +94,7 @@ def _refresh_resources(body, message):
             refresh_resource.delay(resource_id, batch_size=batch_size, operation_id=operation_id,
                                    order_time=time.time())
     except JSONDecodeError as e:
-        logger.error("Content : {}\n{}".format(body, e))
+        logger.error(f"Content : {body}\n{e}")
         capture_exception(e)
 
 
