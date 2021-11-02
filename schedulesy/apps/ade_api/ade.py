@@ -32,6 +32,7 @@ from .exception import ExceptionFactory
 
 logger = logging.getLogger(__name__)
 
+
 def hide_string(s, char_replace='*'):
     """Returns a string of same length but with '*'"""
     return (char_replace * len(s))
@@ -242,26 +243,22 @@ class ADEWebAPI():
             'connect': set([]),
             'disconnect': set([]),
             'setProject': set([]),
-            'getProjects': set(['detail', 'id']),
-            'getResources': set(['tree', 'folders', 'leaves', 'id', 'name', 'category', \
-                                 'type', 'email', 'url', 'size', 'quantity', 'code', 'address1', \
-                                 'address2', 'zipCode', 'state', 'city', 'country', 'telephone', \
-                                 'fax', 'timezone', 'jobCategory', 'manager', 'codeX', 'codeY', \
-                                 'codeZ', 'info', 'detail', 'hash']),
-            'getActivities': set(['tree', 'id', 'name', 'resources', 'type', 'url', \
-                                  'capacity', 'duration', 'repetition', 'code', 'timezone', 'codeX', \
-                                  'codeY', 'codeZ', 'maxSeats', 'seatseLeft', 'info']),
-            'getEvents': set(['eventId', 'activities', 'name', 'resources', \
-                              'weeks', 'days', 'date', 'detail', 'attribute_filter']),
-            'getCosts': set(['id', 'name']),
-            'getCaracteristics': set(['id', 'name']),
+            'getProjects': {'detail', 'id'},
+            'getResources': {'tree', 'folders', 'leaves', 'id', 'name', 'category', 'type', 'email', 'url', 'size',
+                             'quantity', 'code', 'address1', 'address2', 'zipCode', 'state', 'city', 'country',
+                             'telephone', 'fax', 'timezone', 'jobCategory', 'manager', 'codeX', 'codeY', 'codeZ',
+                             'info', 'detail', 'hash'},
+            'getActivities': {'tree', 'id', 'name', 'resources', 'type', 'url', 'capacity', 'duration', 'repetition',
+                              'code', 'timezone', 'codeX', 'codeY', 'codeZ', 'maxSeats', 'seatseLeft', 'info'},
+            'getEvents': {'eventId', 'activities', 'name', 'resources', 'weeks', 'days', 'date', 'detail',
+                          'attribute_filter'},
+            'getCosts': {'id', 'name'},
+            'getCaracteristics': {'id', 'name'},
             'getDate': set([]),
-            'imageET': set(['displayConfId',
-                            'displayConfName', 'width', 'height', 'showLoad', 'id', \
-                            'name', 'type', 'email', 'url', 'size', 'capacity', 'quantity', \
-                            'code', 'address1', 'address2', 'zipCode', 'state', 'city', \
-                            'country', 'telephone', 'fax', 'timezone', 'jobCategory', \
-                            'manager', 'codeX', 'codeY', 'codeZ', 'info', 'detail'])
+            'imageET': {'displayConfId', 'displayConfName', 'width', 'height', 'showLoad', 'id', 'name', 'type',
+                        'email', 'url', 'size', 'capacity', 'quantity', 'code', 'address1', 'address2', 'zipCode',
+                        'state', 'city', 'country', 'telephone', 'fax', 'timezone', 'jobCategory', 'manager', 'codeX',
+                        'codeY', 'codeZ', 'info', 'detail'}
         }
 
         self.project_init()
@@ -379,7 +376,8 @@ class ADEWebAPI():
 
     def _tree(self, element, **kwargs):
         d = {'tag': element.tag}
-        d.update(element.attrib if 'attribute_filter' not in kwargs else {k: v for (k,v) in element.attrib.items() if k in kwargs['attribute_filter']})
+        d.update(element.attrib if 'attribute_filter' not in kwargs else {k: v for (k, v) in element.attrib.items() if
+                                                                          k in kwargs['attribute_filter']})
         children = []
         for child in [x for x in element if len(x) > 0 or len(x.attrib) > 0]:
             children.append(self._tree(child, **kwargs))

@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 from collections import OrderedDict
 
@@ -77,24 +78,25 @@ class Refresh:
         try:
             resource = Resource.objects.get(ext_id=ext_id)
             self._simple_resource_refresh(resource, operation_id)
-        except Resource.DoesNotExist:
+        except (Resource.DoesNotExist, KeyError):
             logger.debug("Didn't find {}".format(ext_id))
             # Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
 
-        r = self.myade.getEvents(
-            resources=ext_id, detail=0,
-            attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+        if isinstance(ext_id, int) or re.fullmatch(r'[0-9]*', ext_id):
+            r = self.myade.getEvents(
+                resources=ext_id, detail=0,
+                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
 
-        if resource is None:
-            resource = Resource.objects.get(ext_id=ext_id)
+            if resource is None:
+                resource = Resource.objects.get(ext_id=ext_id)
 
-        events = self._reformat_events(r['data'])
-        resource.events = events
-        resource.save()
+            events = self._reformat_events(r['data'])
+            resource.events = events
+            resource.save()
 
-
-    def _simple_resource_refresh(self, resource, operation_id):
+    @staticmethod
+    def _simple_resource_refresh(resource, operation_id):
         """
         :param Resource resource:
         :return:
@@ -270,10 +272,10 @@ class Refresh:
         logger.debug("{operation_id} / {activity_id}".format(activity_id=activity_id, operation_id=operation_id))
         old_resources = (
             {str(r.pk): r for r in Resource.objects
-             .filter(events__events__contains=[{'id': ext_id}])})
+                .filter(events__events__contains=[{'id': ext_id}])})
         new_resources = (
             {str(r.pk): r for r in Resource.objects
-             .filter(ext_id__in=resources)})
+                .filter(ext_id__in=resources)})
 
         if len(new_resources) != len(resources):
             # TODO: create new resources if missing ?
