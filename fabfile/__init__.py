@@ -147,8 +147,8 @@ def test():
 def preprod():
     """Define preprod stage"""
     env.roledefs = {
-        'web': ['django-pprd-w1.u-strasbg.fr', 'django-pprd-w2.u-strasbg.fr'],
-        'lb': ['django-rp-pprd.di.unistra.fr'],
+        'web': ['django-pprd-w3.di.unistra.fr', 'django-pprd-w4.di.unistra.fr'],
+        'lb': ['rp-dip-pprd-public.di.unistra.fr'],
         'celery-worker': ['django-pprd-w1.u-strasbg.fr'],
         'broker': ['rabbitmq-pprd.di.unistra.fr']
     }
@@ -199,7 +199,8 @@ def preprod():
 def prod():
     """Define prod stage"""
     env.roledefs = {
-        'web': ['django-w3.u-strasbg.fr', 'django-w4.u-strasbg.fr'],
+        'web': ['django-w7.di.unistra.fr', 'django-w8.di.unistra.fr'],
+        #'web': ['django-celery-1.di.unistra.fr'],
         'lb': ['rp-dip-public-m.di.unistra.fr', 'rp-dip-public-s.di.unistra.fr'],
         'celery-worker': ['django-celery-1.di.unistra.fr'],
         'broker': ['rabbitmq-prod.di.unistra.fr']
