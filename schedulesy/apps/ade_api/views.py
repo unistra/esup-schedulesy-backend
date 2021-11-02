@@ -125,6 +125,7 @@ def calendar_export(request, uuid):
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_resource(request, ext_id):  # pragma: no cover
+    logger.debug(ext_id)
     resource_task.delay(ext_id, 1, str(uuid.uuid4()))
     return JsonResponse({})
 
@@ -139,8 +140,8 @@ class ResourceDetail(generics.RetrieveAPIView):
 class EventsDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = EventsSerializer
-    permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'ext_id'
+    permission_classes = (permissions.AllowAny, )
 
 
 class InstructorDetail(generics.ListAPIView):
