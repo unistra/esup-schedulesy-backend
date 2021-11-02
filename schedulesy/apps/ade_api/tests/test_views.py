@@ -288,3 +288,30 @@ class InfoCase(TestCase):
         keys = ['username', 'resources']
         self.assertTrue(all(k in data for k in keys))
         self.assertEqual(data['resources'], '1616')
+
+
+class EventDetailTestCase(AuthCase):
+    fixtures = ['tests/users.json', 'tests/resources']
+
+    def _call_events(self, ext_id, **kwargs):
+        url = reverse('api:events', kwargs={'ext_id': ext_id, 'format': 'json'})
+        response = self.client.get(url, **kwargs)
+        return response
+
+    def _is_intructor(self, response):
+        data = json.loads(response.content.decode('utf-8'))
+        return 'instructors' in data['events'] and 'instructors' in data['events']['events'][0]
+
+    def test_events_no_auth(self):
+        response = self._call_events(1616, HTTP_AUTHORIZATION=f'Bearer {self.non_authorized_access}')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self._is_intructor(response))
+
+    def test_events_public_classroom(self):
+        response = self._call_events(1616)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self._is_intructor(response))
+
+    def test_events_public_instructor(self):
+        response = self._call_events(23390)
+        self.assertEqual(response.status_code, 403)
