@@ -51,7 +51,7 @@ def refresh_if_necessary(func):
         suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
         key = f'{func.__name__}-{suffix}'
         order_time = kwargs.get('order_time', time.time())
-        with r.lock(f'{key}-lock', timeout=300) as lock:
+        with r.lock(f'{key}-lock', timeout=300) as _:
             if not r.exists(key) or float(r.get(key)) < order_time:
                 func(*args, **kwargs)
                 r.set(key, time.time(), ex=3600)
