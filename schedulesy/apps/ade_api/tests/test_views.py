@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from ..models import Access, AdeConfig, LocalCustomization, Resource
 from ..views import AccessDeletePermission
 from ...ade_legacy.models import Customization
+from ...ade_legacy.tests.test_views import authenticated_client
 
 User = get_user_model()
 
@@ -270,19 +271,13 @@ class InfoCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.check_data(response)
 
-    def authenticated_client(self, user):
-        token = Token.objects.create(user=user)
-        client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        return client
-
     def test_token_admin(self):
-        response = self.authenticated_client(self.admin).get(self.view_url)
+        response = authenticated_client(self.admin).get(self.view_url)
         self.assertEqual(response.status_code, 200)
         self.check_data(response)
 
     def test_token_staff(self):
-        response = self.authenticated_client(self.staff).get(self.view_url)
+        response = authenticated_client(self.staff).get(self.view_url)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
         keys = ['username', 'resources']

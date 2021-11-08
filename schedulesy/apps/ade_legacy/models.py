@@ -13,7 +13,7 @@ class Customization(models.Model):
     resources = models.CharField(
         max_length=300, db_column='ressources', default='', blank=True)
     directory_id = models.CharField(
-        max_length=32, db_column='uds_directory_id')
+        max_length=32, db_column='uds_directory_id', unique=True)
     rh_id = models.CharField(max_length=15, db_column='code_harp', default='')
     creation_date = models.DateTimeField(
         db_column='date_creation', auto_now_add=True)

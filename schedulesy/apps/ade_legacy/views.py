@@ -1,3 +1,6 @@
+import json
+import logging
+
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
@@ -7,6 +10,8 @@ from rest_framework.status import HTTP_409_CONFLICT
 from schedulesy.apps.ade_legacy.serializers import CustomizationSerializer
 from schedulesy.libs.permissions import IsOwnerPermission
 from . import models
+
+logger = logging.getLogger(__name__)
 
 
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):
@@ -37,5 +42,14 @@ class CustomizationList(ListCreateAPIView):
         queryset = self.get_queryset().filter(username=self.request.user)
         if queryset.exists():
             return Response({'detail': 'Object already exists'},
+                            status=HTTP_409_CONFLICT)
+        content = json.loads(self.request.body.decode("utf-8"))
+        queryset = self.get_queryset().filter(directory_id=content['directory_id'])
+        if queryset.exists() and self.request.user.username != queryset.all()[0].username:
+            c = queryset.first()
+            logger.info(f'Bump username : {self.request.user.username} => {c.username}')
+            c.username = self.request.user.username
+            c.save()
+            return Response({'detail': 'Object already exists (login has been updated)'},
                             status=HTTP_409_CONFLICT)
         return super().post(request, *args, **kwargs)
