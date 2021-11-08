@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework_simplejwt.tokens import AccessToken
 
 from ..models import Customization
-from ...ade_api.models import Resource, LocalCustomization
+from ...ade_api.models import Resource, LocalCustomization, Access
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -28,9 +28,6 @@ class CustomizationListTestCase(TestCase):
         self.user_url = '/legacy/customization/{username}.json'
         self.owner_user = User.objects.create_user('owner', password='pass')
         User.objects.create_superuser('super', 'super@no-reply.com', 'pass')
-
-    def tearDown(self):
-        Customization.objects.all().delete()
 
     def test_list_customizations_with_owner(self):
         Resource.objects.get_or_create(ext_id=1337)
@@ -122,10 +119,18 @@ class CustomizationListTestCase(TestCase):
         self.assertEqual(lc.customization_id, 1)
 
     def test_post_customization_change_login(self):
-        Customization.objects.create(id=1, directory_id='1', username='old_id')
+        customization = Customization.objects.create(id=1, directory_id='1', username='old_id')
+        self.assertEqual(LocalCustomization.objects.count(), 1)
+        self.assertEqual(Access.objects.count(), 1)
+
         client = authenticated_client(self.owner_user)
         response = client.post(
             self.view_url, {'directory_id': 1, 'username': 'owner'})
         self.assertEqual(Customization.objects.count(), 1)
         self.assertEqual(Customization.objects.first().username, 'owner')
         self.assertEqual(response.status_code, 409)
+
+        self.assertEqual(LocalCustomization.objects.count(), 1)
+        self.assertEqual(LocalCustomization.objects.first().username, 'owner')
+        self.assertEqual(Access.objects.count(), 1)
+        self.assertEqual(Access.objects.first().name, 'owner')
