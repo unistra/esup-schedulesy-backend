@@ -3,8 +3,8 @@ import json
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from ...ade_api.models import LocalCustomization, Resource
 from ..models import Customization
-from ...ade_api.models import Resource, LocalCustomization
 
 User = get_user_model()
 

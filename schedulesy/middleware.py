@@ -40,7 +40,7 @@ class StatsMiddleware:
                        'path': request.path,
                        'method': request.method,
                        'server': socket.gethostname(),
-                       'http_user_agent': request.META.get('HTTP_USER_AGENT'),
+                       'http_user_agent': request.headers.get('User-Agent'),
                        'environment': settings.STAGE,
                        'version': '.'.join([str(x) for x in VERSION]),
                        'user': self.get_user(request)
@@ -114,7 +114,7 @@ class StatsMiddleware:
         :return: IP address
         :rtype: str
         """
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.headers.get('X-Forwarded-For')
         return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
 
     def get_user(self, request):

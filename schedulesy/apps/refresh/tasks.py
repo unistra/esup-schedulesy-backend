@@ -12,7 +12,7 @@ from skinos.custom_consumer import CustomConsumer
 from schedulesy.apps.ade_api.models import Resource
 from schedulesy.apps.ade_api.refresh import Refresh
 from schedulesy.celery import sync_queue_name
-from schedulesy.libs.decorators import refresh_if_necessary, async_log
+from schedulesy.libs.decorators import async_log, refresh_if_necessary
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ def _refresh_resources(body, message):
             refresh_resource.delay(resource_id, batch_size=batch_size, operation_id=operation_id,
                                    order_time=time.time())
     except JSONDecodeError as e:
-        logger.error("Content : {}\n{}".format(body, e))
+        logger.error(f"Content : {body}\n{e}")
         capture_exception(e)
 
 

@@ -1,10 +1,10 @@
-from functools import partial
 import os
 import urllib.parse
+from functools import partial
 
+import responses
 from django.conf import settings
 from django.test import TestCase
-import responses
 
 from ..refresh import Refresh
 

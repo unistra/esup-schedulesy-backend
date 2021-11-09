@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from schedulesy.apps.ade_api.models import LocalCustomization, Resource
+
 from ..models import Customization
 
 

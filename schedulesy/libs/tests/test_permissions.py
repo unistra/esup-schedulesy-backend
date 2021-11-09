@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 
-from .models import Info, Profile
 from ..permissions import IsOwnerPermission
-
+from .models import Info, Profile
 
 User = get_user_model()
 

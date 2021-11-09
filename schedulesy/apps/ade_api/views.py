@@ -14,16 +14,17 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
 from schedulesy.apps.ade_legacy.models import Customization
-from schedulesy.apps.refresh.tasks import (
-    bulldoze as resource_bulldoze, refresh_all,
-    refresh_resource as resource_task)
+from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
+from schedulesy.apps.refresh.tasks import refresh_all
+from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
 from schedulesy.libs.permissions import IsOwnerPermission
-from .exception import TooMuchEventsError, SearchTooWideError
-from .models import (
-    Access, AdeConfig, LocalCustomization, DisplayType, Resource)
-from .serializers import (
-    AccessSerializer, AdeConfigSerializer, CalendarSerializer,
-    ResourceSerializer, InfoSerializer, EventsSerializer)
+
+from .exception import SearchTooWideError, TooMuchEventsError
+from .models import (Access, AdeConfig, DisplayType, LocalCustomization,
+                     Resource)
+from .serializers import (AccessSerializer, AdeConfigSerializer,
+                          CalendarSerializer, EventsSerializer, InfoSerializer,
+                          ResourceSerializer)
 
 logger = logging.getLogger(__name__)
 

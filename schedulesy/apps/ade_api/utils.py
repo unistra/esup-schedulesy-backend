@@ -1,7 +1,7 @@
 import uuid
 
-from django.conf import settings
 import pytz
+from django.conf import settings
 
 
 def force_https(uri):

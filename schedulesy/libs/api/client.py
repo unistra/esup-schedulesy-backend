@@ -1,15 +1,15 @@
-from functools import wraps
 import json
 import logging
+from functools import wraps
 
-from britney.errors import SporeMethodCallError, SporeMethodStatusError
 import britney_utils
+from britney.errors import SporeMethodCallError, SporeMethodStatusError
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from schedulesy.libs.decorators import MemoizeWithTimeout
-from .exceptions import WSError
 
+from .exceptions import WSError
 
 _clients = {}
 

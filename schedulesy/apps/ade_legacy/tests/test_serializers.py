@@ -4,7 +4,6 @@ from django.test import TestCase
 from ..models import Customization
 from ..serializers import CustomizationSerializer
 
-
 # class CustomizationSerializerTestCase(TestCase):
 
     # databases = '__all__'

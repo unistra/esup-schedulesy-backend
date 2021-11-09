@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework.exceptions import APIException
 
 
-class ExceptionFactory(object):
+class ExceptionFactory:
     def create_from_xml(self, xml_element):
         msg = xml_element.attrib['trace']
         return (Exception(msg))

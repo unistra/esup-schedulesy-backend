@@ -1,11 +1,12 @@
-from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
+from rest_framework.generics import (ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.status import HTTP_409_CONFLICT
 
 from schedulesy.apps.ade_legacy.serializers import CustomizationSerializer
 from schedulesy.libs.permissions import IsOwnerPermission
+
 from . import models
 
 

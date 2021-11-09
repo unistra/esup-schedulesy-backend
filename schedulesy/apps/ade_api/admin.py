@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from .models import (
-    Access, AdeConfig, DisplayType, Fingerprint, LocalCustomization,
-    Resource)
+from .models import (Access, AdeConfig, DisplayType, Fingerprint,
+                     LocalCustomization, Resource)
 
 
 class AccessInline(admin.StackedInline):

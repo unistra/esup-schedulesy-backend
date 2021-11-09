@@ -1,7 +1,7 @@
-from datetime import datetime
 import logging
 import socket
 import time
+from datetime import datetime
 
 import redis
 from django.conf import settings
@@ -61,7 +61,7 @@ def refresh_if_necessary(func):
     return wrapper
 
 
-class MemoizeWithTimeout(object):
+class MemoizeWithTimeout:
     """Memoize With Timeout"""
     _caches = {}
     _timeouts = {}

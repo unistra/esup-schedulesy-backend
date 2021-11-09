@@ -7,11 +7,11 @@ from django.conf import settings
 from django.db import IntegrityError
 from sentry_sdk import capture_exception
 
-from schedulesy.libs.api.client import (
-    get_geolocations, to_ade_id)
+from schedulesy.libs.api.client import get_geolocations, to_ade_id
 from schedulesy.libs.decorators import MemoizeWithTimeout, refresh_if_necessary
+
 from .ade import ADEWebAPI, Config
-from .models import Resource, Fingerprint
+from .models import Fingerprint, Resource
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class Flatten:
         if 'id' in item:
             key = item['id']
             if key in self.f_data:
-                print("Double key {}".format(key))
+                print(f"Double key {key}")
             else:
                 tmp = item.copy()
                 if genealogy:
@@ -74,12 +74,12 @@ class Refresh:
 
     def refresh_single_resource(self, ext_id, operation_id):
         resource = None
-        logger.debug("{operation_id} / Refreshing resource {ext_id}".format(ext_id=ext_id, operation_id=operation_id))
+        logger.debug(f"{operation_id} / Refreshing resource {ext_id}")
         try:
             resource = Resource.objects.get(ext_id=ext_id)
             self._simple_resource_refresh(resource, operation_id)
         except (Resource.DoesNotExist, KeyError):
-            logger.debug("Didn't find {}".format(ext_id))
+            logger.debug(f"Didn't find {ext_id}")
             # Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
 
@@ -170,7 +170,7 @@ class Refresh:
 
     @refresh_if_necessary
     def refresh_category(self, r_type):
-        logger.debug("Refreshing category {}".format(r_type))
+        logger.debug(f"Refreshing category {r_type}")
         method = Refresh.METHOD_GET_RESOURCE
 
         tree = ade_resources(r_type)
@@ -269,7 +269,7 @@ class Refresh:
 
     def refresh_event(self, ext_id, activity_id, resources, operation_id):
         # {'instructors': ['2', '3']}>
-        logger.debug("{operation_id} / {activity_id}".format(activity_id=activity_id, operation_id=operation_id))
+        logger.debug(f"{operation_id} / {activity_id}")
         old_resources = (
             {str(r.pk): r for r in Resource.objects
                 .filter(events__events__contains=[{'id': ext_id}])})

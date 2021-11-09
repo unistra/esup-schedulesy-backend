@@ -1,10 +1,10 @@
-from django.test import TestCase
 import responses
+from django.test import TestCase
 
-from .utils import ADEMixin, InfocentreMixin
-from ..models import Fingerprint, Resource, LocalCustomization
-from ..refresh import Refresh
 from ...ade_legacy.models import Customization
+from ..models import Fingerprint, LocalCustomization, Resource
+from ..refresh import Refresh
+from .utils import ADEMixin, InfocentreMixin
 
 
 class RefreshCategoryTestCase(ADEMixin, TestCase):

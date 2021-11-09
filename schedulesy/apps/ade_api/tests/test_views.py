@@ -8,9 +8,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
+from ...ade_legacy.models import Customization
 from ..models import Access, AdeConfig, LocalCustomization, Resource
 from ..views import AccessDeletePermission
-from ...ade_legacy.models import Customization
 
 User = get_user_model()
 

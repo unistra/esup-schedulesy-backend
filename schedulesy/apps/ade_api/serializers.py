@@ -4,9 +4,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.reverse import reverse
 
+from ..ade_legacy.models import Customization
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
-from ..ade_legacy.models import Customization
 
 
 class ResourceSerializer(serializers.ModelSerializer):
