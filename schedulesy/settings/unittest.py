@@ -76,6 +76,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
     'rest_framework.permissions.AllowAny',
 )
+REST_FRAMEWORK['TEST_REQUEST_DEFAULT_FORMAT'] = 'json'
 
 
 ################
