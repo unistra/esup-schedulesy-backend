@@ -56,15 +56,12 @@ class CustomizationList(ListCreateAPIView):
                 logger.info(f'Bump username : {self.request.user.username} => {old}')
                 c.username = self.request.user.username
                 c.save()
-                print(f'C {c.username}')
                 for lc in LocalCustomization.objects.filter(username=old).all():
                     lc.username = self.request.user.username
                     lc.save()
-                    print(f'LC {lc.username}')
                 for a in Access.objects.filter(name=old).all():
                     a.name = self.request.user.username
                     a.save()
-                    print(f'A {a.name}')
             return changed
 
         if username_changed():
