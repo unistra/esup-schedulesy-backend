@@ -31,7 +31,7 @@ def sync_queue_name():
 celery_app = Celery(
     settings.CELERY_NAME,
     broker=settings.BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND
+    backend=settings.CELERY_RESULT_BACKEND,
 )
 
 celery_app.config_from_object('django.conf:settings')

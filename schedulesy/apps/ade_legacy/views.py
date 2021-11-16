@@ -1,8 +1,7 @@
 import json
 import logging
 
-from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.status import HTTP_409_CONFLICT
@@ -18,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 
-    permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission]
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
     lookup_field = 'username'
@@ -28,8 +26,7 @@ class CustomizationDetail(RetrieveUpdateDestroyAPIView):
 class CustomizationList(ListCreateAPIView):
     queryset = models.Customization.objects.all()
     serializer_class = CustomizationSerializer
-    permission_classes = (
-        api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission]
 
     def list(self, request, *args, **kwargs):
         user = self.request.user
@@ -43,8 +40,9 @@ class CustomizationList(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         queryset = self.get_queryset().filter(username=self.request.user)
         if queryset.exists():
-            return Response({'detail': 'Object already exists'},
-                            status=HTTP_409_CONFLICT)
+            return Response(
+                {'detail': 'Object already exists'}, status=HTTP_409_CONFLICT
+            )
 
         def username_changed():
             content = json.loads(self.request.body.decode("utf-8"))
@@ -65,7 +63,9 @@ class CustomizationList(ListCreateAPIView):
             return changed
 
         if username_changed():
-            return Response({'detail': 'Object already exists (login has been updated)'},
-                            status=HTTP_409_CONFLICT)
+            return Response(
+                {'detail': 'Object already exists (login has been updated)'},
+                status=HTTP_409_CONFLICT,
+            )
 
         return super().post(request, *args, **kwargs)

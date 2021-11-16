@@ -15,14 +15,15 @@ has_redis = 'cacheops' in settings.INSTALLED_APPS
 
 def async_log(func):
     def wrapper(*args, **kwargs):
-        payload = {'task': func.__qualname__,
-                   'args': [str(x) for x in args if type(x) in (int, float, str)],
-                   'kwargs': kwargs,
-                   'server': socket.gethostname(),
-                   'environment': settings.STAGE,
-                   'version': '.'.join([str(x) for x in VERSION]),
-                   '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
-                   }
+        payload = {
+            'task': func.__qualname__,
+            'args': [str(x) for x in args if type(x) in (int, float, str)],
+            'kwargs': kwargs,
+            'server': socket.gethostname(),
+            'environment': settings.STAGE,
+            'version': '.'.join([str(x) for x in VERSION]),
+            '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
+        }
         start = time.perf_counter()
         try:
             func(*args, **kwargs)
@@ -31,8 +32,7 @@ def async_log(func):
             raise e
         finally:
             end = time.perf_counter()
-            payload.update({
-                       'total': end - start})
+            payload.update({'total': end - start})
             sync_log.delay(payload)
 
     return wrapper
@@ -45,9 +45,11 @@ def refresh_if_necessary(func):
             func(*args, **kwargs)
             return
 
-        r = redis.Redis(host=settings.CACHEOPS_REDIS_SERVER,
-                        port=settings.CACHEOPS_REDIS_PORT,
-                        db=settings.CACHEOPS_REDIS_DB)
+        r = redis.Redis(
+            host=settings.CACHEOPS_REDIS_SERVER,
+            port=settings.CACHEOPS_REDIS_PORT,
+            db=settings.CACHEOPS_REDIS_DB,
+        )
         suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
         key = f'{func.__name__}-{suffix}'
         order_time = kwargs.get('order_time', time.time())
@@ -63,6 +65,7 @@ def refresh_if_necessary(func):
 
 class MemoizeWithTimeout:
     """Memoize With Timeout"""
+
     _caches = {}
     _timeouts = {}
 

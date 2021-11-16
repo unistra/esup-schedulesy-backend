@@ -9,7 +9,6 @@ User = get_user_model()
 
 
 class IsOwnerPermissionTestCase(TestCase):
-
     def setUp(self):
         super().setUp()
         self.request = HttpRequest()
@@ -19,31 +18,36 @@ class IsOwnerPermissionTestCase(TestCase):
         self.request.user = self.user_owner
         profile = Profile(username=self.user_owner.username)
 
-        self.assertTrue(IsOwnerPermission().has_object_permission(
-            self.request, None, profile))
+        self.assertTrue(
+            IsOwnerPermission().has_object_permission(self.request, None, profile)
+        )
 
     def test_is_not_owner(self):
         self.request.user = self.user_owner
         profile = Profile(username='not-owner')
 
-        self.assertFalse(IsOwnerPermission().has_object_permission(
-            self.request, None, profile))
+        self.assertFalse(
+            IsOwnerPermission().has_object_permission(self.request, None, profile)
+        )
 
     def test_is_superuser(self):
-        superuser = User.objects.create_superuser(
-            'super', 'super@no-reply.com', 'pass')
+        superuser = User.objects.create_superuser('super', 'super@no-reply.com', 'pass')
         self.request.user = superuser
         profile = Profile(username='not-owner')
 
-        self.assertTrue(IsOwnerPermission().has_object_permission(
-            self.request, None, profile))
+        self.assertTrue(
+            IsOwnerPermission().has_object_permission(self.request, None, profile)
+        )
 
     def test_with_other_username_field(self):
         profile = Profile.objects.create(
-            name='profile1', username=self.user_owner.username)
+            name='profile1', username=self.user_owner.username
+        )
         info = Info(profile=profile)
         self.request.user = self.user_owner
 
         self.assertTrue(
             IsOwnerPermission('profile__username').has_object_permission(
-                self.request, None, info))
+                self.request, None, info
+            )
+        )

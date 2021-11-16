@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from rest_framework_simplejwt.exceptions import (AuthenticationFailed,
-                                                 InvalidToken)
+from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
 from ..authentication import CustomJWTAuthentication
@@ -11,7 +10,6 @@ User = get_user_model()
 
 
 class CustomJWTAuthenticationTestCase(TestCase):
-
     def setUp(self):
         super().setUp()
         self.backend = CustomJWTAuthentication()
@@ -53,11 +51,13 @@ class CustomJWTAuthenticationTestCase(TestCase):
         payload[api_settings.USER_ID_CLAIM] = 'jwt_new_user'
         jwt_settings['CREATE_USER'] = True
         with self.settings(SIMPLE_JWT=jwt_settings):
-            self.assertEqual(getattr(self.backend.get_user(payload),
-                                     api_settings.USER_ID_FIELD),
-                             'jwt_new_user')
+            self.assertEqual(
+                getattr(self.backend.get_user(payload), api_settings.USER_ID_FIELD),
+                'jwt_new_user',
+            )
 
             # The user should not be recreated
-            self.assertEqual(getattr(self.backend.get_user(payload),
-                                     api_settings.USER_ID_FIELD),
-                             'jwt_new_user')
+            self.assertEqual(
+                getattr(self.backend.get_user(payload), api_settings.USER_ID_FIELD),
+                'jwt_new_user',
+            )

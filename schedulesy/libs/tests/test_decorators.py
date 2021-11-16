@@ -4,7 +4,6 @@ from ..decorators import MemoizeWithTimeout
 
 
 class MemoizeWithTimeoutTestCase(TestCase):
-
     def test_with_timeout(self):
         function1_call = 0
 
@@ -17,15 +16,13 @@ class MemoizeWithTimeoutTestCase(TestCase):
         result = m(mocked_function1)()
 
         self.assertEqual(m._timeouts[mocked_function1], 3600)
-        self.assertDictEqual(
-            m._caches[mocked_function1][(), ()][0], {'result': 1})
+        self.assertDictEqual(m._caches[mocked_function1][(), ()][0], {'result': 1})
         self.assertDictEqual(result, {'result': 1})
         self.assertDictEqual(m(mocked_function1)(), {'result': 1})
 
         # Clear old cache results
         m.collect()
-        self.assertDictEqual(
-            m._caches[mocked_function1][(), ()][0], {'result': 1})
+        self.assertDictEqual(m._caches[mocked_function1][(), ()][0], {'result': 1})
         self.assertDictEqual(m(mocked_function1)(), {'result': 1})
 
     def test_without_timeout(self):
@@ -40,8 +37,7 @@ class MemoizeWithTimeoutTestCase(TestCase):
         result = m(mocked_function2)()
 
         self.assertEqual(m._timeouts[mocked_function2], 0)
-        self.assertDictEqual(
-            m._caches[mocked_function2][(), ()][0], {'result': 1})
+        self.assertDictEqual(m._caches[mocked_function2][(), ()][0], {'result': 1})
         self.assertDictEqual(result, {'result': 1})
         self.assertDictEqual(m(mocked_function2)(), {'result': 2})
 
