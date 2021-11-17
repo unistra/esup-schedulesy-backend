@@ -9,10 +9,9 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
 from ...ade_legacy.models import Customization
+from ...ade_legacy.tests.test_views import authenticated_client
 from ..models import Access, AdeConfig, LocalCustomization, Resource
 from ..views import AccessDeletePermission
-from ...ade_legacy.models import Customization
-from ...ade_legacy.tests.test_views import authenticated_client
 
 User = get_user_model()
 
