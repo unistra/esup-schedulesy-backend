@@ -20,11 +20,15 @@ from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
 from schedulesy.libs.permissions import IsOwnerPermission
 
 from .exception import SearchTooWideError, TooMuchEventsError
-from .models import (Access, AdeConfig, DisplayType, LocalCustomization,
-                     Resource)
-from .serializers import (AccessSerializer, AdeConfigSerializer,
-                          CalendarSerializer, EventsSerializer, InfoSerializer,
-                          ResourceSerializer)
+from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
+from .serializers import (
+    AccessSerializer,
+    AdeConfigSerializer,
+    CalendarSerializer,
+    EventsSerializer,
+    InfoSerializer,
+    ResourceSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +73,9 @@ def sync_customization(request):
     for lc in (x for x in lcl if x not in customizations):
         try:
             lc = LocalCustomization.objects.get(customization_id=lc)
-            logger.debug(f'Deleting local customization for {lc.username} (missing matching customization)')
+            logger.debug(
+                f'Deleting local customization for {lc.username} (missing matching customization)'
+            )
             lc.delete()
             deleting += 1
         except Exception as e:
@@ -85,9 +91,9 @@ def sync_customization(request):
         except Exception as e:
             logger.error(e)
 
-    return JsonResponse({"Created": missing,
-                         "Deleted": deleting,
-                         "Total": len(customizations)})
+    return JsonResponse(
+        {"Created": missing, "Deleted": deleting, "Total": len(customizations)}
+    )
 
 
 def calendar_export(request, uuid):
@@ -100,13 +106,17 @@ def calendar_export(request, uuid):
     def file_response():
         if not default_storage.exists(filename):
             raise FileNotFoundError
-        if time.time() - default_storage.get_modified_time(filename).timestamp() > settings.ICS_EXPIRATION:
+        if (
+            time.time() - default_storage.get_modified_time(filename).timestamp()
+            > settings.ICS_EXPIRATION
+        ):
             raise ExpiredFileError
         response = FileResponse(
             default_storage.open(filename),
             as_attachment=True,
             content_type='text/calendar',
-            filename=f'{lc.username}.ics')
+            filename=f'{lc.username}.ics',
+        )
         response.setdefault('Content-Length', default_storage.size(filename))
         return response
 
@@ -142,7 +152,7 @@ class EventsDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = EventsSerializer
     lookup_field = 'ext_id'
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny,)
 
 
 class InstructorDetail(generics.ListAPIView):
@@ -182,8 +192,8 @@ class AdeConfigDetail(generics.RetrieveAPIView):
 
 
 class AccessDeletePermission(permissions.BasePermission):
-    """Check permissions for accesses deletion
-    """
+    """Check permissions for accesses deletion"""
+
     message = _('A customization must always have at least one access')
 
     def has_object_permission(self, request, view, obj):
@@ -192,18 +202,16 @@ class AccessDeletePermission(permissions.BasePermission):
 
 class AccessDelete(generics.DestroyAPIView):
     queryset = Access.objects.all()
-    permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES + [
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         partial(IsOwnerPermission, 'customization__username'),
-        AccessDeletePermission
+        AccessDeletePermission,
     ]
-    )
 
     def get_object(self):
         obj = get_object_or_404(
             self.get_queryset(),
             customization__username=self.kwargs['username'],
-            key=self.kwargs['key']
+            key=self.kwargs['key'],
         )
         self.check_object_permissions(self.request, obj)
         return obj
@@ -212,17 +220,15 @@ class AccessDelete(generics.DestroyAPIView):
 class AccessList(generics.ListCreateAPIView):
     queryset = Access.objects.all()
     serializer_class = AccessSerializer
-    permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES +
-            [partial(IsOwnerPermission, 'customization__username')])
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        partial(IsOwnerPermission, 'customization__username')
+    ]
 
     def get_queryset(self):
-        return self.queryset \
-            .filter(customization__username=self.kwargs['username'])
+        return self.queryset.filter(customization__username=self.kwargs['username'])
 
     def get_serializer_context(self):
-        lc = get_object_or_404(
-            LocalCustomization, username=self.kwargs['username'])
+        lc = get_object_or_404(LocalCustomization, username=self.kwargs['username'])
         context = super().get_serializer_context()
         context.update({'customization': lc})
         return context
@@ -231,8 +237,7 @@ class AccessList(generics.ListCreateAPIView):
 class CalendarDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = CalendarSerializer
-    permission_classes = (
-            api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission])
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [IsOwnerPermission]
     lookup_field = 'username'
 
     def get(self, request, *args, **kwargs):
@@ -245,6 +250,5 @@ class CalendarDetail(generics.RetrieveAPIView):
 class InfoDetail(generics.RetrieveAPIView):
     queryset = LocalCustomization.objects.all()
     serializer_class = InfoSerializer
-    permission_classes = (
-        permissions.IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser,)
     lookup_field = 'username'

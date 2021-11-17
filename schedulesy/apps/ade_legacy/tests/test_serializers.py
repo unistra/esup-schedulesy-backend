@@ -6,7 +6,7 @@ from ..serializers import CustomizationSerializer
 
 # class CustomizationSerializerTestCase(TestCase):
 
-    # databases = '__all__'
+# databases = '__all__'
 
 #     def setUp(self):
 #         request = HttpRequest()

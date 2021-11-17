@@ -32,9 +32,10 @@ class CustomizationListTestCase(TestCase):
 
     def test_list_customizations_with_owner(self):
         Resource.objects.get_or_create(ext_id=1337)
-        Customization.objects.create(id=1, directory_id='1', username='owner', resources='1337')
         Customization.objects.create(
-            id=2, directory_id='2', username='not_owner')
+            id=1, directory_id='1', username='owner', resources='1337'
+        )
+        Customization.objects.create(id=2, directory_id='2', username='not_owner')
 
         self.client.login(username='owner', password='pass')
         response = self.client.get(self.view_url)
@@ -46,7 +47,9 @@ class CustomizationListTestCase(TestCase):
         self.assertEqual(data[0]['resources'], '1337')
 
     def test_list_customizations_consistency(self):
-        Customization.objects.create(id=1, directory_id='1', resources='11', username='owner')
+        Customization.objects.create(
+            id=1, directory_id='1', resources='11', username='owner'
+        )
 
         self.client.login(username='owner', password='pass')
         response = self.client.get(self.view_url)
@@ -70,18 +73,23 @@ class CustomizationListTestCase(TestCase):
 
     def test_post_customization_new_object(self):
         response = self.client.post(
-            self.view_url, {'directory_id': 1, 'username': 'owner'}, content_type='application/json')
+            self.view_url,
+            {'directory_id': 1, 'username': 'owner'},
+            content_type='application/json',
+        )
 
         self.assertEqual(response.status_code, 201)
-        self.assertTrue(
-            Customization.objects.get(directory_id=1, username='owner'))
+        self.assertTrue(Customization.objects.get(directory_id=1, username='owner'))
 
     def test_post_customization_existing_object(self):
         Customization.objects.create(id=1, directory_id='1', username='owner')
 
         self.client.login(username='owner', password='pass')
         response = self.client.post(
-            self.view_url, {'directory_id': 1, 'username': 'owner'}, content_type='application/json')
+            self.view_url,
+            {'directory_id': 1, 'username': 'owner'},
+            content_type='application/json',
+        )
 
         self.assertEqual(response.status_code, 409)
 
@@ -95,7 +103,10 @@ class CustomizationListTestCase(TestCase):
 
         tmp = Resource.objects.create(ext_id=26908)
         response = self.client.patch(
-            self.user_url.format(username='owner'), {"resources":"26908,28135"}, content_type='application/json')
+            self.user_url.format(username='owner'),
+            {"resources": "26908,28135"},
+            content_type='application/json',
+        )
         self.assertEqual(response.status_code, 200)
 
         data = json.loads(self.client.get(self.view_url).content.decode('utf-8'))
@@ -120,13 +131,14 @@ class CustomizationListTestCase(TestCase):
         self.assertEqual(lc.customization_id, 1)
 
     def test_post_customization_change_login(self):
-        customization = Customization.objects.create(id=1, directory_id='1', username='old_id')
+        customization = Customization.objects.create(
+            id=1, directory_id='1', username='old_id'
+        )
         self.assertEqual(LocalCustomization.objects.count(), 1)
         self.assertEqual(Access.objects.count(), 1)
 
         client = authenticated_client(self.owner_user)
-        response = client.post(
-            self.view_url, {'directory_id': 1, 'username': 'owner'})
+        response = client.post(self.view_url, {'directory_id': 1, 'username': 'owner'})
         self.assertEqual(Customization.objects.count(), 1)
         self.assertEqual(Customization.objects.first().username, 'owner')
         self.assertEqual(response.status_code, 409)

@@ -24,8 +24,9 @@ if __name__ == '__main__':
     test_apps = ['schedulesy'] if len(sys.argv) <= 1 else sys.argv[1:]
 
     TestRunner = get_runner(settings)
-    test_runner = TestRunner(pattern='test_*.py', verbosity=2,
-                             interactive=True, failfast=False)
+    test_runner = TestRunner(
+        pattern='test_*.py', verbosity=2, interactive=True, failfast=False
+    )
     failures = test_runner.run_tests(test_apps)
 
     # Delete temporary directory

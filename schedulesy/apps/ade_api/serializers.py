@@ -10,33 +10,32 @@ from .utils import force_https
 
 
 class ResourceSerializer(serializers.ModelSerializer):
-
     def to_representation(self, obj):
         fields = obj.fields or {}
         if 'children' in fields:
             # Get number of events per child
             children_nb_events = dict(
-                obj.children
-                    .annotate(nb_events=RawSQL(
-                    "jsonb_array_length(events->'events')", ()))
-                    .values_list('ext_id', 'nb_events'))
+                obj.children.annotate(
+                    nb_events=RawSQL("jsonb_array_length(events->'events')", ())
+                ).values_list('ext_id', 'nb_events')
+            )
 
             for child in fields['children']:
                 child_id = child['id']
-                child['id'] = force_https(reverse(
-                    'api:resource',
-                    kwargs={
-                        'ext_id': child_id,
-                        'format': self.context['format']
-                    },
-                    request=self.context['request']))
+                child['id'] = force_https(
+                    reverse(
+                        'api:resource',
+                        kwargs={'ext_id': child_id, 'format': self.context['format']},
+                        request=self.context['request'],
+                    )
+                )
                 nb_events = children_nb_events.get(child_id)
                 child['selectable'] = bool(
                     obj.parent is not None
                     and nb_events
-                    and not nb_events > settings.ADE_MAX_EVENTS)
-            new_list = sorted(
-                fields['children'], key=lambda k: k['name'].lower())
+                    and not nb_events > settings.ADE_MAX_EVENTS
+                )
+            new_list = sorted(fields['children'], key=lambda k: k['name'].lower())
             fields['children'] = new_list
         return fields
 
@@ -51,7 +50,9 @@ class EventsSerializer(serializers.ModelSerializer):
                 raise PermissionDenied('Only classrooms allowed')
             if fields['events']:
                 fields['events']['instructors'] = {}
-                for item in [x for x in fields['events']['events'] if 'instructors' in x]:
+                for item in [
+                    x for x in fields['events']['events'] if 'instructors' in x
+                ]:
                     item.pop('instructors')
 
         fields = obj.fields or {}
@@ -70,17 +71,13 @@ class EventsSerializer(serializers.ModelSerializer):
 
 class AdeConfigSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
-        return {
-            'base_url': obj.ade_url,
-            'params': obj.parameters
-        }
+        return {'base_url': obj.ade_url, 'params': obj.parameters}
 
     class Meta:
         model = AdeConfig
 
 
 class AccessSerializer(serializers.ModelSerializer):
-
     def create(self, validated_data):
         validated_data['customization'] = self.context.get('customization')
         return super().create(validated_data)
@@ -89,9 +86,7 @@ class AccessSerializer(serializers.ModelSerializer):
         model = Access
         exclude = ('id',)
         extra_kwargs = {
-            'customization': {
-                'write_only': True, 'required': False, 'default': ''
-            }
+            'customization': {'write_only': True, 'required': False, 'default': ''}
         }
 
 
@@ -108,7 +103,6 @@ class AdeSerializer(serializers.ModelSerializer):
 
 
 class InfoSerializer(serializers.ModelSerializer):
-
     def to_representation(self, obj):
         user = None
         data = {}
@@ -120,17 +114,27 @@ class InfoSerializer(serializers.ModelSerializer):
             data = super().to_representation(obj)
             ade_serializer = AdeSerializer()
             resources_data = [
-                {'id': r.ext_id, 'name': r.fields['name'],
-                 'path': ' - '.join([g['name'] for g in r.fields['genealogy']])}
-                for r in obj.resources.all()]
-            data.update({'nb_events': obj.events_nb,
-                         'ade': ade_serializer.to_representation(customization),
-                         'resources': resources_data})
+                {
+                    'id': r.ext_id,
+                    'name': r.fields['name'],
+                    'path': ' - '.join([g['name'] for g in r.fields['genealogy']]),
+                }
+                for r in obj.resources.all()
+            ]
+            data.update(
+                {
+                    'nb_events': obj.events_nb,
+                    'ade': ade_serializer.to_representation(customization),
+                    'resources': resources_data,
+                }
+            )
         else:
             # curl --request GET \
             #   --url https://my.path.com/api/info/example.json \
             #   --header 'Authorization: Token monpetittoken'
-            data.update({'username': obj.username, 'resources': customization.resources})
+            data.update(
+                {'username': obj.username, 'resources': customization.resources}
+            )
 
         return data
 

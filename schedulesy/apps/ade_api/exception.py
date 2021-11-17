@@ -5,7 +5,7 @@ from rest_framework.exceptions import APIException
 class ExceptionFactory:
     def create_from_xml(self, xml_element):
         msg = xml_element.attrib['trace']
-        return (Exception(msg))
+        return Exception(msg)
 
     def raise_from_xml(self, xml_element):
         exc = self.create_from_xml(xml_element)
@@ -18,9 +18,13 @@ class TooMuchEventsError(Exception):
         self.message = message
 
     def context(self):
-        return {**{"code": "too_much_events",
-                   "detail": f'Excedeed limit of {settings.ADE_MAX_EVENTS} events'},
-                **self.message}
+        return {
+            **{
+                "code": "too_much_events",
+                "detail": f'Excedeed limit of {settings.ADE_MAX_EVENTS} events',
+            },
+            **self.message,
+        }
 
 
 class SearchTooWideError(APIException):

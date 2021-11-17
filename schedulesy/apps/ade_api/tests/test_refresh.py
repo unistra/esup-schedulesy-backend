@@ -8,7 +8,6 @@ from .utils import ADEMixin, InfocentreMixin
 
 
 class RefreshCategoryTestCase(ADEMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.refresh = Refresh()
@@ -22,9 +21,11 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
         self.assertEqual(Resource.objects.count(), 20)
         self.assertEqual(self.refresh.data[self.data_key]['created'], 20)
-        self.assertTrue(Fingerprint.objects
-                        .filter(ext_id=self.category, method=self.method)
-                        .exists())
+        self.assertTrue(
+            Fingerprint.objects.filter(
+                ext_id=self.category, method=self.method
+            ).exists()
+        )
 
         # Testing genealogy
         fields = {'fields__category': self.category}
@@ -39,12 +40,14 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
     def test_classroom_refresh_with_existing_elements(self):
         fp = Fingerprint.objects.create(
-            ext_id=self.category, method='getResources',
-            fingerprint='unittest')
+            ext_id=self.category, method='getResources', fingerprint='unittest'
+        )
         Resource.objects.create(
-            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
+            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'}
+        )
         Resource.objects.create(
-            ext_id=1111, fields={'category': 'classroom', 'name': 'wrong'})
+            ext_id=1111, fields={'category': 'classroom', 'name': 'wrong'}
+        )
 
         self.refresh.refresh_category(self.category)
 
@@ -54,10 +57,12 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
         self.assertEqual(self.refresh.data[self.data_key]['deleted'], 1)
         self.assertNotEqual(
             (
-                Fingerprint.objects
-                .get(ext_id=self.category, method=self.method).fingerprint
+                Fingerprint.objects.get(
+                    ext_id=self.category, method=self.method
+                ).fingerprint
             ),
-            'unittest')
+            'unittest',
+        )
 
         # Testing genealogy
         fields = {'fields__category': self.category}
@@ -68,24 +73,28 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
     def test_classroom_refresh_customization_cascade(self):
         Fingerprint.objects.create(
-            ext_id=self.category, method='getResources',
-            fingerprint='unittest')
+            ext_id=self.category, method='getResources', fingerprint='unittest'
+        )
         r_1616 = Resource.objects.create(
-            ext_id=1616, fields={'category': self.category})
+            ext_id=1616, fields={'category': self.category}
+        )
         # inconsistency due to id recycling (verified category is classroom but this id
         # already exists with category 'wrong'
         r_1359 = Resource.objects.create(
-            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'})
+            ext_id=1359, fields={'category': 'wrong', 'name': 'wrong'}
+        )
         # local has 2 resources : 1616 and 1359
         local = LocalCustomization.objects.create(customization_id=1)
         local.resources.add(r_1359, r_1616)
         Customization.objects.create(
-            id=1, resources='1616,1359', directory_id='42', username='user1')
+            id=1, resources='1616,1359', directory_id='42', username='user1'
+        )
         # lc2 has 1 resource : 1359
         lc2 = LocalCustomization.objects.create(customization_id=2, username='cascade')
         lc2.resources.add(r_1359, r_1616)
         Customization.objects.create(
-            id=2, resources='1359', directory_id='69', username='cascade')
+            id=2, resources='1359', directory_id='69', username='cascade'
+        )
 
         # Main action
         self.refresh.refresh_category(self.category)
@@ -108,7 +117,6 @@ class RefreshCategoryTestCase(ADEMixin, TestCase):
 
 
 class RefreshResourceTestCase(ADEMixin, InfocentreMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.refresh = Refresh()
@@ -140,14 +148,21 @@ class RefreshResourceTestCase(ADEMixin, InfocentreMixin, TestCase):
         events = res_bcd_media.events
 
         self.assertDictEqual(
-            events['trainees'], {'32291': {'name': 'M2 Biotechnologie HD'}})
+            events['trainees'], {'32291': {'name': 'M2 Biotechnologie HD'}}
+        )
         self.assertIn('1616', events['classrooms'])
         self.assertListEqual(
             events['classrooms']['1616']['genealogy'],
-            ['COL  -SITE COLMAR', 'ESPE COLMAR BATIMENT PRINCIPAL', 'ADDITIONAL BRANCH'])
-        self.assertDictEqual(
-            events['instructors'], {'23390': {'name': 'Gerard Toto'}})
-        self.assertEqual(events['classrooms']['1616']['geolocation'], [48.607508, 7.708025, 0.0])
+            [
+                'COL  -SITE COLMAR',
+                'ESPE COLMAR BATIMENT PRINCIPAL',
+                'ADDITIONAL BRANCH',
+            ],
+        )
+        self.assertDictEqual(events['instructors'], {'23390': {'name': 'Gerard Toto'}})
+        self.assertEqual(
+            events['classrooms']['1616']['geolocation'], [48.607508, 7.708025, 0.0]
+        )
 
     def test_refresh_resource_multiple_events(self):
         self.add_getresources_response()
@@ -158,23 +173,24 @@ class RefreshResourceTestCase(ADEMixin, InfocentreMixin, TestCase):
         events = instructor.events
 
         self.assertDictEqual(
-            events['trainees'], {
+            events['trainees'],
+            {
                 '32291': {'name': 'M2 Biotechnologie HD'},
-                '23613': {'name': 'option NEI'}
-            })
+                '23613': {'name': 'option NEI'},
+            },
+        )
         self.assertIn('2491', events['classrooms'])
         self.assertListEqual(
             events['classrooms']['2491']['genealogy'],
-            ['SCH  -SITE SCHILTIGHEIM', 'IUT LOUIS PASTEUR', 'TP'])
+            ['SCH  -SITE SCHILTIGHEIM', 'IUT LOUIS PASTEUR', 'TP'],
+        )
         self.assertDictEqual(
-            events['instructors'], {
-                '23390': {'name': 'Gerard Toto'},
-                '26840': {'name': 'Yao Toto'}
-            })
+            events['instructors'],
+            {'23390': {'name': 'Gerard Toto'}, '26840': {'name': 'Yao Toto'}},
+        )
 
 
 class RefreshEventTestCase(ADEMixin, InfocentreMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.refresh = Refresh()
@@ -187,8 +203,7 @@ class RefreshEventTestCase(ADEMixin, InfocentreMixin, TestCase):
         self.refresh.refresh_event(191050, 1, [1616], 'op')
 
         self.assertTrue(Resource.objects.get(ext_id=1616).events)
-        self.assertEqual(
-            Resource.objects.filter(events__isnull=False).count(), 1)
+        self.assertEqual(Resource.objects.filter(events__isnull=False).count(), 1)
 
     def test_remove_old_events(self):
         self.add_getresources_response()
@@ -197,15 +212,12 @@ class RefreshEventTestCase(ADEMixin, InfocentreMixin, TestCase):
 
         self.refresh.refresh_all()
         # Add the event 191050 on some random resource
-        Resource.objects.filter(ext_id=1616).update(
-            events={'events': [{'id': 187912}]}
-        )
+        Resource.objects.filter(ext_id=1616).update(events={'events': [{'id': 187912}]})
         self.refresh.refresh_event(191050, 1, [1616], 'op')
 
-        self.assertEqual(
-            Resource.objects.filter(events__isnull=False).count(), 1)
+        self.assertEqual(Resource.objects.filter(events__isnull=False).count(), 1)
         self.assertFalse(
-            Resource.objects
-            .filter(ext_id=1616, events__events__contains=[{'id': '187912'}])
-            .exists()
+            Resource.objects.filter(
+                ext_id=1616, events__events__contains=[{'id': '187912'}]
+            ).exists()
         )

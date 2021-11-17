@@ -6,7 +6,6 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         pp = pprint.PrettyPrinter(indent=4)
         bucket = settings.AWS_STORAGE_BUCKET_NAME
@@ -14,7 +13,7 @@ class Command(BaseCommand):
             's3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            endpoint_url=settings.AWS_S3_ENDPOINT_URL
+            endpoint_url=settings.AWS_S3_ENDPOINT_URL,
         )
 
         client.put_bucket_lifecycle_configuration(
@@ -30,9 +29,8 @@ class Command(BaseCommand):
                         'Prefix': '',
                     },
                 ]
-            }
+            },
         )
 
         print(f'{bucket} rules :')
-        pp.pprint(
-            client.get_bucket_lifecycle_configuration(Bucket=bucket)['Rules'])
+        pp.pprint(client.get_bucket_lifecycle_configuration(Bucket=bucket)['Rules'])

@@ -21,7 +21,7 @@ class ResponsesMixin:
         responses.reset()
 
     def add_default_response(self):
-        """ Override to add default response/s for all test runs """
+        """Override to add default response/s for all test runs"""
         # FIXME: abstract
         # raise NotImplementedError
         pass
@@ -34,7 +34,7 @@ class ADEMixin(ResponsesMixin):
         'classroom': 'classroom.xml',
         'instructor': 'instructor.xml',
         'trainee': 'trainee.xml',
-        'category5': 'category5.xml'
+        'category5': 'category5.xml',
     }
 
     def __ws_url(self, url_path='', params=None):
@@ -51,26 +51,30 @@ class ADEMixin(ResponsesMixin):
         # Connection
         responses.add(
             responses.GET,
-            self.__ws_url(params={
-                'login': settings.ADE_WEB_API['USER'],
-                'password': settings.ADE_WEB_API['PASSWORD'],
-                'function': 'connect'
-            }),
+            self.__ws_url(
+                params={
+                    'login': settings.ADE_WEB_API['USER'],
+                    'password': settings.ADE_WEB_API['PASSWORD'],
+                    'function': 'connect',
+                }
+            ),
             body=f'<session id="{self.SESSION_ID}"/>',
-            status=200
+            status=200,
         )
 
         # Set project
         responses.add(
             responses.GET,
-            self.__ws_url(params={
-                'projectId': settings.ADE_WEB_API['PROJECT_ID'],
-                'function': 'setProject',
-                'sessionId': self.SESSION_ID
-            }),
+            self.__ws_url(
+                params={
+                    'projectId': settings.ADE_WEB_API['PROJECT_ID'],
+                    'function': 'setProject',
+                    'sessionId': self.SESSION_ID,
+                }
+            ),
             body=f'<setProject sessionId="{self.SESSION_ID}" '
-                 f'projectId="{settings.ADE_WEB_API["PROJECT_ID"]}"/>',
-            status=200
+            f'projectId="{settings.ADE_WEB_API["PROJECT_ID"]}"/>',
+            status=200,
         )
 
     def add_getresources_response(self, *resources):
@@ -79,38 +83,44 @@ class ADEMixin(ResponsesMixin):
             filename = self.RESOURCES_MOCK[resource]
             responses.add(
                 responses.GET,
-                self.__ws_url(params={
-                    'category': resource,
-                    'detail': 11,
-                    'tree': True,
-                    'hash': True,
-                    'function': 'getResources',
-                    'sessionId': self.SESSION_ID
-                }),
-                body=open(os.path.join(
-                    self.FIXTURES_PATH, 'resources', filename)).read(),
-                status=200
+                self.__ws_url(
+                    params={
+                        'category': resource,
+                        'detail': 11,
+                        'tree': True,
+                        'hash': True,
+                        'function': 'getResources',
+                        'sessionId': self.SESSION_ID,
+                    }
+                ),
+                body=open(
+                    os.path.join(self.FIXTURES_PATH, 'resources', filename)
+                ).read(),
+                status=200,
             )
 
     def add_getevents_response(self, resource_id):
         responses.add(
             responses.GET,
-            self.__ws_url(params={
-                'resources': resource_id,
-                'detail': 0,
-                'attribute_filter': Refresh.EVENTS_ATTRIBUTE_FILTERS,
-                'function': 'getEvents',
-                'sessionId': self.SESSION_ID
-            }),
-            body=open(os.path.join(
-                self.FIXTURES_PATH, 'events', f'resource_{resource_id}.xml')
+            self.__ws_url(
+                params={
+                    'resources': resource_id,
+                    'detail': 0,
+                    'attribute_filter': Refresh.EVENTS_ATTRIBUTE_FILTERS,
+                    'function': 'getEvents',
+                    'sessionId': self.SESSION_ID,
+                }
+            ),
+            body=open(
+                os.path.join(
+                    self.FIXTURES_PATH, 'events', f'resource_{resource_id}.xml'
+                )
             ).read(),
-            status=200
+            status=200,
         )
 
 
 class InfocentreMixin(ResponsesMixin):
-
     def __ws_url(self, url_path='', params=None):
         url_path = f'/{url_path}' if url_path else ''
         params = params or {}
@@ -124,21 +134,19 @@ class InfocentreMixin(ResponsesMixin):
         responses.add(
             responses.GET,
             self.__ws_url(url_path='buildings.json'),
-            json=[{
-                "id": 1059240,
-                "geolocation": [
-                    48.607508,
-                    7.708025,
-                    0.0
-                ],
-                "name": "NAME",
-                "address1": "ADDR1",
-                "address2": "",
-                "zip_code": "67000",
-                "interior_surface": 1337.55,
-                "type": "Enseignement",
-                "city": "CALAVILLE",
-                "site": 425774
-            }],
-            status=200
+            json=[
+                {
+                    "id": 1059240,
+                    "geolocation": [48.607508, 7.708025, 0.0],
+                    "name": "NAME",
+                    "address1": "ADDR1",
+                    "address2": "",
+                    "zip_code": "67000",
+                    "interior_surface": 1337.55,
+                    "type": "Enseignement",
+                    "city": "CALAVILLE",
+                    "site": 425774,
+                }
+            ],
+            status=200,
         )

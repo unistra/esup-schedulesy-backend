@@ -12,17 +12,15 @@ User = get_user_model()
 
 
 class AdeConfigModelTestCase(TestCase):
-
     def test_save_singleton(self):
         AdeConfig.objects.create(
-            ade_url='https://adewebcons-test.unistra.fr/',
-            parameters={'projectId': '1'}
+            ade_url='https://adewebcons-test.unistra.fr/', parameters={'projectId': '1'}
         )
 
         with self.assertRaises(IntegrityError):
             AdeConfig.objects.create(
                 ade_url='https://adewebcons-test.unistra.fr/',
-                parameters={'projectId': '2'}
+                parameters={'projectId': '2'},
             )
 
 
@@ -35,14 +33,16 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
 
     def test_with_empty_resources(self):
         lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
 
         self.assertDictEqual(lc.events, {})
 
     def test_with_single_resource(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media)
@@ -53,7 +53,8 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         instructor = Resource.objects.get(ext_id='23390')
         LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media, instructor)
@@ -81,20 +82,24 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
             for k, v in fields.items():
                 self.assertListEqual(
                     sorted(e.replace('\\', '') for e in d[k]),
-                    sorted(v if isinstance(v, list) else [v]))
+                    sorted(v if isinstance(v, list) else [v]),
+                )
 
     def test_with_empty_resources(self):
         lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         lc.generate_ics_calendar()
 
-        self.assertFalse(os.path.isfile(
-            os.path.join(settings.MEDIA_ROOT, lc.ics_calendar_filename)))
+        self.assertFalse(
+            os.path.isfile(os.path.join(settings.MEDIA_ROOT, lc.ics_calendar_filename))
+        )
 
     def test_with_single_resource(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media)
@@ -106,15 +111,16 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
             {
                 'LOCATION': 'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)',
                 'DESCRIPTION': 'Filières : M2 Biotechnologie HDnIntervenants : Gerard Toto',
-                'GEO': '48.072084;7.352045'
-            }
+                'GEO': '48.072084;7.352045',
+            },
         )
 
     def test_with_multiple_resources(self):
         res_bcd_media = Resource.objects.get(ext_id='1616')
         instructor = Resource.objects.get(ext_id='23390')
         LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         # Reload the events cached_property
         lc = LocalCustomization.objects.get(customization_id='1')
         lc.resources.add(res_bcd_media, instructor)
@@ -126,24 +132,22 @@ class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
             {
                 'LOCATION': [
                     'BCD Media (COL  -SITE COLMAR, ESPE COLMAR BATIMENT PRINCIPAL)',
-                    'A1.13 Informatique So (A1.16) (SCH  -SITE SCHILTIGHEIM, IUT LOUIS PASTEUR, TP)'
+                    'A1.13 Informatique So (A1.16) (SCH  -SITE SCHILTIGHEIM, IUT LOUIS PASTEUR, TP)',
                 ],
                 'DESCRIPTION': [
                     'Filières : option NEInIntervenants : Yao Toto',
-                    'Filières : M2 Biotechnologie HDnIntervenants : Gerard Toto'
+                    'Filières : M2 Biotechnologie HDnIntervenants : Gerard Toto',
                 ],
-                'GEO': [
-                    '48.072084;7.352045'
-                ]
-            }
+                'GEO': ['48.072084;7.352045'],
+            },
         )
 
 
 class AccessTestCase(TestCase):
-
     def test_is_last_access(self):
         lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         self.assertTrue(lc.accesses.first().is_last_access)
 
         Access.objects.create(name='access', customization=lc)
@@ -151,7 +155,8 @@ class AccessTestCase(TestCase):
 
     def test_delete(self):
         lc = LocalCustomization.objects.create(
-            customization_id='1', directory_id='42', username='owner')
+            customization_id='1', directory_id='42', username='owner'
+        )
         access = lc.accesses.first()
         access.delete()
         # Can not delete the last access of a customization
@@ -161,8 +166,8 @@ class AccessTestCase(TestCase):
         access.delete()
         self.assertFalse(Access.objects.filter(pk=access.pk).exists())
 
-class ResourceTestCase(TestCase):
 
+class ResourceTestCase(TestCase):
     def test_lineage(self):
         r = Resource.objects.create(ext_id='1337')
         self.assertIn('1337', Resource.lineage(['1337']))
