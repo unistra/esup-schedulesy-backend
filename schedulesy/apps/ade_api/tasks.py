@@ -25,13 +25,14 @@ def stats(payload):
 
 def log(payload, prefix):
     if has_elasticsearch:
-        if 'http_user_agent' in payload:
-            try:
-                payload.update(
-                    {'user_agent': user_agent_parser.Parse(payload['http_user_agent'])}
-                )
-            except Exception as e:
-                logger.error(f'{e}')
+        if 'http_user_agent' not in payload or not payload['http_user_agent']:
+            payload.update({'http_user_agent': ''})
+        try:
+            payload.update(
+                {'user_agent': user_agent_parser.Parse(payload['http_user_agent'])}
+            )
+        except Exception as e:
+            logger.error(f'{e}\n{payload}')
         es = Elasticsearch(
             [
                 {
