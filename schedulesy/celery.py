@@ -2,6 +2,7 @@ import os
 import socket
 
 from celery import Celery
+from celery.schedules import crontab
 from kombu import Exchange, Queue
 from skinos.custom_consumer import CustomConsumer
 
@@ -52,6 +53,15 @@ celery_app.conf.task_queues = (
 celery_app.conf.task_default_queue = message_name
 celery_app.conf.task_default_exchange = message_name
 celery_app.conf.task_default_routing_key = message_name + DEFAULT
+
+celery_app.conf.beat_schedule = {
+    "crontab": {
+        "task": "schedulesy.apps.refresh.tasks.refresh_all",
+        "schedule": crontab(**settings.REFRESH_SCHEDULE),
+        "args": (),
+    },
+}
+
 
 celery_app.conf.task_routes = [
     {
