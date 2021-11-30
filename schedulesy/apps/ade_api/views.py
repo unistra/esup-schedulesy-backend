@@ -21,6 +21,7 @@ from schedulesy.libs.permissions import IsOwnerPermission
 
 from .exception import SearchTooWideError, TooMuchEventsError
 from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
+from .refresh import Refresh
 from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
@@ -57,11 +58,8 @@ def refresh_event(request, ext_id):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_all_events(request):  # pragma: no cover
-    resources = Resource.objects.all().values_list('ext_id', flat=True)
-    operation_id = str(uuid.uuid4())
-    for resource in resources:
-        resource_task.delay(resource, len(resources), operation_id=operation_id)
-    return JsonResponse({})
+    count = Refresh.refresh_all()
+    return JsonResponse({'message': f'Ordered refresh of {count} ressources'})
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')

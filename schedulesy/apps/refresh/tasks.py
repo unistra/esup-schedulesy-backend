@@ -24,6 +24,13 @@ def refresh_all():
     return refresh_agent.data
 
 
+@shared_task()
+def refresh_all_events():
+    count = Refresh.refresh_all_events()
+    message = f'Ordered refresh of {count} ressources'
+    logger.info(message)
+
+
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)
 def refresh_resource(ext_id, *args, **kwargs):
     _refresh_resource(ext_id, *args, **kwargs)

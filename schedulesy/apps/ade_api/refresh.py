@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+import uuid
 from collections import OrderedDict
 
 from django.conf import settings
@@ -8,8 +9,13 @@ from django.db import IntegrityError
 from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import get_geolocations, to_ade_id
-from schedulesy.libs.decorators import MemoizeWithTimeout, refresh_if_necessary
+from schedulesy.libs.decorators import (
+    MemoizeWithTimeout,
+    async_log,
+    refresh_if_necessary,
+)
 
+from ..refresh.tasks import refresh_resource
 from .ade import ADEWebAPI, Config
 from .models import Fingerprint, Resource
 
@@ -333,6 +339,14 @@ class Refresh:
             events = self._reformat_events(r['data'])
             resource.events = events
             resource.save()
+
+    @staticmethod
+    def refresh_all_events():  # pragma: no cover
+        resources = Resource.objects.all().values_list('ext_id', flat=True)
+        operation_id = str(uuid.uuid4())
+        for resource in resources:
+            refresh_resource.delay(resource, len(resources), operation_id=operation_id)
+        return len(resources)
 
 
 @MemoizeWithTimeout(timeout=30)
