@@ -56,7 +56,7 @@ celery_app.conf.task_default_routing_key = message_name + DEFAULT
 
 celery_app.conf.beat_schedule = {
     "crontab": {
-        "task": "schedulesy.apps.refresh.tasks.refresh_all",
+        "task": "schedulesy.apps.refresh.tasks.refresh_all_events",
         "schedule": crontab(**settings.REFRESH_SCHEDULE),
         "args": (),
     },
