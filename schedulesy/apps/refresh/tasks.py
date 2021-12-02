@@ -23,7 +23,8 @@ def do_refresh_all_events():  # pragma: no cover
     operation_id = str(uuid.uuid4())
     for resource in resources:
         refresh_resource.delay(resource, len(resources), operation_id=operation_id)
-    return len(resources)
+    message = f'Ordered refresh of {len(resources)} ressources ({operation_id})'
+    logger.info(message)
 
 
 @shared_task()
@@ -35,9 +36,7 @@ def refresh_all():
 
 @shared_task()
 def refresh_all_events():
-    count = do_refresh_all_events()
-    message = f'Ordered refresh of {count} ressources'
-    logger.info(message)
+    do_refresh_all_events()
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)

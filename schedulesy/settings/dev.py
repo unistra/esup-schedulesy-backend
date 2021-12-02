@@ -140,3 +140,10 @@ CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEO
 #########
 ELASTIC_SEARCH_SERVER = environ.get('ELASTIC_SEARCH_SERVER')
 ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT', 9200))
+
+########
+# CAS #
+########
+
+CAS_SERVER_URL = "https://cas6-dev.unistra.fr:443/cas/login"
+CAS_FORCE_SSL_SERVICE_URL = False

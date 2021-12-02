@@ -74,12 +74,13 @@ def refresh_if_necessary(func, exclusivity=3600):
         )
 
         def _key(name, *args):
-            if isinstance(args[0], (str, int)):
-                suffix = args[0]
-            elif len(args) > 1:
-                suffix = args[1]
-            else:
-                suffix = 'no_suffix'
+            suffix = 'no_suffix'
+            if len(args) >= 0:
+                s = '-'.join(
+                    map(str, filter(lambda x: isinstance(x, (str, int)), args))
+                )
+                if s != "":
+                    suffix = s
             return f'{name}-{suffix}'
 
         key = _key(func.__name__, *args)
