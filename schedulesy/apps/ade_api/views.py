@@ -15,12 +15,14 @@ from rest_framework.settings import api_settings
 
 from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
-from schedulesy.apps.refresh.tasks import refresh_all
+from schedulesy.apps.refresh.tasks import do_refresh_all_events, refresh_all
 from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
 from schedulesy.libs.permissions import IsOwnerPermission
 
+from ...libs.decorators import refresh_if_necessary
 from .exception import SearchTooWideError, TooMuchEventsError
 from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
+from .refresh import Refresh
 from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
@@ -57,11 +59,8 @@ def refresh_event(request, ext_id):  # pragma: no cover
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
 def refresh_all_events(request):  # pragma: no cover
-    resources = Resource.objects.all().values_list('ext_id', flat=True)
-    operation_id = str(uuid.uuid4())
-    for resource in resources:
-        resource_task.delay(resource, len(resources), operation_id=operation_id)
-    return JsonResponse({})
+    count = do_refresh_all_events()
+    return JsonResponse({'message': f'Ordered refresh of {count} ressources'})
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')

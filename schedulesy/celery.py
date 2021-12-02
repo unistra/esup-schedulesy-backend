@@ -2,6 +2,7 @@ import os
 import socket
 
 from celery import Celery
+from celery.schedules import crontab
 from kombu import Exchange, Queue
 from skinos.custom_consumer import CustomConsumer
 
@@ -16,6 +17,7 @@ CALENDAR = '.ics'
 STATS = '.stats'
 SYNC = '.sync'
 SYNC_LOG = SYNC + '.log'
+CRON = '.crontab'
 
 
 @MemoizeWithTimeout()
@@ -47,11 +49,21 @@ celery_app.conf.task_queues = (
     Queue(message_name, exchange, routing_key=message_name + DEFAULT),
     Queue(message_name + SYNC_LOG, exchange, routing_key=message_name + SYNC_LOG),
     Queue(message_name + STATS, exchange, routing_key=message_name + STATS),
+    Queue(message_name + CRON, exchange, routing_key=message_name + CRON),
 )
 
 celery_app.conf.task_default_queue = message_name
 celery_app.conf.task_default_exchange = message_name
 celery_app.conf.task_default_routing_key = message_name + DEFAULT
+
+celery_app.conf.beat_schedule = {
+    "crontab": {
+        "task": "schedulesy.apps.refresh.tasks.refresh_all_events",
+        "schedule": crontab(**settings.REFRESH_SCHEDULE),
+        "args": (),
+    },
+}
+
 
 celery_app.conf.task_routes = [
     {
@@ -66,6 +78,10 @@ celery_app.conf.task_routes = [
         'schedulesy.apps.ade_api.tasks.sync_log': {
             'queue': message_name + SYNC_LOG,
             'routing_key': message_name + SYNC_LOG,
+        },
+        'schedulesy.apps.refresh.tasks.refresh_all_events': {
+            'queue': message_name + CRON,
+            'routing_key': message_name + CRON,
         },
     },
 ]

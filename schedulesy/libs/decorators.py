@@ -2,6 +2,7 @@ import logging
 import socket
 import time
 from datetime import datetime
+from functools import wraps
 
 import redis
 from django.conf import settings
@@ -38,7 +39,28 @@ def async_log(func):
     return wrapper
 
 
-def refresh_if_necessary(func):
+def doublewrap(f):
+    """
+    a decorator decorator, allowing the decorator to be used as:
+    @decorator(with, arguments, and=kwargs)
+    or
+    @decorator
+    """
+
+    @wraps(f)
+    def new_dec(*args, **kwargs):
+        if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+            # actual decorated function
+            return f(args[0])
+        else:
+            # decorator arguments
+            return lambda realf: f(realf, *args, **kwargs)
+
+    return new_dec
+
+
+@doublewrap
+def refresh_if_necessary(func, exclusivity=3600):
     def wrapper(*args, **kwargs):
         # TODO: for unit test, find a better way to test this
         if not has_redis:
@@ -50,9 +72,19 @@ def refresh_if_necessary(func):
             port=settings.CACHEOPS_REDIS_PORT,
             db=settings.CACHEOPS_REDIS_DB,
         )
-        suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
-        key = f'{func.__name__}-{suffix}'
-        order_time = kwargs.get('order_time', time.time())
+
+        def _key(name, *args):
+            suffix = 'no_suffix'
+            if len(args) >= 0:
+                s = '-'.join(
+                    map(str, filter(lambda x: isinstance(x, (str, int)), args))
+                )
+                if s != "":
+                    suffix = s
+            return f'{name}-{suffix}'
+
+        key = _key(func.__name__, *args)
+        order_time = kwargs.get('order_time', time.time()) - exclusivity
         with r.lock(f'{key}-lock', timeout=300) as _:
             if not r.exists(key) or float(r.get(key)) < order_time:
                 func(*args, **kwargs)

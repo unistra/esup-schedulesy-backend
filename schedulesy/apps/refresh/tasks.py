@@ -17,11 +17,26 @@ from schedulesy.libs.decorators import async_log, refresh_if_necessary
 logger = logging.getLogger(__name__)
 
 
+@refresh_if_necessary(exclusivity=3600)
+def do_refresh_all_events():  # pragma: no cover
+    resources = Resource.objects.all().values_list('ext_id', flat=True)
+    operation_id = str(uuid.uuid4())
+    for resource in resources:
+        refresh_resource.delay(resource, len(resources), operation_id=operation_id)
+    message = f'Ordered refresh of {len(resources)} ressources ({operation_id})'
+    logger.info(message)
+
+
 @shared_task()
 def refresh_all():
     refresh_agent = Refresh()
     refresh_agent.refresh_all()
     return refresh_agent.data
+
+
+@shared_task()
+def refresh_all_events():
+    do_refresh_all_events()
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)

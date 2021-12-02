@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+import uuid
 from collections import OrderedDict
 
 from django.conf import settings
@@ -8,7 +9,11 @@ from django.db import IntegrityError
 from sentry_sdk import capture_exception
 
 from schedulesy.libs.api.client import get_geolocations, to_ade_id
-from schedulesy.libs.decorators import MemoizeWithTimeout, refresh_if_necessary
+from schedulesy.libs.decorators import (
+    MemoizeWithTimeout,
+    async_log,
+    refresh_if_necessary,
+)
 
 from .ade import ADEWebAPI, Config
 from .models import Fingerprint, Resource
