@@ -138,6 +138,7 @@ def test():
         'redis_db': "REDIS_DB",
         'elastic_search_server': "ELASTIC_SEARCH_SERVER",
         'elastic_search_port': "ELASTIC_SEARCH_PORT",
+        'refresh_schedule': "REFRESH_SCHEDULE",
     }
     # env.rabbitmq_server = env.socket_host
     execute(build_env)
@@ -190,6 +191,7 @@ def preprod():
         'redis_db': "REDIS_DB",
         'elastic_search_server': "ELASTIC_SEARCH_SERVER",
         'elastic_search_port': "ELASTIC_SEARCH_PORT",
+        'refresh_schedule': "REFRESH_SCHEDULE",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
@@ -243,6 +245,7 @@ def prod():
         'redis_db': "REDIS_DB",
         'elastic_search_server': "ELASTIC_SEARCH_SERVER",
         'elastic_search_port': "ELASTIC_SEARCH_PORT",
+        'refresh_schedule': "REFRESH_SCHEDULE",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)

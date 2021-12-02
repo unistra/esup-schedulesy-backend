@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 from os.path import normpath
 from .base import *
 
@@ -99,6 +99,7 @@ RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
+REFRESH_SCHEDULE = json.loads('{{ refresh_schedule }}')
 
 
 ###############################
