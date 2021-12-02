@@ -105,6 +105,7 @@ CACHEOPS_REDIS_SERVER = '{{ redis_server }}'
 CACHEOPS_REDIS_PORT = int('{{ redis_port }}')
 CACHEOPS_REDIS_DB = int('{{ redis_db }}')
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
+REDIS_URL=CACHEOPS_REDIS
 
 #########
 # Stats #
