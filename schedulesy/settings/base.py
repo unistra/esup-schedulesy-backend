@@ -245,6 +245,12 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'cacheops',
+    'health_check',  # required
+    'health_check.db',  # stock Django health checkers
+    'health_check.contrib.migrations',
+    'health_check.contrib.s3boto3_storage',  # requires boto3 and S3BotoStorage backend
+    'health_check.contrib.rabbitmq',  # requires RabbitMQ broker
+    'health_check.contrib.redis',
 ]
 
 LOCAL_APPS = [
