@@ -256,7 +256,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
-    'schedulesy.apps.ade_legacy',
+    'schedulesy.apps.ade_legacy.apps.AdeLegacyConfig',
     'schedulesy.apps.refresh',
 ]
 
@@ -439,7 +439,7 @@ def sentry_init(environment):
 ##########
 
 CELERY_NAME = "schedulesy"
-CELERY_RESULT_BACKEND = ""
+CELERY_RESULT_BACKEND = ''
 BROKER_URL = ""
 # minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'
 # WARNING : use London TZ
