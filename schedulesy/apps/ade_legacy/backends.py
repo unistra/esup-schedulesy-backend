@@ -2,13 +2,13 @@ from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import HealthCheckException
 
-from schedulesy.apps.ade_legacy.models import Customization
-
 
 class ADECheckBackend(BaseHealthCheckBackend):
     critical_service = True
 
     def check_status(self):
+        from schedulesy.apps.ade_legacy.models import Customization
+
         try:
             c = Customization.objects.count()
         except Exception as e:
