@@ -15,7 +15,7 @@ urlpatterns = [
     path('api/', include('schedulesy.apps.ade_api.urls', namespace='api')),
     path('legacy/', include('schedulesy.apps.ade_legacy.urls', namespace='legacy')),
     path('admin/', admin.site.urls),
-    path('ht/', include('health_check.urls')),
+    path('_hc/', include('health_check.urls')),
 ]
 
 # debug toolbar for dev
