@@ -439,7 +439,8 @@ def sentry_init(environment):
 ##########
 
 CELERY_NAME = "schedulesy"
-CELERY_RESULT_BACKEND = ''
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_RESULT_PERSISTENT = False
 BROKER_URL = ""
 # minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'
 # WARNING : use London TZ

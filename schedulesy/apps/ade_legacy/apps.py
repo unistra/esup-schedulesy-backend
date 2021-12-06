@@ -7,6 +7,7 @@ class AdeLegacyConfig(AppConfig):
     def ready(self):
         from health_check.plugins import plugin_dir
 
-        from schedulesy.apps.ade_legacy.backends import ADECheckBackend
+        from schedulesy.apps.ade_legacy.backends import ADECheckBackend, WorkerBackend
 
         plugin_dir.register(ADECheckBackend)
+        plugin_dir.register(WorkerBackend)

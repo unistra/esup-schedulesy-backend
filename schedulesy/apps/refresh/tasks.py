@@ -35,6 +35,11 @@ def refresh_all():
 
 
 @shared_task()
+def health_check():
+    return 'ok'
+
+
+@shared_task()
 def refresh_all_events():
     do_refresh_all_events()
 
