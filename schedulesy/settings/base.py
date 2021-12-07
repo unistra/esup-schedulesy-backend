@@ -245,12 +245,18 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'cacheops',
+    'health_check',  # required
+    'health_check.db',  # stock Django health checkers
+    'health_check.contrib.migrations',
+    'health_check.contrib.s3boto3_storage',  # requires boto3 and S3BotoStorage backend
+    'health_check.contrib.rabbitmq',  # requires RabbitMQ broker
+    'health_check.contrib.redis',
 ]
 
 LOCAL_APPS = [
     'schedulesy',
     'schedulesy.apps.ade_api',
-    'schedulesy.apps.ade_legacy',
+    'schedulesy.apps.ade_legacy.apps.AdeLegacyConfig',
     'schedulesy.apps.refresh',
 ]
 
@@ -433,7 +439,8 @@ def sentry_init(environment):
 ##########
 
 CELERY_NAME = "schedulesy"
-CELERY_RESULT_BACKEND = ""
+CELERY_RESULT_BACKEND = ''
+CELERY_RESULT_PERSISTENT = False
 BROKER_URL = ""
 # minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*'
 # WARNING : use London TZ

@@ -18,7 +18,12 @@ if __name__ == '__main__':
 
     # Set all tested models to "managed = True"
     for app in settings.LOCAL_APPS:
-        config = apps.get_app_config(app.split('.')[-1])
+        config = (
+            apps.get_app_config(app.split('.')[-1])
+            if not app.endswith('Config')
+            else apps.get_app_config(app.split('.')[-3])
+        )
+        print(type(config))
         list(map(manage_model, config.get_models()))
 
     test_apps = ['schedulesy'] if len(sys.argv) <= 1 else sys.argv[1:]
