@@ -2,6 +2,8 @@ from django.conf import settings
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import HealthCheckException
 
+from schedulesy.apps.ade_api.refresh import direct_ade_connection
+
 
 class ADECheckBackend(BaseHealthCheckBackend):
     critical_service = True
@@ -45,6 +47,21 @@ class WorkerBackend(BaseHealthCheckBackend):
             raise HealthCheckException(e)
         if len(tasks) < 1:
             raise HealthCheckException("There is no active worker")
+
+    def identifier(self):
+        return self.__class__.__name__  # Display name on the endpoint.
+
+
+class ADEWebAPI(BaseHealthCheckBackend):
+    critical_service = False
+
+    def check_status(self):
+        try:
+            connection = direct_ade_connection()
+        except Exception as e:
+            raise HealthCheckException(e)
+        if not connection or not connection.sessionId:
+            raise HealthCheckException("Can't reach ADE web API")
 
     def identifier(self):
         return self.__class__.__name__  # Display name on the endpoint.

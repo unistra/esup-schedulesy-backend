@@ -340,8 +340,7 @@ class Refresh:
             resource.save()
 
 
-@MemoizeWithTimeout(timeout=30)
-def ade_connection():
+def direct_ade_connection():
     config = Config.create(
         url=settings.ADE_WEB_API['HOST'],
         login=settings.ADE_WEB_API['USER'],
@@ -351,6 +350,11 @@ def ade_connection():
     connection.connect()
     connection.setProject(settings.ADE_WEB_API['PROJECT_ID'])
     return connection
+
+
+@MemoizeWithTimeout(timeout=30)
+def ade_connection():
+    return direct_ade_connection()
 
 
 @MemoizeWithTimeout(timeout=30)
