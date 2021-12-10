@@ -376,7 +376,6 @@ class ADEWebAPI:
         data = response.text
 
         add_breadcrumb(category='api', message=f"{data}")
-
         element = ET.fromstring(data)
         try:
             self._parse_error(element)
