@@ -1,7 +1,8 @@
-from datetime import datetime
 import logging
 import socket
 import time
+from datetime import datetime
+from functools import wraps
 
 import redis
 from django.conf import settings
@@ -15,14 +16,15 @@ has_redis = 'cacheops' in settings.INSTALLED_APPS
 
 def async_log(func):
     def wrapper(*args, **kwargs):
-        payload = {'task': func.__qualname__,
-                   'args': [str(x) for x in args if type(x) in (int, float, str)],
-                   'kwargs': kwargs,
-                   'server': socket.gethostname(),
-                   'environment': settings.STAGE,
-                   'version': '.'.join([str(x) for x in VERSION]),
-                   '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
-                   }
+        payload = {
+            'task': func.__qualname__,
+            'args': [str(x) for x in args if type(x) in (int, float, str)],
+            'kwargs': kwargs,
+            'server': socket.gethostname(),
+            'environment': settings.STAGE,
+            'version': '.'.join([str(x) for x in VERSION]),
+            '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
+        }
         start = time.perf_counter()
         try:
             func(*args, **kwargs)
@@ -31,26 +33,58 @@ def async_log(func):
             raise e
         finally:
             end = time.perf_counter()
-            payload.update({
-                       'total': end - start})
+            payload.update({'total': end - start})
             sync_log.delay(payload)
 
     return wrapper
 
 
-def refresh_if_necessary(func):
+def doublewrap(f):
+    """
+    a decorator decorator, allowing the decorator to be used as:
+    @decorator(with, arguments, and=kwargs)
+    or
+    @decorator
+    """
+
+    @wraps(f)
+    def new_dec(*args, **kwargs):
+        if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+            # actual decorated function
+            return f(args[0])
+        else:
+            # decorator arguments
+            return lambda realf: f(realf, *args, **kwargs)
+
+    return new_dec
+
+
+@doublewrap
+def refresh_if_necessary(func, exclusivity=3600):
     def wrapper(*args, **kwargs):
         # TODO: for unit test, find a better way to test this
         if not has_redis:
             func(*args, **kwargs)
             return
 
-        r = redis.Redis(host=settings.CACHEOPS_REDIS_SERVER,
-                        port=settings.CACHEOPS_REDIS_PORT,
-                        db=settings.CACHEOPS_REDIS_DB)
-        suffix = args[0] if isinstance(args[0], (str, int)) else args[1]
-        key = f'{func.__name__}-{suffix}'
-        order_time = kwargs.get('order_time', time.time())
+        r = redis.Redis(
+            host=settings.CACHEOPS_REDIS_SERVER,
+            port=settings.CACHEOPS_REDIS_PORT,
+            db=settings.CACHEOPS_REDIS_DB,
+        )
+
+        def _key(name, *args):
+            suffix = 'no_suffix'
+            if len(args) >= 0:
+                s = '-'.join(
+                    map(str, filter(lambda x: isinstance(x, (str, int)), args))
+                )
+                if s != "":
+                    suffix = s
+            return f'{name}-{suffix}'
+
+        key = _key(func.__name__, *args)
+        order_time = kwargs.get('order_time', time.time()) - exclusivity
         with r.lock(f'{key}-lock', timeout=300) as _:
             if not r.exists(key) or float(r.get(key)) < order_time:
                 func(*args, **kwargs)
@@ -61,8 +95,9 @@ def refresh_if_necessary(func):
     return wrapper
 
 
-class MemoizeWithTimeout(object):
+class MemoizeWithTimeout:
     """Memoize With Timeout"""
+
     _caches = {}
     _timeouts = {}
 

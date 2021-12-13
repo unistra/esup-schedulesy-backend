@@ -6,7 +6,11 @@ from . import views
 app_name = "legacy"
 
 urlpatterns = [
-    re_path(r'^customization/(?P<username>[\w.\-]+)$', views.CustomizationDetail.as_view(), name='customization-detail'),
+    re_path(
+        r'^customization/(?P<username>[\w.\-]+)$',
+        views.CustomizationDetail.as_view(),
+        name='customization-detail',
+    ),
     path('customization', views.CustomizationList.as_view(), name='customization-list'),
 ]
 

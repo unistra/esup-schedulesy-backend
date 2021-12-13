@@ -26,10 +26,26 @@ def stats(payload):
 def log(payload, prefix):
     if has_elasticsearch:
         if 'http_user_agent' in payload:
+            if not payload['http_user_agent']:
+                payload.update({'http_user_agent': ''})
             try:
-                payload.update({'user_agent': user_agent_parser.Parse(payload['http_user_agent'])})
+                payload.update(
+                    {'user_agent': user_agent_parser.Parse(payload['http_user_agent'])}
+                )
             except Exception as e:
-                logger.error(f'{e}')
-        es = Elasticsearch([{'host': settings.ELASTIC_SEARCH_SERVER, 'port': settings.ELASTIC_SEARCH_PORT}])
+                logger.error(f'{e}\n{payload}')
+        es = Elasticsearch(
+            [
+                {
+                    'host': settings.ELASTIC_SEARCH_SERVER,
+                    'port': settings.ELASTIC_SEARCH_PORT,
+                }
+            ]
+        )
         suffix = datetime.now().strftime('%Y%m')
-        es.index(index=f'{prefix}-{suffix}', doc_type='doc', id=str(uuid.uuid4()), body=json.dumps(payload))
+        es.index(
+            index=f'{prefix}-{suffix}',
+            doc_type='doc',
+            id=str(uuid.uuid4()),
+            body=json.dumps(payload),
+        )

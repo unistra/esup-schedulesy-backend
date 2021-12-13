@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 try:
     from .celery import celery_app
 except ImportError:
@@ -8,9 +6,8 @@ except ImportError:
     pass
 
 
-VERSION = (1, 1, 17)
+VERSION = (1, 2, 0)
 
 
 def get_version():
-    return (
-        '.'.join(map(str, VERSION[:3])) + ''.join(map(str, VERSION[3:])))
+    return '.'.join(map(str, VERSION[:3])) + ''.join(map(str, VERSION[3:]))

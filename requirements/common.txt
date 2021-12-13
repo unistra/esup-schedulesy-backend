@@ -5,7 +5,7 @@ django-cors-headers==3.7.0
 psycopg2-binary<2.9
 sentry-sdk<0.12
 django-cas-sso<1.1.9
-celery<4.4
+celery==5.2.1
 django-storages[boto3]<1.8
 cryptography==3.3.2
 django-cacheops<4.3
@@ -17,3 +17,4 @@ britney-utils
 celery-skinos<0.3
 elasticsearch<7.2
 ua-parser==0.8.0
+django-health-check==3.16.4

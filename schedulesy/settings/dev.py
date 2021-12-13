@@ -55,7 +55,7 @@ LOGGING['handlers']['file']['level'] = 'DEBUG'
 LOGGING['handlers']['infocentre_file']['level'] = 'DEBUG'
 
 for logger in LOGGING['loggers']:
-    LOGGING['loggers'][logger]['level'] = 'DEBUG'
+    LOGGING['loggers'][logger]['level'] = 'INFO'
 
 LOGGING['loggers']['django.db.backends'] = {
     'handlers': ['console'],
@@ -134,9 +134,17 @@ CACHEOPS_REDIS_SERVER = environ.get('REDIS_SERVER')
 CACHEOPS_REDIS_PORT = int(environ.get('REDIS_PORT', 6379))
 CACHEOPS_REDIS_DB = int(environ.get('REDIS_DB', 0))
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
+REDIS_URL=CACHEOPS_REDIS
 
 #########
 # Stats #
 #########
 ELASTIC_SEARCH_SERVER = environ.get('ELASTIC_SEARCH_SERVER')
 ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT', 9200))
+
+########
+# CAS #
+########
+
+CAS_SERVER_URL = "https://cas6-dev.unistra.fr:443/cas/login"
+CAS_FORCE_SSL_SERVICE_URL = False

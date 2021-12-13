@@ -13,6 +13,7 @@ from ics import Calendar, Event
 
 from schedulesy.apps.ade_legacy import models as legacy
 from schedulesy.libs.decorators import MemoizeWithTimeout
+
 from .exception import TooMuchEventsError
 from .utils import generate_uuid, get_ade_timezone
 
@@ -23,8 +24,8 @@ class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
     fields = JSONField(blank=True, null=True)
     parent = models.ForeignKey(
-        'self', blank=True, null=True, related_name='children',
-        on_delete=models.CASCADE)
+        'self', blank=True, null=True, related_name='children', on_delete=models.CASCADE
+    )
     events = JSONField(blank=True, null=True)
 
     class Meta:
@@ -32,7 +33,7 @@ class Resource(models.Model):
         verbose_name_plural = _('Resources')
 
     def __str__(self):
-        return '{0.ext_id}'.format(self)
+        return f'{self.ext_id}'
 
     @cached_property
     def local_customizations(self):
@@ -51,15 +52,19 @@ class Resource(models.Model):
                         WHERE r.parent_id = pr.id
                     )
                     SELECT * from parent_resource
-                """, params=[tuple(values)]
+                """,
+                params=[tuple(values)],
             )
             row = [r[1] for r in cursor.fetchall()]
         return row
 
     def delete(self, using=None, keep_parents=False):
-        for customization in [lc.customization for lc in self.local_customizations if lc.customization]:
+        for customization in [
+            lc.customization for lc in self.local_customizations if lc.customization
+        ]:
             customization.resources = ",".join(
-                filter(lambda x: x != self.ext_id, customization.resources.split(',')))
+                filter(lambda x: x != self.ext_id, customization.resources.split(','))
+            )
             customization.save()
         return super().delete(using, keep_parents)
 
@@ -85,7 +90,7 @@ class DisplayType(models.Model):
         verbose_name_plural = _('Display types')
 
     def __str__(self):
-        return '{0.name}'.format(self)
+        return f'{self.name}'
 
 
 class AdeConfig(models.Model):
@@ -114,10 +119,8 @@ class LocalCustomization(models.Model):
     """
 
     customization_id = models.IntegerField(unique=True)
-    directory_id = models.CharField(
-        max_length=32, db_column='uds_directory_id')
-    username = models.CharField(
-        max_length=32, db_column='uid', blank=True, unique=True)
+    directory_id = models.CharField(max_length=32, db_column='uds_directory_id')
+    username = models.CharField(max_length=32, db_column='uid', blank=True, unique=True)
     resources = models.ManyToManyField(Resource)
     configuration = JSONField(blank=True, null=True)
 
@@ -126,7 +129,7 @@ class LocalCustomization(models.Model):
         verbose_name_plural = _('Local Customizations')
 
     def __str__(self):
-        return '{0.username}'.format(self)
+        return f'{self.username}'
 
     @cached_property
     def customization(self):
@@ -137,11 +140,9 @@ class LocalCustomization(models.Model):
 
     @property
     def ics_calendar_filename(self):
-        """Generate a filename based on the resources' ids
-        """
+        """Generate a filename based on the resources' ids"""
         res = self.resources.order_by('id').values_list('id', flat=True)
-        digest = hashlib.sha1(
-            (','.join(map(str, res))).encode('utf-8')).hexdigest()
+        digest = hashlib.sha1((','.join(map(str, res))).encode('utf-8')).hexdigest()
         return f'{digest}.ics'
         # return f'{self.username}.ics'
 
@@ -161,12 +162,10 @@ class LocalCustomization(models.Model):
         """
 
         def get_event_type(t):
-            return (x.events[t] for x in resources
-                    if x.events and t in x.events)
+            return (x.events[t] for x in resources if x.events and t in x.events)
 
         if self.events_nb > settings.ADE_MAX_EVENTS:
-            raise TooMuchEventsError(
-                {'nb_events': self.events_nb})
+            raise TooMuchEventsError({'nb_events': self.events_nb})
 
         resources = self.resources.all()
         if len(resources) == 0:
@@ -174,8 +173,7 @@ class LocalCustomization(models.Model):
         if len(resources) == 1:
             return resources[0].events or {}
 
-        events = {item['id']: item
-                  for sl in get_event_type('events') for item in sl}
+        events = {item['id']: item for sl in get_event_type('events') for item in sl}
         result = {'events': events.values()}
 
         for rt in ('trainees', 'instructors', 'classrooms', 'category5s'):
@@ -189,7 +187,8 @@ class LocalCustomization(models.Model):
         @MemoizeWithTimeout()
         def format_ics_date(event_date):
             return get_ade_timezone().localize(
-                datetime.strptime(event_date, '%d/%m/%Y %H:%M'))
+                datetime.strptime(event_date, '%d/%m/%Y %H:%M')
+            )
 
         def format_ics_location(classroom):
             return f'{classroom["name"]} ({", ".join(classroom["genealogy"])})'
@@ -197,26 +196,28 @@ class LocalCustomization(models.Model):
         def format_geolocation(classrooms):
             try:
                 # Returns the first geolocation found
-                return next(filter(
-                    None, (c.get('geolocation') for c in classrooms)))[:2]
+                return next(filter(None, (c.get('geolocation') for c in classrooms)))[
+                    :2
+                ]
             except Exception:
                 return None
 
         @MemoizeWithTimeout()
         def format_end_date(dt, offset):
-            return dt + timedelta(
-                minutes=(int(offset) * settings.ADE_DEFAULT_DURATION))
+            return dt + timedelta(minutes=(int(offset) * settings.ADE_DEFAULT_DURATION))
 
         def format_description(resources):
             descriptions = []
             # TODO: i18n ?
-            for key, display in {'trainees': 'Filières',
-                                 'instructors': 'Intervenants',
-                                 'category5s': 'Matières'}.items():
+            for key, display in {
+                'trainees': 'Filières',
+                'instructors': 'Intervenants',
+                'category5s': 'Matières',
+            }.items():
                 if key in resources:
                     descriptions.append(
-                        f'{display} : ' +
-                        ','.join([x['name'] for x in resources[key]]))
+                        f'{display} : ' + ','.join([x['name'] for x in resources[key]])
+                    )
             return '\n'.join(descriptions)
 
         filename = filename or self.ics_calendar_filename
@@ -248,7 +249,8 @@ class LocalCustomization(models.Model):
 
                     classrooms = resources.get('classrooms', ())
                     begin_time = format_ics_date(
-                        f'{event["date"]} {event["startHour"]}')
+                        f'{event["date"]} {event["startHour"]}'
+                    )
 
                     # Genereate ICS event
                     e = Event()
@@ -267,8 +269,7 @@ class LocalCustomization(models.Model):
 
     @cached_property
     def events_ids(self):
-        """Fast way to get all the events' ids for a customization
-        """
+        """Fast way to get all the events' ids for a customization"""
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -279,15 +280,15 @@ class LocalCustomization(models.Model):
                 WHERE ade_api_resource.id = ade_api_localcustomization_resources.resource_id
                       AND ade_api_localcustomization_resources.localcustomization_id = %s
                 ORDER BY x.id
-                """, params=[self.pk]
+                """,
+                params=[self.pk],
             )
             row = [r[0] for r in cursor.fetchall()]
         return row
 
     @cached_property
     def events_nb(self):
-        """Fast way to count the number of unique events
-        """
+        """Fast way to count the number of unique events"""
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -297,20 +298,20 @@ class LocalCustomization(models.Model):
                      jsonb_to_recordset(ade_api_resource.events->'events') as x(id int)
                 WHERE ade_api_resource.id = ade_api_localcustomization_resources.resource_id
                       AND ade_api_localcustomization_resources.localcustomization_id = %s
-                """, params=[self.pk]
+                """,
+                params=[self.pk],
             )
             row = cursor.fetchone()
         return row[0]
 
 
 class Access(models.Model):
-    key = models.CharField(
-        max_length=36, unique=True, default=generate_uuid)
+    key = models.CharField(max_length=36, unique=True, default=generate_uuid)
     creation_date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=256)
     customization = models.ForeignKey(
-        'ade_api.LocalCustomization', related_name='accesses',
-        on_delete=models.CASCADE)
+        'ade_api.LocalCustomization', related_name='accesses', on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = _('Access')

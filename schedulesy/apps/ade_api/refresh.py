@@ -1,17 +1,22 @@
 import logging
 import re
 import time
+import uuid
 from collections import OrderedDict
 
 from django.conf import settings
 from django.db import IntegrityError
 from sentry_sdk import capture_exception
 
-from schedulesy.libs.api.client import (
-    get_geolocations, to_ade_id)
-from schedulesy.libs.decorators import MemoizeWithTimeout, refresh_if_necessary
+from schedulesy.libs.api.client import get_geolocations, to_ade_id
+from schedulesy.libs.decorators import (
+    MemoizeWithTimeout,
+    async_log,
+    refresh_if_necessary,
+)
+
 from .ade import ADEWebAPI, Config
-from .models import Resource, Fingerprint
+from .models import Fingerprint, Resource
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +41,13 @@ class Flatten:
                 me = None
                 if 'id' in item:
                     me = list(genealogy) if genealogy is not None else []
-                    me.append({'id': item['id'], 'name': item['name'], 'code': item.get('code', '')})
+                    me.append(
+                        {
+                            'id': item['id'],
+                            'name': item['name'],
+                            'code': item.get('code', ''),
+                        }
+                    )
                 ref = self._flatten(child, me)
                 if ref:
                     children_ref.append(ref)
@@ -44,7 +55,7 @@ class Flatten:
         if 'id' in item:
             key = item['id']
             if key in self.f_data:
-                print("Double key {}".format(key))
+                print(f"Double key {key}")
             else:
                 tmp = item.copy()
                 if genealogy:
@@ -54,7 +65,9 @@ class Flatten:
                     tmp['children'] = children_ref
                 self.f_data[key] = tmp
             result = OrderedDict()
-            result.update({'id': key, 'name': item['name'], 'code': item.get('code', '')})
+            result.update(
+                {'id': key, 'name': item['name'], 'code': item.get('code', '')}
+            )
             result['has_children'] = len(children_ref) > 0
             return result
 
@@ -64,8 +77,17 @@ class Flatten:
 class Refresh:
     METHOD_GET_RESOURCE = "getResources"
     EVENTS_ATTRIBUTE_FILTERS = (
-        'id', 'activityId', 'name', 'endHour', 'startHour', 'date', 'duration',
-        'lastUpdate', 'category', 'color', 'note'
+        'id',
+        'activityId',
+        'name',
+        'endHour',
+        'startHour',
+        'date',
+        'duration',
+        'lastUpdate',
+        'category',
+        'color',
+        'note',
     )
 
     def __init__(self):
@@ -74,19 +96,21 @@ class Refresh:
 
     def refresh_single_resource(self, ext_id, operation_id):
         resource = None
-        logger.debug("{operation_id} / Refreshing resource {ext_id}".format(ext_id=ext_id, operation_id=operation_id))
+        logger.debug(f"{operation_id} / Refreshing resource {ext_id}")
         try:
             resource = Resource.objects.get(ext_id=ext_id)
             self._simple_resource_refresh(resource, operation_id)
         except (Resource.DoesNotExist, KeyError):
-            logger.debug("Didn't find {}".format(ext_id))
+            logger.debug(f"Didn't find {ext_id}")
             # Fingerprint.objects.update(fingerprint='toRefresh')
             self.refresh_all()
 
         if isinstance(ext_id, int) or re.fullmatch(r'[0-9]*', ext_id):
             r = self.myade.getEvents(
-                resources=ext_id, detail=0,
-                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+                resources=ext_id,
+                detail=0,
+                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS,
+            )
 
             if resource is None:
                 resource = Resource.objects.get(ext_id=ext_id)
@@ -125,7 +149,9 @@ class Refresh:
         if 'children' in data:
             for element in data['children']:
                 element.pop('tag', None)
-                element['color'] = '#' + ''.join(f'{int(x):02x}' for x in element['color'].split(','))
+                element['color'] = '#' + ''.join(
+                    f'{int(x):02x}' for x in element['color'].split(',')
+                )
                 children = element.get('children', [])
                 if len(children) and 'children' in children[0]:
                     local_resources = {}
@@ -159,7 +185,9 @@ class Refresh:
                 if index >= 2:
                     code = to_ade_id(x['code'])
                     local_geolocation = get_geolocations().get(code, [])
-                    geolocation = local_geolocation if local_geolocation else geolocation
+                    geolocation = (
+                        local_geolocation if local_geolocation else geolocation
+                    )
 
             tmp_r['genealogy'] = parents[1:]
             tmp_r['geolocation'] = geolocation
@@ -170,7 +198,7 @@ class Refresh:
 
     @refresh_if_necessary
     def refresh_category(self, r_type):
-        logger.debug("Refreshing category {}".format(r_type))
+        logger.debug(f"Refreshing category {r_type}")
         method = Refresh.METHOD_GET_RESOURCE
 
         tree = ade_resources(r_type)
@@ -204,7 +232,9 @@ class Refresh:
                         try:
                             to_update.parent = indexed_resources[data["parent"]]
                         except KeyError:
-                            logger.warning(f"Missing parent resource for {to_update.ext_id}")
+                            logger.warning(
+                                f"Missing parent resource for {to_update.ext_id}"
+                            )
                     to_update.save()
                     return True
                 return False
@@ -222,7 +252,11 @@ class Refresh:
                 indexed_resources[ext_id] = r
 
             # Fixes errors
-            for resource in [r for r in Resource.objects.filter(fields__isnull=True) if r.ext_id in test]:
+            for resource in [
+                r
+                for r in Resource.objects.filter(fields__isnull=True)
+                if r.ext_id in test
+            ]:
                 v = test[resource.ext_id]
                 logger.debug(f'Fixing missing fields for {resource.ext_id}')
                 if update(resource, v):
@@ -241,15 +275,25 @@ class Refresh:
                     except KeyError:
                         logger.warning(f"Fixing inconsistency for resource {k}")
                         r_del = Resource.objects.get(ext_id=k)
-                        logger.info("Resource {} - {} to delete".format(r_del.ext_id, r_del.fields['name']))
+                        logger.info(
+                            "Resource {} - {} to delete".format(
+                                r_del.ext_id, r_del.fields['name']
+                            )
+                        )
                         r_del.delete()
                         nb_deleted += 1
                         create(k, v)
                         nb_created += 1
 
             # Clean resources
-            for resource in [v for k, v in indexed_resources.items() if k not in test.keys()]:
-                logger.info("Resource {} - {} to delete".format(resource.ext_id, resource.fields['name']))
+            for resource in [
+                v for k, v in indexed_resources.items() if k not in test.keys()
+            ]:
+                logger.info(
+                    "Resource {} - {} to delete".format(
+                        resource.ext_id, resource.fields['name']
+                    )
+                )
                 resource.delete()
                 nb_deleted += 1
 
@@ -259,23 +303,26 @@ class Refresh:
                 o_fp = Fingerprint(ext_id=r_type, method=method, fingerprint=n_fp)
             o_fp.save()
             elapsed = time.time() - start
-            self.data[key].update({
-                'status': 'modified',
-                'updated': nb_updated,
-                'created': nb_created,
-                'deleted': nb_deleted,
-                'elapsed': elapsed
-            })
+            self.data[key].update(
+                {
+                    'status': 'modified',
+                    'updated': nb_updated,
+                    'created': nb_created,
+                    'deleted': nb_deleted,
+                    'elapsed': elapsed,
+                }
+            )
 
     def refresh_event(self, ext_id, activity_id, resources, operation_id):
         # {'instructors': ['2', '3']}>
-        logger.debug("{operation_id} / {activity_id}".format(activity_id=activity_id, operation_id=operation_id))
-        old_resources = (
-            {str(r.pk): r for r in Resource.objects
-                .filter(events__events__contains=[{'id': ext_id}])})
-        new_resources = (
-            {str(r.pk): r for r in Resource.objects
-                .filter(ext_id__in=resources)})
+        logger.debug(f"{operation_id} / {activity_id}")
+        old_resources = {
+            str(r.pk): r
+            for r in Resource.objects.filter(events__events__contains=[{'id': ext_id}])
+        }
+        new_resources = {
+            str(r.pk): r for r in Resource.objects.filter(ext_id__in=resources)
+        }
 
         if len(new_resources) != len(resources):
             # TODO: create new resources if missing ?
@@ -284,18 +331,21 @@ class Refresh:
         all_resources = dict(**old_resources, **new_resources)
         for r_id, resource in all_resources.items():
             r = self.myade.getEvents(
-                resources=resource.ext_id, detail=0,
-                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS)
+                resources=resource.ext_id,
+                detail=0,
+                attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS,
+            )
             events = self._reformat_events(r['data'])
             resource.events = events
             resource.save()
 
 
-@MemoizeWithTimeout(timeout=30)
-def ade_connection():
-    config = Config.create(url=settings.ADE_WEB_API['HOST'],
-                           login=settings.ADE_WEB_API['USER'],
-                           password=settings.ADE_WEB_API['PASSWORD'])
+def direct_ade_connection():
+    config = Config.create(
+        url=settings.ADE_WEB_API['HOST'],
+        login=settings.ADE_WEB_API['USER'],
+        password=settings.ADE_WEB_API['PASSWORD'],
+    )
     connection = ADEWebAPI(**config)
     connection.connect()
     connection.setProject(settings.ADE_WEB_API['PROJECT_ID'])
@@ -303,5 +353,12 @@ def ade_connection():
 
 
 @MemoizeWithTimeout(timeout=30)
+def ade_connection():
+    return direct_ade_connection()
+
+
+@MemoizeWithTimeout(timeout=30)
 def ade_resources(category, operation_id='standard'):
-    return ade_connection().getResources(category=category, detail=11, tree=True, hash=True)
+    return ade_connection().getResources(
+        category=category, detail=11, tree=True, hash=True
+    )

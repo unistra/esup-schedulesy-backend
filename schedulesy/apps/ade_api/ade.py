@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 def hide_string(s, char_replace='*'):
     """Returns a string of same length but with '*'"""
-    return (char_replace * len(s))
+    return char_replace * len(s)
 
 
 def hide_dict_values(d, hidden_keys=['password'], char_replace='*'):
@@ -47,7 +47,7 @@ def hide_dict_values(d, hidden_keys=['password'], char_replace='*'):
     for key in hidden_keys:
         if key in d_hidden.keys():
             d_hidden[key] = hide_string(d_hidden[key], char_replace)
-    return (d_hidden)
+    return d_hidden
 
 
 def replace_dict_values(d, replace_keys):
@@ -58,7 +58,7 @@ def replace_dict_values(d, replace_keys):
     for key, replace_value in replace_keys.items():
         if key in d_hidden.keys():
             d_hidden[key] = replace_value
-    return (d_hidden)
+    return d_hidden
 
 
 ENV_VAR_ROOT = 'ADE_WEB_API'
@@ -71,12 +71,15 @@ def get_info(key, default_value=None):
     if default_value == '' or default_value is None:
         try:
             import os
-            return (os.environ[ENV_VAR_KEY])
+
+            return os.environ[ENV_VAR_KEY]
         except:
-            logging.warning("You should pass %s using --%s or using environment variable %r" % (key, key, ENV_VAR_KEY))
-            return (default_value)
+            logging.warning(
+                f"You should pass {key} using --{key} or using environment variable {ENV_VAR_KEY!r}"
+            )
+            return default_value
     else:
-        return (default_value)
+        return default_value
 
 
 class HiddenDict(dict):
@@ -85,7 +88,7 @@ class HiddenDict(dict):
     """
 
     def __init__(self, **kwargs):
-        super(HiddenDict, self).__init__()
+        super().__init__()
         for key, value in kwargs.items():
             if key not in ['hidden_keys', 'replace_keys']:
                 self[key] = value
@@ -106,7 +109,7 @@ class HiddenDict(dict):
             hidden_dict = hide_dict_values(hidden_dict)
         if self.replace_keys is not None:
             hidden_dict = replace_dict_values(hidden_dict, self.replace_keys)
-        return ("<Config %s>" % repr(hidden_dict))
+        return "<Config %s>" % repr(hidden_dict)
 
 
 class Config(HiddenDict):
@@ -115,7 +118,7 @@ class Config(HiddenDict):
 
     def __init__(self, **kwargs):
         # super(Config, self).__init__(hidden_keys=['password'], replace_keys={'url': 'server'}, **kwargs)
-        super(Config, self).__init__(hidden_keys=['password'], **kwargs)
+        super().__init__(hidden_keys=['password'], **kwargs)
 
     @staticmethod
     def create(**default_values):
@@ -125,15 +128,15 @@ class Config(HiddenDict):
                 d[key] = get_info(key, default_values[key])
             else:
                 d[key] = get_info(key)
-        return (d)
+        return d
 
 
 def timestamp2datetime(ts, tz=pytz.utc):
     """Converts Unix timestamp to Python datetime.datetime"""
-    return (datetime.datetime.fromtimestamp(float(ts) / 1000.0, tz))
+    return datetime.datetime.fromtimestamp(float(ts) / 1000.0, tz)
 
 
-class BaseObject(object):
+class BaseObject:
     """Base object class which can be easily initialize using
     keyword parameters
     Attributes can be access like a dict obj['myattribute']"""
@@ -147,10 +150,10 @@ class BaseObject(object):
         pass
 
     def __getitem__(self, key):
-        return (self.__dict__[key])
+        return self.__dict__[key]
 
     def __repr__(self):
-        return ("%s(%s)" % (self.__class__.__name__, repr(self.__dict__)))
+        return f"{self.__class__.__name__}({repr(self.__dict__)})"
 
 
 class Project(BaseObject):
@@ -164,6 +167,7 @@ class Project(BaseObject):
 
 class Resource(BaseObject):
     """Base object for resource (Trainee, Room, Instructor...)"""
+
     pass
 
 
@@ -204,7 +208,7 @@ class Date(BaseObject):
             self.__dict__['time'] = timestamp2datetime(float(self.__dict__['time']))
 
 
-class ObjectFactory(object):
+class ObjectFactory:
     """A factory (see pattern factory) which can create Resource, Trainee, Room,
     Instructor, Project, Activity, Event, Cost, Caracteristic, Date object"""
 
@@ -221,10 +225,10 @@ class ObjectFactory(object):
             'caracteristic': Caracteristic,
             'date': Date,
         }
-        return (resource_objects[typ](**kwargs))
+        return resource_objects[typ](**kwargs)
 
 
-class ADEWebAPI():
+class ADEWebAPI:
     """Class to manage ADE Web API (reader only)"""
 
     def __init__(self, url, login, password):
@@ -240,25 +244,106 @@ class ADEWebAPI():
         self.exception_factory = ExceptionFactory()
 
         self.opt_params = {
-            'connect': set([]),
-            'disconnect': set([]),
-            'setProject': set([]),
+            'connect': set(),
+            'disconnect': set(),
+            'setProject': set(),
             'getProjects': {'detail', 'id'},
-            'getResources': {'tree', 'folders', 'leaves', 'id', 'name', 'category', 'type', 'email', 'url', 'size',
-                             'quantity', 'code', 'address1', 'address2', 'zipCode', 'state', 'city', 'country',
-                             'telephone', 'fax', 'timezone', 'jobCategory', 'manager', 'codeX', 'codeY', 'codeZ',
-                             'info', 'detail', 'hash'},
-            'getActivities': {'tree', 'id', 'name', 'resources', 'type', 'url', 'capacity', 'duration', 'repetition',
-                              'code', 'timezone', 'codeX', 'codeY', 'codeZ', 'maxSeats', 'seatseLeft', 'info'},
-            'getEvents': {'eventId', 'activities', 'name', 'resources', 'weeks', 'days', 'date', 'detail',
-                          'attribute_filter'},
+            'getResources': {
+                'tree',
+                'folders',
+                'leaves',
+                'id',
+                'name',
+                'category',
+                'type',
+                'email',
+                'url',
+                'size',
+                'quantity',
+                'code',
+                'address1',
+                'address2',
+                'zipCode',
+                'state',
+                'city',
+                'country',
+                'telephone',
+                'fax',
+                'timezone',
+                'jobCategory',
+                'manager',
+                'codeX',
+                'codeY',
+                'codeZ',
+                'info',
+                'detail',
+                'hash',
+            },
+            'getActivities': {
+                'tree',
+                'id',
+                'name',
+                'resources',
+                'type',
+                'url',
+                'capacity',
+                'duration',
+                'repetition',
+                'code',
+                'timezone',
+                'codeX',
+                'codeY',
+                'codeZ',
+                'maxSeats',
+                'seatseLeft',
+                'info',
+            },
+            'getEvents': {
+                'eventId',
+                'activities',
+                'name',
+                'resources',
+                'weeks',
+                'days',
+                'date',
+                'detail',
+                'attribute_filter',
+            },
             'getCosts': {'id', 'name'},
             'getCaracteristics': {'id', 'name'},
-            'getDate': set([]),
-            'imageET': {'displayConfId', 'displayConfName', 'width', 'height', 'showLoad', 'id', 'name', 'type',
-                        'email', 'url', 'size', 'capacity', 'quantity', 'code', 'address1', 'address2', 'zipCode',
-                        'state', 'city', 'country', 'telephone', 'fax', 'timezone', 'jobCategory', 'manager', 'codeX',
-                        'codeY', 'codeZ', 'info', 'detail'}
+            'getDate': set(),
+            'imageET': {
+                'displayConfId',
+                'displayConfName',
+                'width',
+                'height',
+                'showLoad',
+                'id',
+                'name',
+                'type',
+                'email',
+                'url',
+                'size',
+                'capacity',
+                'quantity',
+                'code',
+                'address1',
+                'address2',
+                'zipCode',
+                'state',
+                'city',
+                'country',
+                'telephone',
+                'fax',
+                'timezone',
+                'jobCategory',
+                'manager',
+                'codeX',
+                'codeY',
+                'codeZ',
+                'info',
+                'detail',
+            },
         }
 
         self.project_init()
@@ -290,8 +375,7 @@ class ADEWebAPI():
         response.encoding = 'UTF-8'
         data = response.text
 
-        add_breadcrumb(category='api', message="{}".format(data))
-
+        add_breadcrumb(category='api', message=f"{data}")
         element = ET.fromstring(data)
         try:
             self._parse_error(element)
@@ -299,8 +383,8 @@ class ADEWebAPI():
             if element.attrib['name'] == 'java.lang.NullPointerException':
                 raise e
             else:
-                logger.error("{}".format(params))
-                logger.error("{}".format(data))
+                logger.error(f"{params}")
+                logger.error(f"{data}")
 
         if 'hash' in params and params['hash']:
             d_hash = hashlib.md5(data.encode('utf-8')).hexdigest()
@@ -317,31 +401,33 @@ class ADEWebAPI():
         element = self._send_request(function, login=self.login, password=self.password)
         returned_sessionId = element.attrib["id"]
         self.sessionId = returned_sessionId
-        return (returned_sessionId is not None)
+        return returned_sessionId is not None
 
     def disconnect(self):
         """Disconnect from server"""
         function = 'disconnect'
         element = self._send_request(function)
         returned_sessionId = element.attrib["sessionId"]
-        return (returned_sessionId == self.sessionId)
+        return returned_sessionId == self.sessionId
 
     def _test_opt_params(self, given_params, function):
         """Test if kwargs parameters are in allowed optional parameters
         of a given method"""
         opt_params = self.opt_params[function]
         given_params = set(given_params.keys())
-        msg = "One (or many) parameters of '%s' call are not allowed. %s is not in %s" \
-              % ('getResources', given_params - opt_params, opt_params)
+        msg = (
+            "One (or many) parameters of '%s' call are not allowed. %s is not in %s"
+            % ('getResources', given_params - opt_params, opt_params)
+        )
         assert given_params <= opt_params, msg
 
     def _create_list_of_dicts(self, category, lst):
         """Returns a list of dict (attributes of XML element)"""
-        return (map(lambda elt: elt.attrib, lst))
+        return map(lambda elt: elt.attrib, lst)
 
     def _create_list_of_objects(self, category, lst):
         """Returns a list of object using factory"""
-        return (map(lambda elt: self.factory.create_object(category, **elt.attrib), lst))
+        return map(lambda elt: self.factory.create_object(category, **elt.attrib), lst)
 
     def getProjects(self, **kwargs):
         """Returns (list of) projects"""
@@ -349,7 +435,7 @@ class ADEWebAPI():
         element = self._send_request(function, **kwargs)
         lst_projects = element.findall('project')
         lst_projects = self._create_list_of('project', lst_projects)
-        return (lst_projects)
+        return lst_projects
 
     def setProject(self, projectId):
         """Set current project"""
@@ -358,13 +444,14 @@ class ADEWebAPI():
         returned_projectId = element.attrib["projectId"]
         returned_sessionId = element.attrib["sessionId"]
 
-        result = returned_sessionId == self.sessionId \
-                 and returned_projectId == str(projectId)
+        result = returned_sessionId == self.sessionId and returned_projectId == str(
+            projectId
+        )
 
         if result:
             self.project_init()
 
-        return (result)
+        return result
 
     def getResources(self, **kwargs):
         """Returns resource(s) from several optional arguments"""
@@ -376,8 +463,15 @@ class ADEWebAPI():
 
     def _tree(self, element, **kwargs):
         d = {'tag': element.tag}
-        d.update(element.attrib if 'attribute_filter' not in kwargs else {k: v for (k, v) in element.attrib.items() if
-                                                                          k in kwargs['attribute_filter']})
+        d.update(
+            element.attrib
+            if 'attribute_filter' not in kwargs
+            else {
+                k: v
+                for (k, v) in element.attrib.items()
+                if k in kwargs['attribute_filter']
+            }
+        )
         children = []
         for child in [x for x in element if len(x) > 0 or len(x.attrib) > 0]:
             children.append(self._tree(child, **kwargs))
@@ -393,7 +487,7 @@ class ADEWebAPI():
         element = self._send_request(function, **kwargs)
         lst_activities = element.findall(typ)
         lst_activities = self._create_list_of(typ, lst_activities)
-        return (lst_activities)
+        return lst_activities
 
     def getEvents(self, **kwargs):
         """Returns event(s) from several optional arguments"""
@@ -411,7 +505,7 @@ class ADEWebAPI():
         typ = 'cost'
         lst = element.findall(typ)
         lst = self._create_list_of(typ, lst)
-        return (lst)
+        return lst
 
     def getCaracteristics(self, **kwargs):
         """Returns caracteristic(s) from several optional arguments"""
@@ -421,7 +515,7 @@ class ADEWebAPI():
         typ = 'caracteristic'
         lst = element.findall(typ)
         lst = self._create_list_of(typ, lst)
-        return (lst)
+        return lst
 
     def getDate(self, week, day, slot):
         """Returns date object from week, day, slot"""
@@ -429,7 +523,7 @@ class ADEWebAPI():
         # self._test_opt_params(kwargs, function) # no keyword arguments (kwargs)
         element = self._send_request(function, week=week, day=day, slot=slot)
         date = Date(**element.attrib)
-        return (date)
+        return date
 
     # def imageET(self, resources, weeks, days, **kwargs):
     def imageET(self, **kwargs):
@@ -455,12 +549,12 @@ class ADEWebAPI():
         if xml_response:
             self._parse_error(element)
         else:  # binary response (gif)
-            return (response.content)
+            return response.content
 
     def first_date(self):
         """Returns first date of current project"""
         self._first_date = self.getDate(0, 0, 0)['time'].date()
-        return (self._first_date)
+        return self._first_date
 
     def week_id(self, date=datetime.date.today()):
         """Returns week number for a given date"""
@@ -470,4 +564,4 @@ class ADEWebAPI():
             self._first_date = self.first_date()
 
         week = int((date - self._first_date).days / 7)
-        return (week)
+        return week

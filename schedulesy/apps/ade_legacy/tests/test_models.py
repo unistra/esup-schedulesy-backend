@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from schedulesy.apps.ade_api.models import LocalCustomization, Resource
+
 from ..models import Customization
 
 
@@ -15,8 +16,9 @@ class CustomizationModelTestCase(TestCase):
     def test_read_without_local_customization(self):
         Resource.objects.create(ext_id='10')
         customization = Customization.objects.create(
-            id=1, resources='10', directory_id='42', username='user1')
-        customization.configuration='{"mode":"dark"}'
+            id=1, resources='10', directory_id='42', username='user1'
+        )
+        customization.configuration = '{"mode":"dark"}'
         # The 'save' method automatically creates missing LocalCustomization
         # To simulate an oprhan line in Customization, we have to delete the LocalCustomization
         LocalCustomization.objects.get(customization_id=1).delete()
@@ -28,25 +30,27 @@ class CustomizationModelTestCase(TestCase):
     def test_save_without_local_customization(self):
         Resource.objects.create(ext_id='10')
         Customization.objects.create(
-            id=1, resources='10', directory_id='42', username='user1')
+            id=1, resources='10', directory_id='42', username='user1'
+        )
         local = LocalCustomization.objects.get(customization_id=1)
 
         self.assertEqual(local.resources.count(), 1)
         self.assertTrue(local.resources.filter(ext_id='10').exists())
 
     def test_save_empty_resources(self):
-        Customization.objects.create(
-            id=1, directory_id='42', username='user1')
+        Customization.objects.create(id=1, directory_id='42', username='user1')
         local = LocalCustomization.objects.get(customization_id=1)
 
         self.assertEqual(local.resources.count(), 0)
 
     def test_save_remove_unselected_resources(self):
         local = LocalCustomization.objects.create(customization_id=1)
-        local.resources.add(Resource.objects.create(ext_id='11'),
-                            Resource.objects.create(ext_id='12'))
+        local.resources.add(
+            Resource.objects.create(ext_id='11'), Resource.objects.create(ext_id='12')
+        )
         Customization.objects.create(
-            id=1, resources='11', directory_id='42', username='user1')
+            id=1, resources='11', directory_id='42', username='user1'
+        )
 
         self.assertEqual(local.resources.count(), 1)
         self.assertFalse(local.resources.filter(ext_id='12').exists())
@@ -55,7 +59,8 @@ class CustomizationModelTestCase(TestCase):
         local = LocalCustomization.objects.create(customization_id=1)
         local.resources.add(Resource.objects.create(ext_id='11'))
         Customization.objects.create(
-            id=1, resources='11,12', directory_id='42', username='user1')
+            id=1, resources='11,12', directory_id='42', username='user1'
+        )
 
         self.assertEqual(local.resources.count(), 1)
 
@@ -64,7 +69,8 @@ class CustomizationModelTestCase(TestCase):
         nb = Resource.objects.count()
         LocalCustomization.objects.create(customization_id=1)
         customization = Customization.objects.create(
-            id=1, resources='11,12', directory_id='42', username='user1')
+            id=1, resources='11,12', directory_id='42', username='user1'
+        )
         self.assertEqual(Resource.objects.count(), nb)
         self.assertEqual(customization.resources, '11')
 
@@ -72,8 +78,11 @@ class CustomizationModelTestCase(TestCase):
         Resource.objects.create(ext_id='11')
         Resource.objects.create(ext_id='12')
         customization = Customization.objects.create(
-            id=1, resources='11,12', directory_id='42', username='user1')
-        self.assertEqual("0306d239086e735258b6453727ef74cf3c2cf0f8.ics", customization.ics_calendar)
+            id=1, resources='11,12', directory_id='42', username='user1'
+        )
+        self.assertEqual(
+            "0306d239086e735258b6453727ef74cf3c2cf0f8.ics", customization.ics_calendar
+        )
 
     def test_str(self):
         local = LocalCustomization.objects.create(customization_id=1, username='user1')

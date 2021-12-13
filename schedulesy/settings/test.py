@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 from os.path import normpath
 from .base import *
 
@@ -99,6 +99,7 @@ RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
+REFRESH_SCHEDULE = json.loads('{{ refresh_schedule }}')
 
 
 ###############################
@@ -116,6 +117,7 @@ CACHEOPS_REDIS_SERVER = '{{ redis_server }}'
 CACHEOPS_REDIS_PORT = int('{{ redis_port }}')
 CACHEOPS_REDIS_DB = int('{{ redis_db }}')
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
+REDIS_URL=CACHEOPS_REDIS
 
 #########
 # Stats #

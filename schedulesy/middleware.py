@@ -34,17 +34,18 @@ class StatsMiddleware:
         :return: Django response
         :rtype: django.http.response.HttpResponse
         """
-        request.log = {'application': 'schedulesy',
-                       '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
-                       'ip': self.get_client_ip(request),
-                       'path': request.path,
-                       'method': request.method,
-                       'server': socket.gethostname(),
-                       'http_user_agent': request.META.get('HTTP_USER_AGENT'),
-                       'environment': settings.STAGE,
-                       'version': '.'.join([str(x) for x in VERSION]),
-                       'user': self.get_user(request)
-                       }
+        request.log = {
+            'application': 'schedulesy',
+            '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
+            'ip': self.get_client_ip(request),
+            'path': request.path,
+            'method': request.method,
+            'server': socket.gethostname(),
+            'http_user_agent': request.headers.get('User-Agent'),
+            'environment': settings.STAGE,
+            'version': '.'.join([str(x) for x in VERSION]),
+            'user': self.get_user(request),
+        }
         self.process_request(request)
         try:
             response = self.get_response(request)
@@ -98,11 +99,13 @@ class StatsMiddleware:
         :rtype: django.http.response.HttpResponse
         """
         total = time.time() - request.start_time
-        data = {'time': total,
-                'status_code': response.status_code,
-                'size': response.get('Content-Length') if isinstance(response, FileResponse)
-                        else len(response.content),
-                }
+        data = {
+            'time': total,
+            'status_code': response.status_code,
+            'size': response.get('Content-Length')
+            if isinstance(response, FileResponse)
+            else len(response.content),
+        }
         request.log.update(data)
         return response
 
@@ -114,8 +117,12 @@ class StatsMiddleware:
         :return: IP address
         :rtype: str
         """
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+        x_forwarded_for = request.headers.get('X-Forwarded-For')
+        return (
+            x_forwarded_for.split(',')[0]
+            if x_forwarded_for
+            else request.META.get('REMOTE_ADDR')
+        )
 
     def get_user(self, request):
         """
