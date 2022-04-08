@@ -8,7 +8,7 @@ variables:
   POSTGRES_DB: schedulesy
   POSTGRES_USER: schedulesy
   POSTGRES_PASSWORD: schedulesy
-  PYTHON_VERSION: 3.7
+  PYTHON_VERSION: "3.7"
 
 include:
   - remote: https://git.unistra.fr/docker/template/-/raw/main/black.gitlab-ci.yml
