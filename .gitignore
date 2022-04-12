@@ -47,3 +47,5 @@ htmlcov/
 
 .idea
 keys/
+coverage.xml
+report.xml

@@ -9,3 +9,4 @@ tox
 responses
 safety
 black
+unittest-xml-reporting

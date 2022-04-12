@@ -70,7 +70,10 @@ LOGGING['handlers']['infocentre_file']['filename'] = environ.get(
 for logger in LOGGING['loggers']:
     LOGGING['loggers'][logger]['level'] = 'ERROR'
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+#TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
+#TEST_OUTPUT_DIR = 'reports/unittest'
+TEST_OUTPUT_FILE_NAME = 'report.xml'
 
 
 REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
