@@ -34,13 +34,13 @@ profile = "black"
 multi_line_output = 3
 
 [tool.poetry]
-name = "poetry-demo"
-version = "0.1.0"
+name = "schedulesy"
+version = "1.2.0"
 description = ""
 authors = ["Virgile Gerecke <virgile.gerecke@unistra.fr>"]
 
 [tool.poetry.dependencies]
-python = "3.8"
+python = "3.7"
 Django = "~2.2.22"
 djangorestframework-simplejwt = "4.6.0"
 django-cors-headers = "3.7.0"
@@ -59,7 +59,6 @@ python-logstash-async = "2.5.0"
 cryptography = "^37.0.2"
 django-health-check = "3.16.4"
 ics = "~0.6.0"
-TatSu = "~5.6.0"
 elasticsearch = "~7.1.0"
 psycopg2 = "~2.8.0"
 
@@ -67,7 +66,7 @@ psycopg2 = "~2.8.0"
 pytest = "^5.2"
 coverage = "^6.4.1"
 Sphinx = "^5.0.1"
-pylint = "^2.14.1"
+pylint = "^2"
 pycodestyle = "^2.8.0"
 django-debug-toolbar = "~2.2.0"
 django-extensions = "^3.1.5"
