@@ -26,8 +26,24 @@ repos:
     hooks:
       - id: poetry-check
       - id: poetry-lock
-      - id: poetry-export
-        args: ["-f", "requirements.txt", "-o", "requirements/auto.txt", "--without-hashes"]
+#      - id: poetry-export
+#        args: ["-f", "requirements.txt", "-o", "requirements/auto-common.txt", "--without-hashes"]
+  - repo: local
+    hooks:
+      - id: export-common-requirements
+        name: Export requirements/auto-prod.txt
+        language: system
+        pass_filenames: false
+        entry: poetry export --without-hashes -o requirements/auto-common.txt
+        files: ^(pyproject.toml|poetry.lock)$
+  - repo: local
+    hooks:
+      - id: export-dev-requirements
+        name: Export requirements/auto-dev.txt
+        language: system
+        pass_filenames: false
+        entry: poetry export --without-hashes -o requirements/auto-dev.txt --with dev
+        files: ^(pyproject.toml|poetry.lock)$
   - repo: local
     hooks:
       - id: export-prod-requirements
