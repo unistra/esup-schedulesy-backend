@@ -1,7 +1,7 @@
 [tool.black]
 line-length = 88
 skip-string-normalization = true
-target-version = ['py37']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 
@@ -37,10 +37,10 @@ multi_line_output = 3
 name = "schedulesy"
 version = "1.2.0"
 description = ""
-authors = ["Virgile Gerecke <virgile.gerecke@unistra.fr>"]
+authors = ["DIP - Université de Strasbourg <dnum-dip@unistra.fr>"]
 
 [tool.poetry.dependencies]
-python = "3.7"
+python = "^3.8"
 Django = "~2.2.22"
 djangorestframework-simplejwt = "4.6.0"
 django-cors-headers = "3.7.0"
@@ -62,6 +62,17 @@ ics = "~0.6.0"
 elasticsearch = "~7.1.0"
 psycopg2 = "~2.8.0"
 
+[tool.poetry.group.prod.dependencies]
+waitress = "1.4.4"
+
+
+[tool.poetry.group.preprod.dependencies]
+waitress = "1.4.4"
+
+
+[tool.poetry.group.test.dependencies]
+waitress = "1.4.4"
+
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 coverage = "^6.4.1"
@@ -75,8 +86,4 @@ safety = "^1.10.3"
 black = "^22.3.0"
 pipdeptree = "^2.2.1"
 pre-commit = "^2.19.0"
-tox-poetry = "^0.4.1"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"

@@ -21,3 +21,26 @@ repos:
     rev: 21.11b0
     hooks:
     - id: black
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.2.0b2
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+      - id: poetry-export
+        args: ["-f", "requirements.txt", "-o", "requirements/auto.txt", "--without-hashes"]
+  - repo: local
+    hooks:
+      - id: export-prod-requirements
+        name: Export requirements/auto-prod.txt
+        language: system
+        pass_filenames: false
+        entry: poetry export --without-hashes -o requirements/auto-prod.txt --with prod
+        files: ^(pyproject.toml|poetry.lock)$
+  - repo: local
+    hooks:
+      - id: export-dev-requirements
+        name: Export requirements/auto-dev.txt
+        language: system
+        pass_filenames: false
+        entry: poetry export --without-hashes -o requirements/auto-dev.txt --with dev
+        files: ^(pyproject.toml|poetry.lock)$
