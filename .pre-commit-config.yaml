@@ -44,19 +44,3 @@ repos:
         pass_filenames: false
         entry: poetry export --without-hashes -o requirements/auto-dev.txt --with dev
         files: ^(pyproject.toml|poetry.lock)$
-  - repo: local
-    hooks:
-      - id: export-prod-requirements
-        name: Export requirements/auto-prod.txt
-        language: system
-        pass_filenames: false
-        entry: poetry export --without-hashes -o requirements/auto-prod.txt --with prod
-        files: ^(pyproject.toml|poetry.lock)$
-  - repo: local
-    hooks:
-      - id: export-dev-requirements
-        name: Export requirements/auto-dev.txt
-        language: system
-        pass_filenames: false
-        entry: poetry export --without-hashes -o requirements/auto-dev.txt --with dev
-        files: ^(pyproject.toml|poetry.lock)$
