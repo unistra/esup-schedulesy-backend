@@ -32,3 +32,62 @@ exclude = '''
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.poetry]
+name = "schedulesy"
+version = "1.2.0"
+description = ""
+authors = ["DIP - Université de Strasbourg <dnum-dip@unistra.fr>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Django = "~2.2.22"
+djangorestframework-simplejwt = "4.6.0"
+django-cors-headers = "3.7.0"
+sentry-sdk = "~0.11"
+django-cas-sso = "1.1.8"
+celery = "5.2.2"
+django-storages = "~1.7"
+django-cacheops = "~4.2.0"
+requests = "^2.28.0"
+pytz = "2019.2"
+britney-utils = "^0.1.2"
+britney = "^0.5.1"
+celery-skinos = "~0.2.0"
+ua-parser = "0.8.0"
+python-logstash-async = "2.5.0"
+cryptography = "^37.0.2"
+django-health-check = "3.16.4"
+ics = "~0.6.0"
+elasticsearch = "~7.1.0"
+psycopg2 = "~2.8.0"
+TatSu = "~4.4.0"
+
+[tool.poetry.group]
+[tool.poetry.group.dev.dependencies]
+responses = "^0.21.0"
+safety = "~1.10"
+bandit = "^1.7.4"
+black = "^22.6.0"
+pytest = "^5.2"
+coverage = "^6.4.1"
+Sphinx = "^5.0.1"
+pylint = "^2"
+pycodestyle = "^2.8.0"
+django-debug-toolbar = "~2.2.0"
+django-extensions = "^3.1.5"
+tox = "^3.25.0"
+pipdeptree = "^2.2.1"
+pre-commit = "^2.19.0"
+
+[tool.poetry.group.prod.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+
+[tool.poetry.group.preprod.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+
+[tool.poetry.group.test.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
