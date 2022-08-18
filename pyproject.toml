@@ -80,3 +80,14 @@ tox = "^3.25.0"
 pipdeptree = "^2.2.1"
 pre-commit = "^2.19.0"
 
+[tool.poetry.group.prod.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+
+[tool.poetry.group.preprod.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+
+[tool.poetry.group.test.dependencies]
+waitress = "1.4.4"
+chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}

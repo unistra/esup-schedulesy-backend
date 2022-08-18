@@ -1,20 +1,59 @@
-Django>=2.2.22,<2.3
-djangorestframework-simplejwt==4.6.0
-djangorestframework>=3.11.2
-django-cors-headers==3.7.0
-psycopg2-binary<2.9
-sentry-sdk<0.12
-django-cas-sso<1.1.9
-celery==5.2.2
-django-storages[boto3]<1.8
-cryptography==3.3.2
-django-cacheops<4.3
-requests
-pytz==2019.2
-ics<0.7
-britney
-britney-utils
-celery-skinos<0.3
-elasticsearch<7.2
-ua-parser==0.8.0
-django-health-check==3.16.4
+amqp==5.1.1 ; python_version >= "3.7" and python_version < "4.0"
+arrow==0.14.7 ; python_version >= "3.7" and python_version < "4.0"
+async-timeout==4.0.2 ; python_version >= "3.7" and python_version < "4.0"
+billiard==3.6.4.0 ; python_version >= "3.7" and python_version < "4.0"
+britney-utils==0.1.2 ; python_version >= "3.7" and python_version < "4.0"
+britney==0.5.1 ; python_version >= "3.7" and python_version < "4.0"
+cached-property==1.5.2 ; python_version >= "3.7" and python_version < "3.8"
+celery-skinos==0.2.5 ; python_version >= "3.7" and python_version < "4.0"
+celery==5.2.2 ; python_version >= "3.7" and python_version < "4.0"
+certifi==2022.6.15 ; python_version >= "3.7" and python_version < "4"
+cffi==1.15.1 ; python_version >= "3.7" and python_version < "4.0"
+charset-normalizer==2.1.0 ; python_version >= "3.7" and python_version < "4"
+click-didyoumean==0.3.0 ; python_version >= "3.7" and python_version < "4.0"
+click-plugins==1.1.1 ; python_version >= "3.7" and python_version < "4.0"
+click-repl==0.2.0 ; python_version >= "3.7" and python_version < "4.0"
+click==8.1.3 ; python_version >= "3.7" and python_version < "4.0"
+colorama==0.4.5 ; python_version >= "3.7" and python_version < "4.0" and platform_system == "Windows"
+cryptography==37.0.4 ; python_version >= "3.7" and python_version < "4.0"
+deprecated==1.2.13 ; python_version >= "3.7" and python_version < "4.0"
+django-cacheops==4.2 ; python_version >= "3.7" and python_version < "4.0"
+django-cas-sso==1.1.8 ; python_version >= "3.7" and python_version < "4.0"
+django-cors-headers==3.7.0 ; python_version >= "3.7" and python_version < "4.0"
+django-health-check==3.16.4 ; python_version >= "3.7" and python_version < "4.0"
+django-storages==1.7.2 ; python_version >= "3.7" and python_version < "4.0"
+django==2.2.28 ; python_version >= "3.7" and python_version < "4.0"
+djangorestframework-simplejwt==4.6.0 ; python_version >= "3.7" and python_version < "4.0"
+djangorestframework==3.13.1 ; python_version >= "3.7" and python_version < "4.0"
+elasticsearch==7.1.0 ; python_version >= "3.7" and python_version < "4.0"
+funcy==1.17 ; python_version >= "3.7" and python_version < "4.0"
+ics==0.6 ; python_version >= "3.7" and python_version < "4.0"
+idna==3.3 ; python_version >= "3.7" and python_version < "4"
+importlib-metadata==4.12.0 ; python_version >= "3.7" and python_version < "3.8"
+kombu==5.2.4 ; python_version >= "3.7" and python_version < "4.0"
+limits==2.7.0 ; python_version >= "3.7" and python_version < "4.0"
+packaging==21.3 ; python_version >= "3.7" and python_version < "4.0"
+prompt-toolkit==3.0.30 ; python_version >= "3.7" and python_version < "4.0"
+psycopg2==2.8.6 ; python_version >= "3.7" and python_version < "4.0"
+pycparser==2.21 ; python_version >= "3.7" and python_version < "4.0"
+pyjwt==2.4.0 ; python_version >= "3.7" and python_version < "4.0"
+pylogbeat==2.0.0 ; python_version >= "3.7" and python_version < "4.0"
+pyparsing==3.0.9 ; python_version >= "3.7" and python_version < "4.0"
+python-dateutil==2.8.2 ; python_version >= "3.7" and python_version < "4.0"
+python-logstash-async==2.5.0 ; python_version >= "3.7" and python_version < "4.0"
+pytz==2019.2 ; python_version >= "3.7" and python_version < "4.0"
+redis==4.3.4 ; python_version >= "3.7" and python_version < "4.0"
+requests-testadapter==0.3.0 ; python_version >= "3.7" and python_version < "4.0"
+requests==2.28.1 ; python_version >= "3.7" and python_version < "4"
+sentry-sdk==0.11.2 ; python_version >= "3.7" and python_version < "4.0"
+setuptools==65.0.2 ; python_version >= "3.7" and python_version < "4.0"
+six==1.16.0 ; python_version >= "3.7" and python_version < "4.0"
+sqlparse==0.4.2 ; python_version >= "3.7" and python_version < "4.0"
+tatsu==4.4.0 ; python_version >= "3.7" and python_version < "4.0"
+typing-extensions==4.3.0 ; python_version >= "3.7" and python_version < "4.0"
+ua-parser==0.8.0 ; python_version >= "3.7" and python_version < "4.0"
+urllib3==1.26.11 ; python_version >= "3.7" and python_version < "4"
+vine==5.0.0 ; python_version >= "3.7" and python_version < "4.0"
+wcwidth==0.2.5 ; python_version >= "3.7" and python_version < "4.0"
+wrapt==1.14.1 ; python_version >= "3.7" and python_version < "4.0"
+zipp==3.8.1 ; python_version >= "3.7" and python_version < "3.8"
