@@ -4,15 +4,15 @@ exclude: "^.tox*|^fabfile*|^schedulesy/settings*"
 fail_fast: true
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.4.0
+    rev: 1.8.0
     hooks:
       - id: django-upgrade
-        args: [--target-version, "2.2" ]
+        args: [--target-version, "3.2" ]
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
