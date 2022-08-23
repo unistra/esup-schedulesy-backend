@@ -4,11 +4,11 @@ import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import default_storage
 from django.db import connection, models
+from django.db.models import JSONField
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from ics import Calendar, Event
 
 from schedulesy.apps.ade_legacy import models as legacy

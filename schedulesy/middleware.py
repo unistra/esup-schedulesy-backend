@@ -6,7 +6,6 @@ import logging
 import socket
 import time
 import uuid
-from datetime import datetime
 
 from django.conf import settings
 from django.http import FileResponse
@@ -36,7 +35,7 @@ class StatsMiddleware:
         """
         request.log = {
             'application': 'schedulesy',
-            '@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
+            #'@timestamp': datetime.now().isoformat(sep='T', timespec='milliseconds'),
             'ip': self.get_client_ip(request),
             'path': request.path,
             'method': request.method,
@@ -46,6 +45,7 @@ class StatsMiddleware:
             'version': '.'.join([str(x) for x in VERSION]),
             'user': self.get_user(request),
         }
+        LOGGER.info(json.dumps(request.log))
         self.process_request(request)
         try:
             response = self.get_response(request)
@@ -74,7 +74,6 @@ class StatsMiddleware:
         :return: None
         """
         try:
-            LOGGER.debug(data)
             stats.delay(data)
         except Exception as e_log:
             LOGGER.error(e_log)
