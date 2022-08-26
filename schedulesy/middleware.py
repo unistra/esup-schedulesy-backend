@@ -74,7 +74,6 @@ class StatsMiddleware:
         :return: None
         """
         try:
-            LOGGER.debug(data)
             stats.delay(data)
         except Exception as e_log:
             LOGGER.error(e_log)

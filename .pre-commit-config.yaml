@@ -4,25 +4,25 @@ exclude: "^.tox*|^fabfile*|^schedulesy/settings*"
 fail_fast: true
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.4.0
+    rev: 1.9.0
     hooks:
       - id: django-upgrade
-        args: [--target-version, "2.2" ]
+        args: [--target-version, "3.2" ]
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
       - id: isort
   - repo: https://github.com/ambv/black
-    rev: 21.11b0
+    rev: 22.6.0
     hooks:
     - id: black
   - repo: https://github.com/python-poetry/poetry
-    rev: 1.2.0b3
+    rev: 1.2.0rc1
     hooks:
       - id: poetry-check
       - id: poetry-lock

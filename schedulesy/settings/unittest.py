@@ -28,6 +28,9 @@ DATABASES = {
     }
 }
 
+LOGGING['handlers'].pop('logstash')
+LOGGING['loggers'].pop('schedulesy')
+
 DATABASE_ROUTERS = []
 
 ############################
