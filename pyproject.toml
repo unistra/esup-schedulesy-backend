@@ -82,6 +82,7 @@ pre-commit = "^2.19.0"
 
 [tool.poetry.group.prod.dependencies]
 chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+waitress = "2.1.2"
 
 [tool.poetry.group.preprod.dependencies]
 chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
@@ -89,3 +90,4 @@ waitress = "2.1.2"
 
 [tool.poetry.group.test.dependencies]
 chaussette = {url = "https://github.com/t0mab/chaussette/archive/master.zip"}
+waitress = "2.1.2"
