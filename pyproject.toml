@@ -35,7 +35,7 @@ multi_line_output = 3
 
 [tool.poetry]
 name = "schedulesy"
-version = "1.2.0"
+version = "1.2.2"
 description = ""
 authors = ["DIP - Université de Strasbourg <dnum-dip@unistra.fr>"]
 
