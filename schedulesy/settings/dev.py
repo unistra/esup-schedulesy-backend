@@ -134,13 +134,7 @@ CACHEOPS_REDIS_SERVER = environ.get('REDIS_SERVER')
 CACHEOPS_REDIS_PORT = int(environ.get('REDIS_PORT', 6379))
 CACHEOPS_REDIS_DB = int(environ.get('REDIS_DB', 0))
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
-REDIS_URL=CACHEOPS_REDIS
-
-#########
-# Stats #
-#########
-ELASTIC_SEARCH_SERVER = environ.get('ELASTIC_SEARCH_SERVER')
-ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT', 9200))
+REDIS_URL = CACHEOPS_REDIS
 
 ########
 # CAS #
@@ -148,3 +142,9 @@ ELASTIC_SEARCH_PORT = int(environ.get('ELASTIC_SEARCH_PORT', 9200))
 
 CAS_SERVER_URL = "https://cas6-dev.unistra.fr:443/cas/login"
 CAS_FORCE_SSL_SERVICE_URL = False
+
+############
+# LOGSTASH #
+############
+LOGGING['handlers']['logstash']['host'] = environ.get('LOGSTASH_SERVER')
+LOGGING['handlers']['logstash']['port'] = int(environ.get('LOGSTASH_PORT'))

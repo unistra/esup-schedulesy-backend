@@ -48,10 +48,10 @@ SECRET_KEY = '{{ secret_key }}'
 # ADE settings #
 ################
 
-ADE_WEB_API['USER'] = '{{ ade_ws_user }}'
+ADE_WEB_API['USER'] = '{{ ade_ws_user }}'
 ADE_WEB_API['PASSWORD'] = '{{ ade_ws_password }}'
 ADE_WEB_API['HOST'] = '{{ ade_ws_host }}'
-ADE_WEB_API['PROJECT_ID'] = '{{ ade_ws_project_id }}'
+ADE_WEB_API['PROJECT_ID'] = '{{ ade_ws_project_id }}'
 
 #########
 # STAGE #
@@ -72,16 +72,16 @@ sentry_init(STAGE)
 AWS_ACCESS_KEY_ID = '{{ s3_access_key }}'
 AWS_SECRET_ACCESS_KEY = '{{ s3_secret_key }}'
 AWS_STORAGE_BUCKET_NAME = 'schedulesy_pprd'
-AWS_S3_ENDPOINT_URL = '{{ s3_endpoint }}'
+AWS_S3_ENDPOINT_URL = '{{ s3_endpoint }}'
 
 
 ##########
 # CELERY #
 ##########
-RABBITMQ_USER = '{{ rabbitmq_user }}'
-RABBITMQ_PASSWORD = '{{ rabbitmq_password }}'
-RABBITMQ_SERVER = '{{ rabbitmq_server }}'
-RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
+RABBITMQ_USER = '{{ rabbitmq_user }}'
+RABBITMQ_PASSWORD = '{{ rabbitmq_password }}'
+RABBITMQ_SERVER = '{{ rabbitmq_server }}'
+RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
@@ -103,10 +103,10 @@ CACHEOPS_REDIS_SERVER = '{{ redis_server }}'
 CACHEOPS_REDIS_PORT = int('{{ redis_port }}')
 CACHEOPS_REDIS_DB = int('{{ redis_db }}')
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
-REDIS_URL=CACHEOPS_REDIS
+REDIS_URL = CACHEOPS_REDIS
 
-#########
-# Stats #
-#########
-ELASTIC_SEARCH_SERVER = '{{ elastic_search_server }}'
-ELASTIC_SEARCH_PORT = int('{{ elastic_search_port }}')
+############
+# LOGSTASH #
+############
+LOGGING['handlers']['logstash']['host'] = '{{ logstash_server }}'
+LOGGING['handlers']['logstash']['port'] = int('{{ logstash_port }}')
