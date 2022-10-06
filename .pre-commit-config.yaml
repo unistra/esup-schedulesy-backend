@@ -50,7 +50,7 @@ repos:
         name: Export requirements/test.txt
         language: system
         pass_filenames: false
-        entry: poetry export --without-hashes -o requirements/test.txt --with test
+        entry: poetry export -o requirements/test.txt --with test
         files: ^(pyproject.toml|poetry.lock)$
   - repo: local
     hooks:
@@ -58,7 +58,7 @@ repos:
         name: Export requirements/preprod.txt
         language: system
         pass_filenames: false
-        entry: poetry export --without-hashes -o requirements/preprod.txt --with preprod
+        entry: poetry export -o requirements/preprod.txt --with preprod
         files: ^(pyproject.toml|poetry.lock)$
   - repo: local
     hooks:
@@ -66,5 +66,5 @@ repos:
         name: Export requirements/prod.txt
         language: system
         pass_filenames: false
-        entry: poetry export --without-hashes -o requirements/prod.txt --with prod
+        entry: poetry export -o requirements/prod.txt --with prod
         files: ^(pyproject.toml|poetry.lock)$

@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.contrib.auth import get_user_model
@@ -23,6 +24,11 @@ class AuthCase(TestCase):
     def setUpTestData(cls):
         cls.no_auth = User.objects.get(pk=5)
         cls.non_authorized_access = AccessToken().for_user(cls.no_auth)
+        cls.expired = (
+            AccessToken()
+            .for_user(cls.no_auth)
+            .set_exp(datetime.datetime.now() - datetime.timedelta(days=365))
+        )
 
 
 class AdminTestCase(AuthCase):
@@ -341,6 +347,10 @@ class EventDetailTestCase(AuthCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self._is_intructor(response))
+
+    def test_events_public_classroom_expired(self):
+        response = self._call_events(1616, HTTP_AUTHORIZATION=f'Bearer {self.expired}')
+        self.assertEqual(response.status_code, 403)
 
     def test_events_public_classroom(self):
         response = self._call_events(1616)
