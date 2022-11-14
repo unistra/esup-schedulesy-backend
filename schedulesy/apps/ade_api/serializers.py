@@ -22,13 +22,11 @@ class ResourceSerializer(serializers.ModelSerializer):
 
             for child in fields['children']:
                 child_id = child['id']
-                child['id'] = force_https(
-                    reverse(
+                child['id'] = reverse(
                         'api:resource',
                         kwargs={'ext_id': child_id, 'format': self.context['format']},
                         request=self.context['request'],
                     )
-                )
                 nb_events = children_nb_events.get(child_id)
                 child['selectable'] = bool(
                     obj.parent is not None

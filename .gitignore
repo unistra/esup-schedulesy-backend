@@ -47,3 +47,5 @@ htmlcov/
 
 .idea
 keys/
+
+**.DS_Store

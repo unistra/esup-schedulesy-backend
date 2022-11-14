@@ -64,7 +64,7 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']
+DATABASE_ROUTERS = []
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
@@ -326,14 +326,6 @@ LOGGING = {
             'backupCount': 3,
             'formatter': 'default'
         },
-        'logstash': {
-            'level': 'INFO',
-            'class': 'logstash.TCPLogstashHandler',
-            'version': 1,
-            'message_type': 'logstash',
-            'fqdn': True,
-            'tags': ['schedulesy'],
-        }
     },
     'loggers': {
         'django': {
@@ -346,7 +338,7 @@ LOGGING = {
             'propagate': False,
         },
         'schedulesy': {
-            'handlers': ['logstash'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True
         },

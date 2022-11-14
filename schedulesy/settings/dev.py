@@ -24,15 +24,15 @@ DEBUG = True
 # name : PROJECT_ROOT_DIR/default.db
 
 
-DATABASES['default']['HOST'] = environ.get('DB_HOST')
-DATABASES['default']['USER'] = environ.get('DB_USER')
-DATABASES['default']['PASSWORD'] = environ.get('DB_PWD')
-DATABASES['default']['NAME'] = environ.get('DB_NAME')
+DATABASES['default']['HOST'] = 'postgres'
+DATABASES['default']['USER'] = 'postgres'
+DATABASES['default']['PASSWORD'] = 'postgres'
+DATABASES['default']['NAME'] = 'postgres'
 
-DATABASES['ade']['HOST'] = environ.get('ADE_DB_HOST')
-DATABASES['ade']['USER'] = environ.get('ADE_DB_USER')
-DATABASES['ade']['PASSWORD'] = environ.get('ADE_DB_PWD')
-DATABASES['ade']['NAME'] = environ.get('ADE_DB_NAME')
+DATABASES['ade']['HOST'] = 'postgres'
+DATABASES['ade']['USER'] = 'postgres'
+DATABASES['ade']['PASSWORD'] = 'postgres' 
+DATABASES['ade']['NAME'] = 'postgres' 
 
 
 ############################
@@ -146,5 +146,3 @@ CAS_FORCE_SSL_SERVICE_URL = False
 ############
 # LOGSTASH #
 ############
-LOGGING['handlers']['logstash']['host'] = environ.get('LOGSTASH_SERVER')
-LOGGING['handlers']['logstash']['port'] = int(environ.get('LOGSTASH_PORT'))

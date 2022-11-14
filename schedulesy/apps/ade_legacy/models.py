@@ -93,7 +93,7 @@ class Customization(models.Model):
         return lc
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'w_edtperso'
         verbose_name = _('Customization')
         verbose_name_plural = _('Customizations')
