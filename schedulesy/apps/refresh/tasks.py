@@ -48,6 +48,9 @@ def refresh_resource(ext_id, *args, **kwargs):
 @refresh_if_necessary
 def _refresh_resource(ext_id, *args, **kwargs):
     # TODO improve number of requests with batch size (file with uuid4)
+    # from pyinstrument import Profiler
+    # profiler = Profiler(async_mode=False)
+    # profiler.start()
     refresh_agent = Refresh()
     try:
         operation_id = (
@@ -57,6 +60,11 @@ def _refresh_resource(ext_id, *args, **kwargs):
     except Exception as e:
         logger.error(e)
         raise e
+    # profiler.stop()
+    # # profiler.print()
+    # id = uuid.uuid4()
+    # logger.info(id)
+    # open(f'/tmp/refresh_resource-{id}.html','w').write(profiler.output_html(timeline=True))
     return None
 
 

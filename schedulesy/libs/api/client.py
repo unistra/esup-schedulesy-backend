@@ -1,11 +1,11 @@
 import json
 import logging
-from functools import wraps
+from functools import lru_cache, wraps
 
 import britney_utils
 from britney.errors import SporeMethodCallError, SporeMethodStatusError
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from schedulesy.libs.decorators import MemoizeWithTimeout
 
@@ -118,8 +118,8 @@ def get_geolocation(id, **kwargs):
     return []
 
 
-@MemoizeWithTimeout(timeout=600)
-def get_geolocations(**kwargs):
+@lru_cache
+def get_geolocations():
     @format_json
     @check_status('infocentre')
     def get_buildings():
