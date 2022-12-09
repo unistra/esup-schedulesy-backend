@@ -21,11 +21,12 @@ class MemoizeWithTimeoutTestCase(TestCase):
         # self.assertDictEqual(m._caches[mocked_function1][(), ()][0], {'result': 1})
         self.assertDictEqual(result, {'result': 1})
         self.assertDictEqual(m(mocked_function1)(), {'result': 1})
+        self.assertDictEqual(m(mocked_function1)(), {'result': 1})
 
         # Clear old cache results
         sleep(2)
         # self.assertDictEqual(m._caches[mocked_function1][(), ()][0], {'result': 1})
-        self.assertDictEqual(m(mocked_function1)(), {'result': 1})
+        self.assertDictEqual(m(mocked_function1)(), {'result': 2})
 
     # def test_without_timeout(self):
     #     function2_call = 0
