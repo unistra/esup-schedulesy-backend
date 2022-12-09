@@ -3,6 +3,7 @@ stages:
 
 services:
   - postgres:9.5
+  - redis
 
 variables:
   POSTGRES_DB: schedulesy
