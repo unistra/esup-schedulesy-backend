@@ -1,4 +1,5 @@
 import logging
+import pickle
 import socket
 import time
 from datetime import datetime
@@ -6,6 +7,7 @@ from functools import wraps
 
 import redis
 from django.conf import settings
+from redis.exceptions import LockError
 
 from schedulesy import VERSION
 from schedulesy.apps.ade_api.tasks import sync_log
@@ -59,43 +61,58 @@ def doublewrap(f):
     return new_dec
 
 
+r_redis_pool = None
+
+
+def _redis_pool():
+    global r_redis_pool
+    if not r_redis_pool:
+        logger.info(f"Initializing redis pool on {settings.CACHEOPS_REDIS_SERVER}")
+        r_redis_pool = redis.ConnectionPool(
+            host=settings.CACHEOPS_REDIS_SERVER,
+            port=settings.CACHEOPS_REDIS_PORT,
+            db=settings.CACHEOPS_REDIS_DB,
+        )
+    return r_redis_pool
+
+
+def _redis():
+    return redis.Redis(connection_pool=_redis_pool())
+
+
 @doublewrap
-def refresh_if_necessary(func, exclusivity=3600):
+def refresh_if_necessary(func, exclusivity=300):
     def wrapper(*args, **kwargs):
         # TODO: for unit test, find a better way to test this
         if not has_redis:
             func(*args, **kwargs)
             return
 
-        r = redis.Redis(
-            host=settings.CACHEOPS_REDIS_SERVER,
-            port=settings.CACHEOPS_REDIS_PORT,
-            db=settings.CACHEOPS_REDIS_DB,
-        )
+        r = _redis()
 
-        def _key(name, *args):
-            suffix = 'no_suffix'
-            if len(args) >= 0:
-                s = '-'.join(
-                    map(str, filter(lambda x: isinstance(x, (str, int)), args))
-                )
-                if s != "":
-                    suffix = s
-            return f'{name}-{suffix}'
-
-        key = _key(func.__name__, *args)
+        key = key = func.__name__ + '-'.join(map(str, args))
         order_time = kwargs.get('order_time', time.time()) - exclusivity
-        with r.lock(f'{key}-lock', timeout=300) as lock:
-            if not r.exists(key) or float(r.get(key)) < order_time:
-                try:
-                    func(*args, **kwargs)
-                    r.set(key, time.time(), ex=3600)
-                except Exception as ex:
-                    if lock.locked():
-                        lock.release()
-                    raise ex
-            else:
-                logger.debug(f'Prevented useless {key}')
+        st = time.time()
+        try:
+            logger.debug(f'Will lock {key}-lock')
+            with r.lock(f'{key}-lock', timeout=300) as lock:
+                if not r.exists(key) or float(r.get(key)) < order_time:
+                    try:
+                        func(*args, **kwargs)
+                        r.set(key, time.time(), ex=3600)
+                    except Exception as ex:
+                        logger.error(f'[refresh_if_necessary] {func.__name__} {ex}')
+                        if lock.locked():
+                            lock.release()
+                        raise ex
+                else:
+                    logger.info(f'Prevented useless refresh for {key}')
+        except LockError as exception:
+            logger.error(f'[refresh_if_necessary] {func.__name__} {exception}')
+            et = time.time()
+            logger.warning(
+                f'[refresh_if_necessary] Refresh of resource {key} was longer than lock : {et-st} seconds'
+            )
 
     return wrapper
 
@@ -103,39 +120,26 @@ def refresh_if_necessary(func, exclusivity=3600):
 class MemoizeWithTimeout:
     """Memoize With Timeout"""
 
-    _caches = {}
-    _timeouts = {}
-
     def __init__(self, timeout=300):
         self.timeout = timeout
-
-    def collect(self):
-        """Clear cache of results which have timed out"""
-        ct = time.time()
-        for func in self._caches:
-            cache = {}
-            for key in self._caches[func]:
-                if (ct - self._caches[func][key][1]) < self._timeouts[func]:
-                    cache[key] = self._caches[func][key]
-            self._caches[func] = cache
+        if timeout < 1:
+            self.timeout = 1
 
     def __call__(self, f):
-        self._caches.setdefault(f, {})
-        cache = {}
-        self._timeouts[f] = self.timeout
-
         def func(*args, **kwargs):
-            kw = sorted(kwargs.items())
-            key = (args, tuple(kw))
-            try:
-                v = self._caches[f][key]
-                if (time.time() - v[1]) > self.timeout:
-                    raise KeyError
-            except KeyError:
-                result = f(*args, **kwargs), time.time()
-                v = cache[key] = result
-                self._caches[f] = cache
-            return v[0]
+            key = (
+                f.__name__
+                + '-'.join(map(str, args))
+                + '-'.join(sorted(k + ':' + str(v) for k, v in kwargs.items()))
+            )
+            logger.debug(f'MemoizeWithTimeout {key}')
+            r = _redis()
+            if r.exists(key):
+                v = pickle.loads(r.get(key))
+            else:
+                v = f(*args, **kwargs)
+                r.set(key, pickle.dumps(v), ex=self.timeout)
+            return v
 
         func.func_name = f.__name__
         return func
