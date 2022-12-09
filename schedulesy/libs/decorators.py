@@ -94,13 +94,14 @@ def refresh_if_necessary(func, exclusivity=300):
         order_time = kwargs.get('order_time', time.time()) - exclusivity
         st = time.time()
         try:
-            logger.info(f'Will lock {key}-lock')
+            logger.debug(f'Will lock {key}-lock')
             with r.lock(f'{key}-lock', timeout=300) as lock:
                 if not r.exists(key) or float(r.get(key)) < order_time:
                     try:
                         func(*args, **kwargs)
                         r.set(key, time.time(), ex=3600)
                     except Exception as ex:
+                        logger.error(f'[refresh_if_necessary] {func.__name__} {ex}')
                         if lock.locked():
                             lock.release()
                         raise ex

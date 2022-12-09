@@ -122,7 +122,7 @@ SIMPLE_JWT = {
 #########
 # Redis #
 #########
-CACHEOPS_REDIS_SERVER = environ.get('REDIS_SERVER', 'loalhost')
+CACHEOPS_REDIS_SERVER = environ.get('REDIS_SERVER', 'localhost')
 CACHEOPS_REDIS_PORT = int(environ.get('REDIS_PORT', 6379))
 CACHEOPS_REDIS_DB = int(environ.get('REDIS_DB', 0))
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
