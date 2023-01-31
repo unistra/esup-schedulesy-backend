@@ -35,6 +35,13 @@ ws_urlpatterns = [
     path('instructor', views.InstructorDetail.as_view(), name='instructor'),
     path('calendar/<str:username>', views.CalendarDetail.as_view(), name='calendar'),
     path('info/<str:username>', views.InfoDetail.as_view(), name='info'),
+
+    # Routes for the CTS
+    path('buildings', views.BuildingList.as_view(), name='buildings'),
+    path(
+        'buildings/<int:building_id>/attendance',
+        views.BuilingAttendanceList.as_view(),
+        name='building-attendance'),
 ]
 
 urlpatterns += format_suffix_patterns(ws_urlpatterns, suffix_required=True)

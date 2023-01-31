@@ -141,3 +141,13 @@ class InfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocalCustomization
         fields = ['id', 'customization_id', 'directory_id', 'username', 'configuration']
+
+
+class BuildingSerializer(serializers.Serializer):
+    id = serializers.IntegerField(label='Building ID')
+    name = serializers.CharField(label='Building name', required=False)
+
+
+class BuildingAttendanceSerializer(serializers.Serializer):
+    datetime = serializers.CharField(label='datetime')
+    count = serializers.IntegerField(label='Count', required=False)

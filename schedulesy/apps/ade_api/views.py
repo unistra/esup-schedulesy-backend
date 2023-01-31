@@ -1,3 +1,5 @@
+import calendar
+import datetime
 import logging
 import time
 import uuid
@@ -9,7 +11,7 @@ from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
@@ -23,9 +25,12 @@ from ...libs.decorators import refresh_if_necessary
 from .exception import SearchTooWideError, TooMuchEventsError
 from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
 from .refresh import Refresh
+from .queries import get_hierarchical_classrooms_by_depth, get_trainees_size
 from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
+    BuildingSerializer,
+    BuildingAttendanceSerializer,
     CalendarSerializer,
     EventsSerializer,
     InfoSerializer,
@@ -251,3 +256,47 @@ class InfoDetail(generics.RetrieveAPIView):
     serializer_class = InfoSerializer
     permission_classes = (permissions.IsAdminUser,)
     lookup_field = 'username'
+
+
+class PublicViewMixin:
+    authentication_classes = []
+    permission_classes = (permissions.AllowAny,)
+
+
+class BuildingList(PublicViewMixin, generics.ListAPIView):
+    serializer_class = BuildingSerializer
+
+    def get_queryset(self):
+        return get_hierarchical_classrooms_by_depth(depth=3)
+
+
+class BuilingAttendanceList(PublicViewMixin, generics.ListAPIView):
+    serializer_class = BuildingAttendanceSerializer
+
+    def _generate_hours(self, start=8, end=18, step=15):
+        t = datetime.date.today()
+        month, year = t.month, t.year
+        smonth = str(t.month).zfill(2)
+        hms = ['{:0>2}:{:0>2}'.format(h, m) for h in range(start, end)
+               for m in range(0, 60, step)]
+        dts = {}
+        for day in (str(d).zfill(2) for w in calendar.monthcalendar(year, month)
+                    for d in w[:-2] if d):
+            for hm in hms:
+                dts[f'{day}/{smonth}/{year} {hm}'] = 0
+        return dts
+
+    def list(self, request, building_id, *args, **kwargs):
+
+        # Check if the classroom has the correct depth
+        if not building_id in (c['id'] for c in get_hierarchical_classrooms_by_depth(depth=3)):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        trainees_dict = {t['ext_id']: t['size'] for t in get_trainees_size()}
+        classroom = Resource.objects.get(pk=building_id)
+        result = self._generate_hours()
+        for event in classroom.events.get('events', []):
+            ds = f"{event['date']} {event['startHour']}"
+            result[ds] = sum(
+                trainees_dict.get(t, 0) for t in event.get('trainees', []))
+        return JsonResponse(result)
