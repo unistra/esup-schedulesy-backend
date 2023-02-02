@@ -252,6 +252,7 @@ THIRD_PARTY_APPS = [
     'health_check.contrib.s3boto3_storage',  # requires boto3 and S3BotoStorage backend
     'health_check.contrib.rabbitmq',  # requires RabbitMQ broker
     'health_check.contrib.redis',
+    'drf_spectacular',
 ]
 
 LOCAL_APPS = [
@@ -370,8 +371,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Schedulesy API',
+    'DESCRIPTION': 'API for Schedulesy',
+    'VERSION': '0.1.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'PREPROCESSING_HOOKS': [
+        'schedulesy.apps.ade_api.hooks.authorized_views_preprocessing_hook',
+    ]
+}
+
 
 AUTHENTICATION_BACKENDS = (
     'django_cas.backends.CASBackend',

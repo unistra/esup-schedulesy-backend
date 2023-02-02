@@ -40,7 +40,7 @@ ws_urlpatterns = [
     path('buildings', views.BuildingList.as_view(), name='buildings'),
     path(
         'buildings/<int:building_id>/attendance',
-        views.BuilingAttendanceList.as_view(),
+        views.BuildingAttendanceList.as_view(),
         name='building-attendance'),
 ]
 

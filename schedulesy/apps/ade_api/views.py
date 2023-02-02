@@ -30,7 +30,6 @@ from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
     BuildingSerializer,
-    BuildingAttendanceSerializer,
     CalendarSerializer,
     EventsSerializer,
     InfoSerializer,
@@ -270,8 +269,7 @@ class BuildingList(PublicViewMixin, generics.ListAPIView):
         return get_hierarchical_classrooms_by_depth(depth=3)
 
 
-class BuilingAttendanceList(PublicViewMixin, generics.ListAPIView):
-    serializer_class = BuildingAttendanceSerializer
+class BuildingAttendanceList(PublicViewMixin, generics.ListAPIView):
 
     def _generate_hours(self, start=8, end=18, step=15):
         t = datetime.date.today()

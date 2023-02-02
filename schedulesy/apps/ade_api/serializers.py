@@ -41,6 +41,7 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
+        fields = '__all__'
 
 
 class EventsSerializer(serializers.ModelSerializer):
@@ -67,6 +68,7 @@ class EventsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
+        fields = '__all__'
 
 
 class AdeConfigSerializer(serializers.ModelSerializer):
@@ -75,6 +77,7 @@ class AdeConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdeConfig
+        fields = '__all__'
 
 
 class AccessSerializer(serializers.ModelSerializer):
@@ -86,7 +89,7 @@ class AccessSerializer(serializers.ModelSerializer):
         model = Access
         exclude = ('id',)
         extra_kwargs = {
-            'customization': {'write_only': True, 'required': False, 'default': ''}
+            'customization': {'write_only': True}
         }
 
 
@@ -146,8 +149,3 @@ class InfoSerializer(serializers.ModelSerializer):
 class BuildingSerializer(serializers.Serializer):
     id = serializers.IntegerField(label='Building ID')
     name = serializers.CharField(label='Building name', required=False)
-
-
-class BuildingAttendanceSerializer(serializers.Serializer):
-    datetime = serializers.CharField(label='datetime')
-    count = serializers.IntegerField(label='Count', required=False)
