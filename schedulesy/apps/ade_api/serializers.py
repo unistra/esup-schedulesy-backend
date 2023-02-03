@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.reverse import reverse
 
+from schedulesy.libs.api.client import to_ade_id
 from ..ade_legacy.models import Customization
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
@@ -149,3 +150,11 @@ class InfoSerializer(serializers.ModelSerializer):
 class BuildingSerializer(serializers.Serializer):
     id = serializers.IntegerField(label='Building ID')
     name = serializers.CharField(label='Building name', required=False)
+    info = serializers.SerializerMethodField(required=False)
+
+    def get_info(self, obj):
+        info = self.context['infocentre_buildings']
+        fields = ('geolocation', 'address1', 'address2', 'zip_code', 'city')
+        if (code := to_ade_id(obj['code'])):
+            return {k: v for k, v in info.get(code, {}).items() if k in fields}
+        return {}

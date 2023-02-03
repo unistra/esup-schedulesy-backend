@@ -99,18 +99,23 @@ def format_json(func):
     return wrapper
 
 
+@lru_cache
+@format_json
+@check_status('infocentre')
+def get_buildings():
+    return get_client('infocentre').list_buildings()
+
+
 @MemoizeWithTimeout(timeout=360)
-def get_geolocation(id, **kwargs):
+def get_geolocation(building_id, **kwargs):
     @format_json
     @check_status('infocentre')
     def get_building():
-        return get_client('infocentre').get_building(id=id, fields='geolocation')
+        return get_client('infocentre').get_building(id=building_id, fields='geolocation')
 
-    # FIXME: useful ?
-    # id = id or 0
-    # Pfff whatever
-    id = to_ade_id(id)
-    if id:
+    # Use get_buildings_dict instead
+    building_id = to_ade_id(building_id)
+    if building_id:
         try:
             return get_building().get('geolocation', [])
         except Exception:
@@ -120,19 +125,19 @@ def get_geolocation(id, **kwargs):
 
 @lru_cache
 def get_geolocations():
-    @format_json
-    @check_status('infocentre')
-    def get_buildings():
-        return get_client('infocentre').list_buildings(fields='id,geolocation')
-
     return {b['id']: b['geolocation'] for b in get_buildings()}
 
 
-def to_ade_id(id):
+@lru_cache
+def get_buildings_dict():
+    return {b['id']: b for b in get_buildings()}
+
+
+def to_ade_id(id_):
     # Lame way to check if the resource has an Abyla ID
-    if id:
-        if isinstance(id, int):
-            return id
-        if id.isdigit():
-            return int(id)
+    if id_:
+        if isinstance(id_, int):
+            return id_
+        if id_.isdigit():
+            return int(id_)
     return None

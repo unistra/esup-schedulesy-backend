@@ -22,10 +22,10 @@ def get_hierarchical_classrooms_by_depth(depth: int = 0):
     condition = f'WHERE depth = {depth}' if depth else ''
     query = f"""
         WITH RECURSIVE parent_resource AS (
-            SELECT r.id, r.ext_id, r.fields->>'name' as name, 1 AS depth, ARRAY[r.id] AS path
+            SELECT r.id, r.ext_id, r.fields->>'code' AS code, r.fields->>'name' as name, 1 AS depth, ARRAY[r.id] AS path
             FROM ade_api_resource r where ext_id='classroom'
               UNION ALL
-            SELECT r.id, r.ext_id, r.fields->>'name', pr.depth + 1, pr.path || r.id
+            SELECT r.id, r.ext_id, r.fields->>'code', r.fields->>'name', pr.depth + 1, pr.path || r.id
             FROM ade_api_resource r, parent_resource pr
             WHERE r.parent_id = pr.id
         )

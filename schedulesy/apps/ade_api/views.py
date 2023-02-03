@@ -19,6 +19,7 @@ from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
 from schedulesy.apps.refresh.tasks import do_refresh_all_events, refresh_all
 from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
+from schedulesy.libs.api.client import get_buildings_dict
 from schedulesy.libs.permissions import IsOwnerPermission
 
 from ...libs.decorators import refresh_if_necessary
@@ -267,6 +268,11 @@ class BuildingList(PublicViewMixin, generics.ListAPIView):
 
     def get_queryset(self):
         return get_hierarchical_classrooms_by_depth(depth=3)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['infocentre_buildings'] = get_buildings_dict()
+        return context
 
 
 class BuildingAttendanceList(PublicViewMixin, generics.ListAPIView):
