@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.db.models.expressions import RawSQL
+from drf_spectacular.utils import extend_schema_field, inline_serializer
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.reverse import reverse
 
-from schedulesy.libs.api.client import to_ade_id
+from ...libs.api.client import to_ade_id
 from ..ade_legacy.models import Customization
 from .models import Access, AdeConfig, LocalCustomization, Resource
 from .utils import force_https
@@ -89,9 +90,7 @@ class AccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Access
         exclude = ('id',)
-        extra_kwargs = {
-            'customization': {'write_only': True}
-        }
+        extra_kwargs = {'customization': {'write_only': True}}
 
 
 class CalendarSerializer(serializers.ModelSerializer):
@@ -152,9 +151,26 @@ class BuildingSerializer(serializers.Serializer):
     name = serializers.CharField(label='Building name', required=False)
     info = serializers.SerializerMethodField(required=False)
 
+    @extend_schema_field(
+        inline_serializer(
+            'BuildingInfoSerializer',
+            fields={
+                'geolocation': serializers.ListField(
+                    child=serializers.FloatField(),
+                    min_length=2,
+                    max_length=2,
+                    label='Geolocation coordinates',
+                ),
+                'address1': serializers.CharField(),
+                'address2': serializers.CharField(),
+                'zip_code': serializers.CharField(),
+                'city': serializers.CharField(),
+            },
+        )
+    )
     def get_info(self, obj):
         info = self.context['infocentre_buildings']
         fields = ('geolocation', 'address1', 'address2', 'zip_code', 'city')
-        if (code := to_ade_id(obj['code'])):
+        if code := to_ade_id(obj['code']):
             return {k: v for k, v in info.get(code, {}).items() if k in fields}
         return {}
