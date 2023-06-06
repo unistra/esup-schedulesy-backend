@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import logging
+import re
 import time
 import uuid
 from functools import partial
@@ -277,17 +278,15 @@ class BuildingList(PublicViewMixin, generics.ListAPIView):
 
 class BuildingAttendanceList(PublicViewMixin, generics.ListAPIView):
 
-    def _generate_hours(self, start=8, end=18, step=15):
-        t = datetime.date.today()
-        month, year = t.month, t.year
-        smonth = str(t.month).zfill(2)
-        hms = ['{:0>2}:{:0>2}'.format(h, m) for h in range(start, end)
+    def _generate_hours(self, month: int, year: int, start: int=8, end: int=18, step: int=15):
+        hms = [f'{h:02}:{m:02}' for h in range(start, end)
                for m in range(0, 60, step)]
         dts = {}
-        for day in (str(d).zfill(2) for w in calendar.monthcalendar(year, month)
+        # Get weekdays until friday
+        for day in (f'{d:02}' for w in calendar.monthcalendar(year, month)
                     for d in w[:-2] if d):
             for hm in hms:
-                dts[f'{day}/{smonth}/{year} {hm}'] = 0
+                dts[f'{day}/{month:02}/{year} {hm}'] = 0
         return dts
 
     def list(self, request, building_id, *args, **kwargs):
@@ -296,11 +295,18 @@ class BuildingAttendanceList(PublicViewMixin, generics.ListAPIView):
         if not building_id in (c['id'] for c in get_hierarchical_classrooms_by_depth(depth=3)):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        t = datetime.date.today()
+        month, year = t.month, t.year
+        pattern = rf'{month:02}/{year}$'
+
         trainees_dict = {t['ext_id']: t['size'] for t in get_trainees_size()}
         classroom = Resource.objects.get(pk=building_id)
-        result = self._generate_hours()
+        result = self._generate_hours(month, year)
+
         for event in classroom.events.get('events', []):
-            ds = f"{event['date']} {event['startHour']}"
-            result[ds] = sum(
-                trainees_dict.get(t, 0) for t in event.get('trainees', []))
+            # Filter events of the current month
+            if re.search(pattern, (date := event['date'])):
+                ds = f"{date} {event['startHour']}"
+                result[ds] = sum(
+                    trainees_dict.get(t, 0) for t in event.get('trainees', []))
         return JsonResponse(result)
