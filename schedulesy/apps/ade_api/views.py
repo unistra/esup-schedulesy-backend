@@ -306,7 +306,8 @@ class BuildingAttendanceList(PublicViewMixin, generics.ListAPIView):
         for event in classroom.events.get('events', []):
             # Filter events of the current month
             if re.search(pattern, (date := event['date'])):
-                ds = f"{date} {event['startHour']}"
-                result[ds] = sum(
-                    trainees_dict.get(t, 0) for t in event.get('trainees', []))
+                # Exclude dates not listed in the generated hours list
+                if (ds := f"{date} {event['startHour']}") in result:
+                    result[ds] = sum(
+                        trainees_dict.get(t, 0) for t in event.get('trainees', []))
         return JsonResponse(result)

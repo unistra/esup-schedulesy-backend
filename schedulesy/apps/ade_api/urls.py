@@ -36,7 +36,6 @@ ws_urlpatterns = [
     path('calendar/<str:username>', views.CalendarDetail.as_view(), name='calendar'),
     path('info/<str:username>', views.InfoDetail.as_view(), name='info'),
 
-    # Routes for the CTS
     path('buildings', views.BuildingList.as_view(), name='buildings'),
     path(
         'buildings/<int:building_id>/attendance',
