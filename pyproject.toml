@@ -62,6 +62,7 @@ TatSu = "~4.4.0"
 Django = "~3.2.0"
 python-logstash = "^0.4.8"
 celery-skinos = ">=1.0.4"
+boto3 = "~1.26"
 
 [tool.poetry.group]
 [tool.poetry.group.dev.dependencies]
