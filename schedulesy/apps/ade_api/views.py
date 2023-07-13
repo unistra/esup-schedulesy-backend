@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings

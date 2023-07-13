@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
     Access,
@@ -32,10 +32,9 @@ class AccessAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('customization')
 
+    @admin.display(description=_('Username'))
     def customization_username(self, obj):
         return obj.customization.username
-
-    customization_username.short_description = _('Username')
 
 
 @admin.register(AdeConfig)

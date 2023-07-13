@@ -1,11 +1,13 @@
 from uuid import uuid4
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
 from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.state import User
+
+User = get_user_model()
 
 
 class CustomJWTAuthentication(JWTAuthentication):
