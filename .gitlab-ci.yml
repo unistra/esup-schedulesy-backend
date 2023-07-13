@@ -2,14 +2,14 @@ stages:
   - test
 
 services:
-  - postgres:9.5
+  - postgres:12.0
   - redis
 
 variables:
   POSTGRES_DB: schedulesy
   POSTGRES_USER: schedulesy
   POSTGRES_PASSWORD: schedulesy
-  PYTHON_VERSION: "3.8"
+  PYTHON_VERSION: "3.9"
 
 include:
   - remote: https://git.unistra.fr/docker/template/-/raw/main/python-black.gitlab-ci.yml
