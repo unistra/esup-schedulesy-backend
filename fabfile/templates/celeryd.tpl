@@ -23,7 +23,7 @@ CELERY_APP="{{ root_package_name }}"
 CELERYD_CHDIR="{{ remote_current_path }}"
 
 # Extra command-line arguments to the worker
-CELERYD_OPTS="--time-limit=300 --concurrency=8"
+CELERYD_OPTS="--time-limit=300 --concurrency=8 -B"
 
 # %N will be replaced with the first part of the nodename.
 CELERYD_LOG_FILE="/var/log/celery/%N.log"
