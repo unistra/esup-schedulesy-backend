@@ -1,3 +1,4 @@
+import base64
 import datetime
 import json
 
@@ -329,8 +330,8 @@ class InfoCase(TestCase):
 class EventDetailTestCase(AuthCase):
     fixtures = ['tests/users.json', 'tests/resources']
 
-    def _call_events(self, ext_id, **kwargs):
-        url = reverse('api:events', kwargs={'ext_id': ext_id, 'format': 'json'})
+    def _call_events(self, ext_id, reverse_name='api:events', **kwargs):
+        url = reverse(reverse_name, kwargs={'ext_id': ext_id, 'format': 'json'})
         response = self.client.get(url, **kwargs)
         return response
 
@@ -360,3 +361,104 @@ class EventDetailTestCase(AuthCase):
     def test_events_public_instructor(self):
         response = self._call_events(23390)
         self.assertEqual(response.status_code, 403)
+
+    def test_events_list_public_classroom_ok(self):
+        r = Resource.objects.create(ext_id=7542)
+        r.events = {
+            "events": [
+                {
+                    "id": "222486",
+                    "date": "20/11/2023",
+                    "name": "Management du personnel",
+                    "note": "",
+                    "color": "#ffffff",
+                    "endHour": "13:00",
+                    "duration": "12",
+                    "trainees": ["17350"],
+                    "startHour": "10:00",
+                    "activityId": "46328",
+                    "classrooms": ["7542"],
+                    "lastUpdate": "10/23/2023 10:22",
+                    "instructors": ["27259"],
+                }
+            ],
+            "trainees": {"17350": {"name": "Cours 1 PGC"}},
+            "classrooms": {
+                "7542": {
+                    "name": "107",
+                    "genealogy": ["HOP  -CAMPUS HOPITAL CIVIL", "CARDO"],
+                    "geolocation": [],
+                }
+            },
+            "instructors": {"27259": {"name": "Serge Serge"}},
+        }
+        r.fields = {
+            "id": "7542",
+            "fax": "",
+            "tag": "leaf",
+            "url": "",
+            "city": "",
+            "code": "1770411",
+            "info": "",
+            "name": "107",
+            "path": "HOP  -CAMPUS HOPITAL CIVIL.CARDO.",
+            "size": "36",
+            "type": "SEN-Salle d'enseignement",
+            "codeX": "HCI -HOPITAL CIVIL",
+            "codeY": "LE CARDO",
+            "codeZ": "Abyla/Validee/Web",
+            "color": "255,255,255",
+            "email": "",
+            "state": "",
+            "number": "1",
+            "parent": "7429",
+            "country": "LE CARDO",
+            "isGroup": "false",
+            "lastDay": "4",
+            "manager": "",
+            "zipCode": "",
+            "address1": "",
+            "address2": "7542",
+            "category": "classroom",
+            "consumer": "false",
+            "creation": "04/09/2019 08:03",
+            "fatherId": "7429",
+            "firstDay": "0",
+            "lastSlot": "16",
+            "lastWeek": "45",
+            "timezone": "107",
+            "firstSlot": "0",
+            "firstWeek": "3",
+            "genealogy": [
+                {"id": "classroom", "code": "", "name": "classroom"},
+                {"id": "315", "code": "", "name": "HOP  -CAMPUS HOPITAL CIVIL"},
+                {"id": "7429", "code": "", "name": "CARDO"},
+            ],
+            "telephone": "17",
+            "fatherName": "CARDO",
+            "lastUpdate": "12/18/2023 15:38",
+            "jobCategory": "CARDO",
+            "nbEventsPlaced": "455",
+            "availableQuantity": "-1",
+            "durationInMinutes": "60120",
+        }
+        r.save()
+        response = self._call_events(
+            base64.urlsafe_b64encode(b'[1616,7542]').decode(), 'api:events_list'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self._is_intructor(response))
+        data = json.loads(response.content.decode('utf-8'))
+        ids = [event['id'] for event in data['events']['events']]
+        self.assertIn('191050', ids)
+        self.assertIn('222486', ids)
+
+    def test_events_list_public_classroom_unknown_resource(self):
+        response = self._call_events(
+            base64.urlsafe_b64encode(b'[1234]').decode(), 'api:events_list'
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_events_list_public_classroom_wrong_encoding(self):
+        response = self._call_events('abcd', 'api:events_list')
+        self.assertEqual(response.status_code, 404)

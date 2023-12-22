@@ -12,6 +12,9 @@ variables:
   PYTHON_VERSION: "3.8"
 
 include:
-  - remote: https://git.unistra.fr/docker/template/-/raw/main/python-black.gitlab-ci.yml
-  - remote: https://git.unistra.fr/docker/template/-/raw/main/python-unittest.gitlab-ci.yml
-  - remote: https://git.unistra.fr/docker/template/-/raw/main/python-safety.gitlab-ci.yml
+  - project: "docker/template"
+    file: "python-black.gitlab-ci.yml"
+  - project: "docker/template"
+    file: "python-unittest.gitlab-ci.yml"
+  - project: "docker/template"
+    file: "python-safety.gitlab-ci.yml"

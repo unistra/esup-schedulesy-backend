@@ -133,12 +133,12 @@ def test():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
-        'redis_server': "REDIS_SERVER",
-        'redis_port': "REDIS_PORT",
-        'redis_db': "REDIS_DB",
+        'redis_server': "CACHEOPS_REDIS_SERVER",
+        'redis_port': "CACHEOPS_REDIS_PORT_STR",
+        'redis_db': "CACHEOPS_REDIS_DB_STR",
         'logstash_server': "LOGSTASH_SERVER",
         'logstash_port': "LOGSTASH_PORT",
-        'refresh_schedule': "REFRESH_SCHEDULE",
+        'refresh_schedule': "REFRESH_SCHEDULE_STR",
     }
     # env.rabbitmq_server = env.socket_host
     execute(build_env)
@@ -186,12 +186,12 @@ def preprod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
-        'redis_server': "REDIS_SERVER",
-        'redis_port': "REDIS_PORT",
-        'redis_db': "REDIS_DB",
+        'redis_server': "CACHEOPS_REDIS_SERVER",
+        'redis_port': "CACHEOPS_REDIS_PORT_STR",
+        'redis_db': "CACHEOPS_REDIS_DB_STR",
         'logstash_server': "LOGSTASH_SERVER",
         'logstash_port': "LOGSTASH_PORT",
-        'refresh_schedule': "REFRESH_SCHEDULE",
+        'refresh_schedule': "REFRESH_SCHEDULE_STR",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
@@ -240,12 +240,12 @@ def prod():
         'rabbitmq_server': "RABBITMQ_SERVER",
         'rabbitmq_vhost': "RABBITMQ_VHOST",
         'infocentrews_token': "INFOCENTREWS_TOKEN",
-        'redis_server': "REDIS_SERVER",
-        'redis_port': "REDIS_PORT",
-        'redis_db': "REDIS_DB",
+        'redis_server': "CACHEOPS_REDIS_SERVER",
+        'redis_port': "CACHEOPS_REDIS_PORT_STR",
+        'redis_db': "CACHEOPS_REDIS_DB_STR",
         'logstash_server': "LOGSTASH_SERVER",
         'logstash_port': "LOGSTASH_PORT",
-        'refresh_schedule': "REFRESH_SCHEDULE",
+        'refresh_schedule': "REFRESH_SCHEDULE_STR",
     }
     env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
