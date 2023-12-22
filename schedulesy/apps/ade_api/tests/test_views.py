@@ -362,7 +362,7 @@ class EventDetailTestCase(AuthCase):
         response = self._call_events(23390)
         self.assertEqual(response.status_code, 403)
 
-    def test_events_list_public_classroom(self):
+    def test_events_list_public_classroom_ok(self):
         r = Resource.objects.create(ext_id=7542)
         r.events = {
             "events": [
@@ -452,3 +452,13 @@ class EventDetailTestCase(AuthCase):
         ids = [event['id'] for event in data['events']['events']]
         self.assertIn('191050', ids)
         self.assertIn('222486', ids)
+
+    def test_events_list_public_classroom_unknown_resource(self):
+        response = self._call_events(
+            base64.urlsafe_b64encode(b'[1234]').decode(), 'api:events_list'
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_events_list_public_classroom_wrong_encoding(self):
+        response = self._call_events('abcd', 'api:events_list')
+        self.assertEqual(response.status_code, 404)

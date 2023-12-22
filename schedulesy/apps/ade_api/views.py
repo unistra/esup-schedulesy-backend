@@ -189,10 +189,13 @@ class EventsListDetail(generics.GenericAPIView):
         if event_list is not None:
             resources = Resource.objects.filter(ext_id__in=event_list)
             logger.debug(resources)
-            m = self.merge(
-                list(map(self.serializer_class().to_representation, resources))
-            )
-            return JsonResponse(m, status=status.HTTP_200_OK)
+            if len(resources) > 0:
+                m = self.merge(
+                    list(map(self.serializer_class().to_representation, resources))
+                )
+                return JsonResponse(m, status=status.HTTP_200_OK)
+            else:
+                raise Http404()
         raise SearchTooWideError
 
 
