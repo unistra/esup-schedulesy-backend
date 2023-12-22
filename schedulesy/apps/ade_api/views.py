@@ -14,7 +14,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rich import json
 
 from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
