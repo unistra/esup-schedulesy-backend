@@ -1,3 +1,5 @@
+import base64
+import json
 import logging
 import time
 import uuid
@@ -8,10 +10,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
-from rest_framework import generics, permissions
+from django.utils.translation import gettext_lazy as _
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rich import json
 
 from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
@@ -19,10 +22,8 @@ from schedulesy.apps.refresh.tasks import do_refresh_all_events, refresh_all
 from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
 from schedulesy.libs.permissions import IsOwnerPermission
 
-from ...libs.decorators import refresh_if_necessary
 from .exception import SearchTooWideError, TooMuchEventsError
 from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
-from .refresh import Refresh
 from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
@@ -152,6 +153,47 @@ class EventsDetail(generics.RetrieveAPIView):
     serializer_class = EventsSerializer
     lookup_field = 'ext_id'
     permission_classes = (permissions.AllowAny,)
+
+
+class EventsListDetail(generics.GenericAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = EventsSerializer
+    permission_classes = (permissions.AllowAny,)
+    lookup_url_kwarg = 'ext_id'
+
+    def merge(self, resources):
+        events = {}
+        for key in resources[0]['events'].keys():
+            result = None
+            if isinstance(resources[0]['events'][key], list):
+                d = {}
+                for resource in resources:
+                    d.update({r['id']: r for r in resource['events'][key]})
+                result = list(d.values())
+            else:
+                result = {}
+                for resource in resources:
+                    result.update(resource['events'][key])
+            events[key] = result
+        result = {'events': events}
+        return result
+
+    def get(self, request, *args, **kwargs):
+        encoded_list = self.kwargs.get(self.lookup_url_kwarg)
+        try:
+            event_list = json.loads(
+                base64.urlsafe_b64decode(encoded_list.encode()).decode('utf-8')
+            )
+        except:
+            raise Http404()
+        if event_list is not None:
+            resources = Resource.objects.filter(ext_id__in=event_list)
+            logger.debug(resources)
+            m = self.merge(
+                list(map(self.serializer_class().to_representation, resources))
+            )
+            return JsonResponse(m, status=status.HTTP_200_OK)
+        raise SearchTooWideError
 
 
 class InstructorDetail(generics.ListAPIView):
