@@ -15,7 +15,12 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from schedulesy.apps.ade_api.utils import generate_color_from_name
+from schedulesy.apps.ade_api.utils import (
+    generate_color_from_name,
+    get_pastel_colors,
+    pastelize,
+    rgb_to_hex,
+)
 from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
 from schedulesy.apps.refresh.tasks import do_refresh_all_events, refresh_all
@@ -183,12 +188,17 @@ class EventsListDetail(generics.GenericAPIView):
             events[key] = result
 
         # for each event, if it has a key classroom, set the color of the event with the id of the first classroom
+        pastel_colors = get_pastel_colors()
         for event in events['events']:
             if 'classrooms' in event and event['classrooms'] is not None:
                 if event['classrooms'][0] not in colors:
-                    colors[event['classrooms'][0]] = generate_color_from_name(
-                        event['classrooms'][0]
+                    color = pastelize(
+                        generate_color_from_name(event['classrooms'][0]), pastel_colors
                     )
+                    pastel_colors.remove(color)
+                    if len(pastel_colors) == 0:
+                        pastel_colors = get_pastel_colors()
+                    colors[event['classrooms'][0]] = rgb_to_hex(*color)
                 event['color'] = colors[event['classrooms'][0]]
 
         result = {'events': events}

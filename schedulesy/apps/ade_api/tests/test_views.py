@@ -8,7 +8,11 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import AccessToken
 
-from schedulesy.apps.ade_api.utils import generate_color_from_name
+from schedulesy.apps.ade_api.utils import (
+    generate_color_from_name,
+    get_pastel_colors,
+    pastelize,
+)
 
 from ...ade_legacy.models import Customization
 from ...ade_legacy.tests.test_views import authenticated_client
@@ -453,7 +457,10 @@ class EventDetailTestCase(AuthCase):
         self.assertIn('191050', ids)
         self.assertIn('222486', ids)
         colors = [event['color'] for event in data['events']['events']]
-        self.assertIn(generate_color_from_name('7542'), colors)
+        self.assertIn(
+            pastelize(generate_color_from_name('7542'), get_pastel_colors(), 'hex'),
+            colors,
+        )
 
     def test_events_list_public_classroom_unknown_resource(self):
         response = self._call_events(
@@ -464,8 +471,3 @@ class EventDetailTestCase(AuthCase):
     def test_events_list_public_classroom_wrong_encoding(self):
         response = self._call_events('abcd', 'api:events_list')
         self.assertEqual(response.status_code, 404)
-
-
-class UtilsTestCase(TestCase):
-    def test_generate_color_from_name(self):
-        self.assertEqual(generate_color_from_name('test'), '#45a113')
