@@ -6,9 +6,13 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
+
+from schedulesy.apps.ade_api.utils import (
+    generate_color_from_name,
+    get_pastel_colors,
+    pastelize,
+)
 
 from ...ade_legacy.models import Customization
 from ...ade_legacy.tests.test_views import authenticated_client
@@ -452,6 +456,11 @@ class EventDetailTestCase(AuthCase):
         ids = [event['id'] for event in data['events']['events']]
         self.assertIn('191050', ids)
         self.assertIn('222486', ids)
+        colors = [event['color'] for event in data['events']['events']]
+        self.assertIn(
+            pastelize(generate_color_from_name('7542'), get_pastel_colors(), 'hex'),
+            colors,
+        )
 
     def test_events_list_public_classroom_unknown_resource(self):
         response = self._call_events(

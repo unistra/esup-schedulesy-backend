@@ -485,3 +485,23 @@ CACHEOPS = {
     'ade_api.*': {'ops': 'all'},
     '*.*': {},
 }
+
+PASTEL_COLORS = {
+"957DAD": "Lavender",
+"E0BBe4":"Thistle Pink",
+"E7E7E7":"Light Gray",
+"FEC8D8":"Candy Pink",
+"FFDFD3": "Peach",
+"CBC7DD": "Lavender Blue",
+"F8FFEB": "Mint",
+"CBF2B8": "Pastel Green",
+"E7CBA9": "Coral",
+"CCD4BF": "Soft Sage",
+"F5F3E7": "Beige",
+"EEBAB2": "Salmon",
+"54BAB90":"Sea Green",
+"7882A4": "Purple",
+"C0A080": "Tan",
+"D1D1D1": "Medium Gray",
+"FAE8E0": "Lemon"
+}
