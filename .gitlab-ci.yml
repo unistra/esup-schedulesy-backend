@@ -1,5 +1,6 @@
 stages:
   - test
+  - sonarqube-check
 
 services:
   - postgres:9.5
@@ -10,6 +11,31 @@ variables:
   POSTGRES_USER: schedulesy
   POSTGRES_PASSWORD: schedulesy
   PYTHON_VERSION: "3.8"
+
+sonarqube-check:
+  stage: sonarqube-check
+  image: 
+    name: sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+  tags:
+    - cluster
+
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  
+  script: 
+    - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  allow_failure: true
+  needs:
+    - job: unittest
+      artifacts: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+
 
 include:
   - project: "docker/template"
