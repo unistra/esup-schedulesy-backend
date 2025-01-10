@@ -144,10 +144,6 @@ class BaseObject:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             self.__dict__[key] = value
-        self.init(**kwargs)
-
-    def init(self, **kwargs):
-        pass
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -363,9 +359,8 @@ class ADEWebAPI:
         """Send a request"""
         params['function'] = func
 
-        if 'sessionId' not in params.keys():
-            if self.sessionId is not None:
-                params['sessionId'] = self.sessionId
+        if 'sessionId' not in params.keys() and self.sessionId is not None:
+            params['sessionId'] = self.sessionId
 
         # self.logger.debug("send %s" % hide_dict_values(params))
         start = time.time()
@@ -535,9 +530,8 @@ class ADEWebAPI:
 
         # self._test_opt_params(kwargs, function)
 
-        if 'sessionId' not in kwargs.keys():
-            if self.sessionId is not None:
-                kwargs['sessionId'] = self.sessionId
+        if 'sessionId' not in kwargs.keys() and self.sessionId is not None:
+            kwargs['sessionId'] = self.sessionId
         self.logger.debug("send %s" % hide_dict_values(kwargs))
         response = requests.get(self.url, params=kwargs)
         try:
@@ -557,9 +551,6 @@ class ADEWebAPI:
         return self._first_date
 
     def week_id(self, date=datetime.date.today()):
-        """Returns week number for a given date"""
-        # week = ((date1-date0)/7).days
-
         if self._first_date is None:
             self._first_date = self.first_date()
 
