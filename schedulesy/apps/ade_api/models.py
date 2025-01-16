@@ -19,6 +19,8 @@ from .utils import generate_uuid, get_ade_timezone
 
 logger = logging.getLogger(__name__)
 
+ADE_CONFIG_VERBOSE_NAME = _('ADE config')
+
 
 class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
@@ -98,11 +100,11 @@ class AdeConfig(models.Model):
     parameters = JSONField(_('Parameters'))
 
     class Meta:
-        verbose_name = _('ADE config')
-        verbose_name_plural = _('ADE config')
+        verbose_name = ADE_CONFIG_VERBOSE_NAME
+        verbose_name_plural = ADE_CONFIG_VERBOSE_NAME
 
     def __str__(self):
-        return str(_('ADE config'))
+        return str(ADE_CONFIG_VERBOSE_NAME)
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -205,7 +207,6 @@ class LocalCustomization(models.Model):
 
         def format_description(resources):
             descriptions = []
-            # TODO: i18n ?
             for key, display in {
                 'trainees': 'Filières',
                 'instructors': 'Intervenants',
@@ -318,7 +319,7 @@ class Access(models.Model):
 
     @property
     def is_last_access(self):
-        return not self.customization.accesses.count() > 1
+        return self.customization.accesses.count() <= 1
 
     def delete(self, *args, **kwargs):
         if not self.is_last_access:
