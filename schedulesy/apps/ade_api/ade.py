@@ -362,10 +362,7 @@ class ADEWebAPI:
         if 'sessionId' not in params.keys() and self.sessionId is not None:
             params['sessionId'] = self.sessionId
 
-        # self.logger.debug("send %s" % hide_dict_values(params))
-        start = time.time()
         response = requests.get(self.url, params=params)
-        elapsed_rq = time.time() - start
 
         response.encoding = 'UTF-8'
         data = response.text

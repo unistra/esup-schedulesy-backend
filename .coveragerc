@@ -5,7 +5,6 @@ omit = schedulesy/settings/*
        */commands/*
        */migrations/*
        */tests/*
-       */ade_api/ade.py
        */ade_api/exception.py
        */libs/api/*
        */tasks.py
