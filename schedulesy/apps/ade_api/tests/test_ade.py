@@ -29,7 +29,7 @@ class TestADEWebAPI(unittest.TestCase):
         mock_get.return_value = mock_response
 
         params = {'function': 'test_func'}
-        self.api.sessionId = '12345'
+        self.api.session_id = '12345'
         self.api._send_request('test_func', **params)
 
         expected_params = {'function': 'test_func', 'sessionId': '12345'}

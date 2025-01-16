@@ -60,7 +60,7 @@ class ADEWebAPI(BaseHealthCheckBackend):
             connection = direct_ade_connection()
         except Exception as e:
             raise HealthCheckException(e)
-        if not connection or not connection.sessionId:
+        if not connection or not connection.session_id:
             raise HealthCheckException("Can't reach ADE web API")
 
     def identifier(self):
