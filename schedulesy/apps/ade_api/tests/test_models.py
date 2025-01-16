@@ -6,7 +6,14 @@ from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import Access, AdeConfig, LocalCustomization, Resource
+from ..models import (
+    Access,
+    AdeConfig,
+    DisplayType,
+    Fingerprint,
+    LocalCustomization,
+    Resource,
+)
 
 User = get_user_model()
 
@@ -186,3 +193,11 @@ class ResourceTestCase(TestCase):
 
     def test_lineage_non_existing(self):
         self.assertEqual(len(Resource.lineage({'1337', '314159', '111'})), 8)
+
+
+class FingerprintTestCase(TestCase):
+    def test_fingerprint_generation(self):
+        # Create a Fingerprint object and test that the fingerprint is generated correctly
+        fingerprint = Fingerprint(ext_id='test', method='test_method')
+        fingerprint.save()
+        self.assertIsNotNone(fingerprint.fingerprint)
