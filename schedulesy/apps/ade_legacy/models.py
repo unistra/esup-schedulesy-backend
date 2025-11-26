@@ -24,7 +24,7 @@ class Customization(models.Model):
     def local_customization(self):
         try:
             lc = api.LocalCustomization.objects.get(customization_id=self.id)
-            if lc.resources.count() <= 0:
+            if not lc.resources.exists():
                 self._sync()
             return lc
         except api.LocalCustomization.DoesNotExist:
@@ -33,7 +33,7 @@ class Customization(models.Model):
                 lc = api.LocalCustomization.objects.get(username=self.username)
                 lc.customization_id = self.id
                 lc.save()
-                if lc.resources.count() <= 0:
+                if not lc.resources.exists():
                     self._sync()
                 return lc
             except api.LocalCustomization.DoesNotExist:
