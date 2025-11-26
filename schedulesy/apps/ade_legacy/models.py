@@ -7,23 +7,14 @@ from schedulesy.apps.ade_api import models as api
 
 
 class Customization(models.Model):
-    id = models.AutoField(primary_key=True, db_column='id')
-    display_configuration = models.CharField(
-        max_length=60, db_column='configuration_affichage', default=''
-    )
-    resources = models.CharField(
-        max_length=300, db_column='ressources', default='', blank=True
-    )
-    directory_id = models.CharField(
-        max_length=32, db_column='uds_directory_id', unique=True
-    )
-    rh_id = models.CharField(max_length=15, db_column='code_harp', default='')
-    creation_date = models.DateTimeField(db_column='date_creation', auto_now_add=True)
-    customization_date = models.DateTimeField(
-        db_column='date_personnalisation', auto_now=True
-    )
-    username = models.CharField(max_length=32, db_column='uid')
-    configuration = None
+    id = models.AutoField(primary_key=True)
+    display_configuration = models.CharField(max_length=60, blank=True)
+    resources = models.CharField(max_length=300, blank=True)
+    directory_id = models.CharField(max_length=32, unique=True)
+    rh_id = models.CharField(max_length=15, blank=True)
+    creation_date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    customization_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    username = models.CharField(max_length=32, blank=True)
 
     @property
     def ics_calendar(self):
@@ -93,8 +84,6 @@ class Customization(models.Model):
         return lc
 
     class Meta:
-        managed = False
-        db_table = 'w_edtperso'
         verbose_name = _('Customization')
         verbose_name_plural = _('Customizations')
 
