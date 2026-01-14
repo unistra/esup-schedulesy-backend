@@ -64,7 +64,6 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = ['schedulesy.db_router.DBRouter']
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
