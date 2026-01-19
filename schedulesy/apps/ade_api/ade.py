@@ -26,6 +26,7 @@ from xml.etree import ElementTree as ET
 
 import pytz
 import requests
+from requests.auth import HTTPBasicAuth
 from sentry_sdk import add_breadcrumb
 
 from .exception import ExceptionFactory
@@ -231,6 +232,7 @@ class ADEWebAPI:
         self.url = url
         self.login = login
         self.password = password
+        self.basic_auth = HTTPBasicAuth(self.login, self.password)
 
         self.session_id = None
 
@@ -358,11 +360,16 @@ class ADEWebAPI:
     def _send_request(self, func, **params):
         """Send a request"""
         params['function'] = func
+        extra_get_params = {}
+
+        # Pop login and password for non regression
+        params.pop('login', '')
+        params.pop('password', '')
 
         if 'sessionId' not in params.keys() and self.session_id is not None:
             params['sessionId'] = self.session_id
 
-        response = requests.get(self.url, params=params)
+        response = requests.get(self.url, params=params, auth=self.basic_auth)
 
         response.encoding = 'UTF-8'
         data = response.text
@@ -390,7 +397,7 @@ class ADEWebAPI:
     def connect(self):
         """Connect to server"""
         function = 'connect'
-        element = self._send_request(function, login=self.login, password=self.password)
+        element = self._send_request(function)
         returned_session_id = element.attrib["id"]
         self.session_id = returned_session_id
         return returned_session_id is not None
