@@ -232,7 +232,6 @@ class ADEWebAPI:
         self.url = url
         self.login = login
         self.password = password
-        self.basic_auth = HTTPBasicAuth(self.login, self.password)
 
         self.session_id = None
 
@@ -369,7 +368,10 @@ class ADEWebAPI:
         if 'sessionId' not in params.keys() and self.session_id is not None:
             params['sessionId'] = self.session_id
 
-        response = requests.get(self.url, params=params, auth=self.basic_auth)
+        auth = {}
+        if func == 'connect':
+            auth = HTTPBasicAuth(self.login, self.password)
+        response = requests.get(self.url, params=params, auth=auth)
 
         response.encoding = 'UTF-8'
         data = response.text
