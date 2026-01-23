@@ -118,7 +118,7 @@ def get_geolocation(id, **kwargs):
     return []
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def get_geolocations():
     @format_json
     @check_status('infocentre')
