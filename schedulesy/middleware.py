@@ -18,7 +18,7 @@ from schedulesy.apps.ade_api.tasks import stats
 LOGGER = logging.getLogger(__name__)
 
 
-class StatsMiddleware:
+class StatsMiddleware:  # pragma: no cover # middleware removed during unit tests
     """
     Sends analytics data on response and request to AMQP
     """

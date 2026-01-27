@@ -5,7 +5,9 @@ from health_check.exceptions import HealthCheckException
 from schedulesy.apps.ade_api.refresh import direct_ade_connection
 
 
-class ADECheckBackend(BaseHealthCheckBackend):
+class ADECheckBackend(
+    BaseHealthCheckBackend
+):  # pragma: no cover # can't test health check
     critical_service = True
 
     def check_status(self):
@@ -22,7 +24,9 @@ class ADECheckBackend(BaseHealthCheckBackend):
         return self.__class__.__name__  # Display name on the endpoint.
 
 
-class WorkerBackend(BaseHealthCheckBackend):
+class WorkerBackend(
+    BaseHealthCheckBackend
+):  # pragma: no cover # can't test health check
     critical_service = False
 
     def check_status(self):
@@ -52,7 +56,7 @@ class WorkerBackend(BaseHealthCheckBackend):
         return self.__class__.__name__  # Display name on the endpoint.
 
 
-class ADEWebAPI(BaseHealthCheckBackend):
+class ADEWebAPI(BaseHealthCheckBackend):  # pragma: no cover # can't test health check
     critical_service = False
 
     def check_status(self):
@@ -60,7 +64,7 @@ class ADEWebAPI(BaseHealthCheckBackend):
             connection = direct_ade_connection()
         except Exception as e:
             raise HealthCheckException(e)
-        if not connection or not connection.sessionId:
+        if not connection or not connection.session_id:
             raise HealthCheckException("Can't reach ADE web API")
 
     def identifier(self):

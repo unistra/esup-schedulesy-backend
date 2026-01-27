@@ -85,7 +85,8 @@ RABBITMQ_VHOST = '{{ rabbitmq_vhost }}'
 BROKER_URL = "amqp://{}:{}@{}/".format(
     RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_SERVER, RABBITMQ_VHOST
 )
-REFRESH_SCHEDULE = json.loads('{{ refresh_schedule }}')
+REFRESH_SCHEDULE_STR = '{{ refresh_schedule }}'
+REFRESH_SCHEDULE = json.loads(REFRESH_SCHEDULE_STR)
 
 
 ###############################
@@ -100,13 +101,17 @@ INFOCENTREWS_TOKEN = '{{ infocentrews_token }}'
 # Redis #
 #########
 CACHEOPS_REDIS_SERVER = '{{ redis_server }}'
-CACHEOPS_REDIS_PORT = int('{{ redis_port }}')
-CACHEOPS_REDIS_DB = int('{{ redis_db }}')
+CACHEOPS_REDIS_PORT_STR = '{{ redis_port }}'
+CACHEOPS_REDIS_DB_STR = '{{ redis_db }}'
+CACHEOPS_REDIS_PORT = int(CACHEOPS_REDIS_PORT_STR)
+CACHEOPS_REDIS_DB = int(CACHEOPS_REDIS_DB_STR)
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
 REDIS_URL = CACHEOPS_REDIS
 
 ############
 # LOGSTASH #
 ############
-LOGGING['handlers']['logstash']['host'] = '{{ logstash_server }}'
-LOGGING['handlers']['logstash']['port'] = int('{{ logstash_port }}')
+LOGSTASH_SERVER = '{{ logstash_server }}'
+LOGSTASH_PORT = '{{ logstash_port }}'
+LOGGING['handlers']['logstash']['host'] = LOGSTASH_SERVER
+LOGGING['handlers']['logstash']['port'] = int(LOGSTASH_PORT)

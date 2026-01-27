@@ -1,3 +1,5 @@
+import base64
+import json
 import logging
 import time
 import uuid
@@ -8,21 +10,25 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
-from rest_framework import generics, permissions
+from django.utils.translation import gettext_lazy as _
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
+from schedulesy.apps.ade_api.utils import (
+    generate_color_from_name,
+    get_pastel_colors,
+    pastelize,
+    rgb_to_hex,
+)
 from schedulesy.apps.ade_legacy.models import Customization
 from schedulesy.apps.refresh.tasks import bulldoze as resource_bulldoze
 from schedulesy.apps.refresh.tasks import do_refresh_all_events, refresh_all
 from schedulesy.apps.refresh.tasks import refresh_resource as resource_task
 from schedulesy.libs.permissions import IsOwnerPermission
 
-from ...libs.decorators import refresh_if_necessary
 from .exception import SearchTooWideError, TooMuchEventsError
 from .models import Access, AdeConfig, DisplayType, LocalCustomization, Resource
-from .refresh import Refresh
 from .serializers import (
     AccessSerializer,
     AdeConfigSerializer,
@@ -152,6 +158,71 @@ class EventsDetail(generics.RetrieveAPIView):
     serializer_class = EventsSerializer
     lookup_field = 'ext_id'
     permission_classes = (permissions.AllowAny,)
+
+
+class EventsListDetail(generics.GenericAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = EventsSerializer
+    permission_classes = (permissions.AllowAny,)
+    lookup_url_kwarg = 'ext_id'
+
+    def merge(self, resources):
+        """
+        Merge events from multiple resources
+        """
+
+        colors = {}
+
+        events = {}
+        for key in resources[0]['events'].keys():
+            result = None
+            if isinstance(resources[0]['events'][key], list):
+                d = {}
+                for resource in resources:
+                    d.update({r['id']: r for r in resource['events'][key]})
+                result = list(d.values())
+            else:
+                result = {}
+                for resource in resources:
+                    result.update(resource['events'][key])
+            events[key] = result
+
+        # for each event, if it has a key classroom, set the color of the event with the id of the first classroom
+        pastel_colors = get_pastel_colors()
+        for event in events['events']:
+            if 'classrooms' in event and event['classrooms'] is not None:
+                if event['classrooms'][0] not in colors:
+                    color = pastelize(
+                        generate_color_from_name(event['classrooms'][0]), pastel_colors
+                    )
+                    pastel_colors.remove(color)
+                    if len(pastel_colors) == 0:
+                        pastel_colors = get_pastel_colors()
+                    colors[event['classrooms'][0]] = rgb_to_hex(*color)
+                event['color'] = colors[event['classrooms'][0]]
+
+        result = {'events': events}
+        return result
+
+    def get(self, request, *args, **kwargs):
+        encoded_list = self.kwargs.get(self.lookup_url_kwarg)
+        try:
+            event_list = json.loads(
+                base64.urlsafe_b64decode(encoded_list.encode()).decode('utf-8')
+            )
+        except:
+            raise Http404()
+        if event_list is not None:
+            resources = Resource.objects.filter(ext_id__in=event_list)
+            logger.debug(resources)
+            if len(resources) > 0:
+                m = self.merge(
+                    list(map(self.serializer_class().to_representation, resources))
+                )
+                return JsonResponse(m, status=status.HTTP_200_OK)
+            else:
+                raise Http404()
+        raise SearchTooWideError
 
 
 class InstructorDetail(generics.ListAPIView):

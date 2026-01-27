@@ -106,7 +106,7 @@ class Refresh:
             self.refresh_all()
 
         if isinstance(ext_id, int) or re.fullmatch(r'[0-9]*', ext_id):
-            r = self.myade.getEvents(
+            r = self.myade.get_events(
                 resources=ext_id,
                 detail=0,
                 attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS,
@@ -330,7 +330,7 @@ class Refresh:
 
         all_resources = dict(**old_resources, **new_resources)
         for r_id, resource in all_resources.items():
-            r = self.myade.getEvents(
+            r = self.myade.get_events(
                 resources=resource.ext_id,
                 detail=0,
                 attribute_filter=self.EVENTS_ATTRIBUTE_FILTERS,
@@ -348,7 +348,7 @@ def direct_ade_connection():
     )
     connection = ADEWebAPI(**config)
     connection.connect()
-    connection.setProject(settings.ADE_WEB_API['PROJECT_ID'])
+    connection.set_project(settings.ADE_WEB_API['PROJECT_ID'])
     return connection
 
 
@@ -359,6 +359,6 @@ def ade_connection():
 
 @MemoizeWithTimeout(timeout=30)
 def ade_resources(category, operation_id='standard'):
-    return ade_connection().getResources(
+    return ade_connection().get_resources(
         category=category, detail=11, tree=True, hash=True
     )

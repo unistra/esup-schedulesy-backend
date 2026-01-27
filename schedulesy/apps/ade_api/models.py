@@ -19,6 +19,8 @@ from .utils import generate_uuid, get_ade_timezone
 
 logger = logging.getLogger(__name__)
 
+ADE_CONFIG_VERBOSE_NAME = _('ADE config')
+
 
 class Resource(models.Model):
     ext_id = models.CharField(max_length=25, unique=True, db_index=True)
@@ -98,11 +100,11 @@ class AdeConfig(models.Model):
     parameters = JSONField(_('Parameters'))
 
     class Meta:
-        verbose_name = _('ADE config')
-        verbose_name_plural = _('ADE config')
+        verbose_name = ADE_CONFIG_VERBOSE_NAME
+        verbose_name_plural = ADE_CONFIG_VERBOSE_NAME
 
     def __str__(self):
-        return str(_('ADE config'))
+        return str(ADE_CONFIG_VERBOSE_NAME)
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -144,13 +146,10 @@ class LocalCustomization(models.Model):
         res = self.resources.order_by('id').values_list('id', flat=True)
         digest = hashlib.sha1((','.join(map(str, res))).encode('utf-8')).hexdigest()
         return f'{digest}.ics'
-        # return f'{self.username}.ics'
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         super().save(*args, **kwargs)
-        # import schedulesy.apps.refresh.tasks
-        # schedulesy.apps.refresh.tasks.generate_ics.delay(self.id, order_time=time.time())
         if is_new:
             Access.objects.create(name=self.username, customization=self)
 
@@ -208,7 +207,6 @@ class LocalCustomization(models.Model):
 
         def format_description(resources):
             descriptions = []
-            # TODO: i18n ?
             for key, display in {
                 'trainees': 'Filières',
                 'instructors': 'Intervenants',
@@ -234,7 +232,6 @@ class LocalCustomization(models.Model):
         else:
             merged_events = self.events
             events = merged_events.get('events', [])
-            # merged_events = {r: merged_events.get(r, {}) for r in res_list}
             if events:
                 filename = filename or self.ics_calendar_filename
                 res_list = ('trainees', 'instructors', 'classrooms', 'category5s')
@@ -259,7 +256,6 @@ class LocalCustomization(models.Model):
                     e.end = format_end_date(begin_time, event['duration'])
                     e.geo = format_geolocation(classrooms)
                     e.location = ';'.join(map(format_ics_location, classrooms))
-                    # e.last_modified = event['lastUpdate']
                     e.description = format_description(resources)
                     calendar.events.add(e)
 
@@ -323,7 +319,7 @@ class Access(models.Model):
 
     @property
     def is_last_access(self):
-        return not self.customization.accesses.count() > 1
+        return self.customization.accesses.count() <= 1
 
     def delete(self, *args, **kwargs):
         if not self.is_last_access:

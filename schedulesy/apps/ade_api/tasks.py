@@ -18,11 +18,11 @@ def sync_log(payload):
 
 
 @shared_task(autoretry_for=(Exception,), default_retry_delay=60)
-def stats(payload):
+def stats(payload):  # pragma: no cover # middleware removed during unit tests
     log(payload, 'schedulesy')
 
 
-def log(payload, prefix):
+def log(payload, prefix):  # pragma: no cover # middleware removed during unit tests
     if 'http_user_agent' in payload:
         if not payload['http_user_agent']:
             payload.update({'http_user_agent': ''})

@@ -62,6 +62,8 @@ class EventsSerializer(serializers.ModelSerializer):
             user = request.user
             if not user.is_authenticated:
                 sanitize()
+        else:
+            sanitize()
 
         return fields
 

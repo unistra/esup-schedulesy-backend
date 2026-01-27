@@ -26,6 +26,7 @@ from xml.etree import ElementTree as ET
 
 import pytz
 import requests
+from requests.auth import HTTPBasicAuth
 from sentry_sdk import add_breadcrumb
 
 from .exception import ExceptionFactory
@@ -144,10 +145,6 @@ class BaseObject:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             self.__dict__[key] = value
-        self.init(**kwargs)
-
-    def init(self, **kwargs):
-        pass
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -236,7 +233,7 @@ class ADEWebAPI:
         self.login = login
         self.password = password
 
-        self.sessionId = None
+        self.session_id = None
 
         self.logger = logging.getLogger('ADEWebAPI')
 
@@ -362,15 +359,19 @@ class ADEWebAPI:
     def _send_request(self, func, **params):
         """Send a request"""
         params['function'] = func
+        extra_get_params = {}
 
-        if 'sessionId' not in params.keys():
-            if self.sessionId is not None:
-                params['sessionId'] = self.sessionId
+        # Pop login and password for non regression
+        params.pop('login', '')
+        params.pop('password', '')
 
-        # self.logger.debug("send %s" % hide_dict_values(params))
-        start = time.time()
-        response = requests.get(self.url, params=params)
-        elapsed_rq = time.time() - start
+        if 'sessionId' not in params.keys() and self.session_id is not None:
+            params['sessionId'] = self.session_id
+
+        auth = {}
+        if func == 'connect':
+            auth = HTTPBasicAuth(self.login, self.password)
+        response = requests.get(self.url, params=params, auth=auth)
 
         response.encoding = 'UTF-8'
         data = response.text
@@ -398,17 +399,17 @@ class ADEWebAPI:
     def connect(self):
         """Connect to server"""
         function = 'connect'
-        element = self._send_request(function, login=self.login, password=self.password)
-        returned_sessionId = element.attrib["id"]
-        self.sessionId = returned_sessionId
-        return returned_sessionId is not None
+        element = self._send_request(function)
+        returned_session_id = element.attrib["id"]
+        self.session_id = returned_session_id
+        return returned_session_id is not None
 
     def disconnect(self):
         """Disconnect from server"""
         function = 'disconnect'
         element = self._send_request(function)
-        returned_sessionId = element.attrib["sessionId"]
-        return returned_sessionId == self.sessionId
+        returned_session_id = element.attrib["sessionId"]
+        return returned_session_id == self.session_id
 
     def _test_opt_params(self, given_params, function):
         """Test if kwargs parameters are in allowed optional parameters
@@ -429,7 +430,7 @@ class ADEWebAPI:
         """Returns a list of object using factory"""
         return map(lambda elt: self.factory.create_object(category, **elt.attrib), lst)
 
-    def getProjects(self, **kwargs):
+    def get_projects(self, **kwargs):
         """Returns (list of) projects"""
         function = 'getProjects'
         element = self._send_request(function, **kwargs)
@@ -437,15 +438,15 @@ class ADEWebAPI:
         lst_projects = self._create_list_of('project', lst_projects)
         return lst_projects
 
-    def setProject(self, projectId):
+    def set_project(self, project_id):
         """Set current project"""
         function = 'setProject'
-        element = self._send_request(function, projectId=projectId)
-        returned_projectId = element.attrib["projectId"]
-        returned_sessionId = element.attrib["sessionId"]
+        element = self._send_request(function, projectId=project_id)
+        returned_project_id = element.attrib["projectId"]
+        returned_session_id = element.attrib["sessionId"]
 
-        result = returned_sessionId == self.sessionId and returned_projectId == str(
-            projectId
+        result = returned_session_id == self.session_id and returned_project_id == str(
+            project_id
         )
 
         if result:
@@ -453,7 +454,7 @@ class ADEWebAPI:
 
         return result
 
-    def getResources(self, **kwargs):
+    def get_resources(self, **kwargs):
         """Returns resource(s) from several optional arguments"""
         function = 'getResources'
         self._test_opt_params(kwargs, function)
@@ -479,7 +480,7 @@ class ADEWebAPI:
             d['children'] = children
         return d
 
-    def getActivities(self, **kwargs):
+    def get_activities(self, **kwargs):
         """Returns activity(ies) from several optional arguments"""
         function = 'getActivities'
         self._test_opt_params(kwargs, function)
@@ -489,7 +490,7 @@ class ADEWebAPI:
         lst_activities = self._create_list_of(typ, lst_activities)
         return lst_activities
 
-    def getEvents(self, **kwargs):
+    def get_events(self, **kwargs):
         """Returns event(s) from several optional arguments"""
         function = 'getEvents'
         self._test_opt_params(kwargs, function)
@@ -497,7 +498,7 @@ class ADEWebAPI:
         tree = self._tree(element, **kwargs)
         return {'data': tree}
 
-    def getCosts(self, **kwargs):
+    def get_costs(self, **kwargs):
         """Returns cost(s) from several optional arguments"""
         function = 'getCosts'
         self._test_opt_params(kwargs, function)
@@ -507,7 +508,7 @@ class ADEWebAPI:
         lst = self._create_list_of(typ, lst)
         return lst
 
-    def getCaracteristics(self, **kwargs):
+    def get_caracteristics(self, **kwargs):
         """Returns caracteristic(s) from several optional arguments"""
         function = 'getCaracteristics'
         self._test_opt_params(kwargs, function)
@@ -517,7 +518,7 @@ class ADEWebAPI:
         lst = self._create_list_of(typ, lst)
         return lst
 
-    def getDate(self, week, day, slot):
+    def get_date(self, week, day, slot):
         """Returns date object from week, day, slot"""
         function = 'getDate'
         # self._test_opt_params(kwargs, function) # no keyword arguments (kwargs)
@@ -526,7 +527,7 @@ class ADEWebAPI:
         return date
 
     # def imageET(self, resources, weeks, days, **kwargs):
-    def imageET(self, **kwargs):
+    def image_et(self, **kwargs):
         """Returns a GIF image (binary)"""
         function = 'imageET'
 
@@ -535,9 +536,8 @@ class ADEWebAPI:
 
         # self._test_opt_params(kwargs, function)
 
-        if 'sessionId' not in kwargs.keys():
-            if self.sessionId is not None:
-                kwargs['sessionId'] = self.sessionId
+        if 'sessionId' not in kwargs.keys() and self.session_id is not None:
+            kwargs['sessionId'] = self.session_id
         self.logger.debug("send %s" % hide_dict_values(kwargs))
         response = requests.get(self.url, params=kwargs)
         try:
@@ -553,13 +553,10 @@ class ADEWebAPI:
 
     def first_date(self):
         """Returns first date of current project"""
-        self._first_date = self.getDate(0, 0, 0)['time'].date()
+        self._first_date = self.get_date(0, 0, 0)['time'].date()
         return self._first_date
 
     def week_id(self, date=datetime.date.today()):
-        """Returns week number for a given date"""
-        # week = ((date1-date0)/7).days
-
         if self._first_date is None:
             self._first_date = self.first_date()
 

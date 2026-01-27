@@ -6,7 +6,14 @@ from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from ..models import Access, AdeConfig, LocalCustomization, Resource
+from ..models import (
+    Access,
+    AdeConfig,
+    DisplayType,
+    Fingerprint,
+    LocalCustomization,
+    Resource,
+)
 
 User = get_user_model()
 
@@ -25,7 +32,6 @@ class AdeConfigModelTestCase(TestCase):
 
 
 class LocalCustomizationGenerateEventsTestCase(TestCase):
-
     fixtures = ['tests/resources']
 
     def setUp(self):
@@ -67,7 +73,6 @@ class LocalCustomizationGenerateEventsTestCase(TestCase):
 
 
 class LocalCustomizationGenerateIcsCalendarTestCase(TestCase):
-
     fixtures = ['tests/resources']
 
     def setUp(self):
@@ -168,21 +173,31 @@ class AccessTestCase(TestCase):
 
 
 class ResourceTestCase(TestCase):
-    def test_lineage(self):
-        r = Resource.objects.create(ext_id='1337')
-        self.assertIn('1337', Resource.lineage(['1337']))
-        r2 = Resource.objects.create(ext_id='666', parent=r)
+    def setUp(self):
+        self.r_1337 = Resource.objects.create(ext_id='1337')
+        self.r_666 = Resource.objects.create(ext_id='666', parent=self.r_1337)
+        Resource.objects.create(ext_id='42', parent=self.r_1337)
+        Resource.objects.create(ext_id='314', parent=self.r_666)
+        Resource.objects.create(ext_id='3141', parent=self.r_666)
+        Resource.objects.create(ext_id='31415', parent=self.r_666)
+        self.r_314159 = Resource.objects.create(ext_id='314159')
+        Resource.objects.create(ext_id='3141592', parent=self.r_314159)
+
+    def test_lineage_content(self):
         self.assertIn('666', Resource.lineage(['1337']))
-        Resource.objects.create(ext_id='42', parent=r)
-        Resource.objects.create(ext_id='314', parent=r2)
-        Resource.objects.create(ext_id='3141', parent=r2)
-        Resource.objects.create(ext_id='31415', parent=r2)
         self.assertIn('31415', Resource.lineage(['1337']))
         self.assertEqual(len(Resource.lineage(['1337'])), 6)
-        s = Resource.objects.create(ext_id='314159')
-        Resource.objects.create(ext_id='3141592', parent=s)
+
+    def test_lineage_set_multiple(self):
         self.assertEqual(len(Resource.lineage(['1337', '314159'])), 8)
-        # Using set as argument
-        self.assertEqual(len(Resource.lineage({'1337', '314159'})), 8)
-        # Non existing resource
+
+    def test_lineage_non_existing(self):
         self.assertEqual(len(Resource.lineage({'1337', '314159', '111'})), 8)
+
+
+class FingerprintTestCase(TestCase):
+    def test_fingerprint_generation(self):
+        # Create a Fingerprint object and test that the fingerprint is generated correctly
+        fingerprint = Fingerprint(ext_id='test', method='test_method')
+        fingerprint.save()
+        self.assertIsNotNone(fingerprint.fingerprint)

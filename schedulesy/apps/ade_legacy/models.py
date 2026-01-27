@@ -8,22 +8,13 @@ from schedulesy.apps.ade_api import models as api
 
 class Customization(models.Model):
     id = models.AutoField(primary_key=True, db_column='id')
-    display_configuration = models.CharField(
-        max_length=60, db_column='configuration_affichage', default=''
-    )
-    resources = models.CharField(
-        max_length=300, db_column='ressources', default='', blank=True
-    )
-    directory_id = models.CharField(
-        max_length=32, db_column='uds_directory_id', unique=True
-    )
-    rh_id = models.CharField(max_length=15, db_column='code_harp', default='')
-    creation_date = models.DateTimeField(db_column='date_creation', auto_now_add=True)
-    customization_date = models.DateTimeField(
-        db_column='date_personnalisation', auto_now=True
-    )
-    username = models.CharField(max_length=32, db_column='uid')
-    configuration = None
+    display_configuration = models.CharField(max_length=60, blank=True, db_column='configuration_affichage')
+    resources = models.CharField(max_length=300, blank=True, db_column='ressources')
+    directory_id = models.CharField(max_length=32, unique=True, db_column='uds_directory_id')
+    rh_id = models.CharField(max_length=15, blank=True, db_column='code_harp')
+    creation_date = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column='date_creation')
+    customization_date = models.DateTimeField(auto_now=True, blank=True, null=True, db_column='date_personnalisation')
+    username = models.CharField(max_length=32, blank=True, db_column='uid')
 
     @property
     def ics_calendar(self):
@@ -33,7 +24,7 @@ class Customization(models.Model):
     def local_customization(self):
         try:
             lc = api.LocalCustomization.objects.get(customization_id=self.id)
-            if lc.resources.count() <= 0:
+            if not lc.resources.exists():
                 self._sync()
             return lc
         except api.LocalCustomization.DoesNotExist:
@@ -42,7 +33,7 @@ class Customization(models.Model):
                 lc = api.LocalCustomization.objects.get(username=self.username)
                 lc.customization_id = self.id
                 lc.save()
-                if lc.resources.count() <= 0:
+                if not lc.resources.exists():
                     self._sync()
                 return lc
             except api.LocalCustomization.DoesNotExist:
@@ -93,7 +84,6 @@ class Customization(models.Model):
         return lc
 
     class Meta:
-        managed = False
         db_table = 'w_edtperso'
         verbose_name = _('Customization')
         verbose_name_plural = _('Customizations')
