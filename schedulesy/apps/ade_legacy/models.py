@@ -16,6 +16,8 @@ class Customization(models.Model):
     customization_date = models.DateTimeField(auto_now=True, blank=True, null=True, db_column='date_personnalisation')
     username = models.CharField(max_length=32, blank=True, db_column='uid')
 
+    configuration = None
+
     @property
     def ics_calendar(self):
         return self.local_customization.ics_calendar_filename
