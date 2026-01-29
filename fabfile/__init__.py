@@ -95,9 +95,13 @@ def dev():
 def test():
     """Define test stage"""
     env.roledefs = {
-        'web': ['schedulesy-test.app.unistra.fr'],
-        'lb': ['schedulesy-test.app.unistra.fr'],
-        'celery-worker': ['schedulesy-test.app.unistra.fr'],
+        # 'web': ['schedulesy-test.app.unistra.fr'],
+        # 'lb': ['schedulesy-test.app.unistra.fr'],
+        # 'celery-worker': ['schedulesy-test.app.unistra.fr'],
+
+        'web': ['django-test.di.unistra.fr'],
+        'lb': ['django-test.di.unistra.fr'],
+        'celery-worker': ['django-test.di.unistra.fr'],
         'broker': ['django-test2.u-strasbg.fr']
     }
     # env.user = 'root'  # user for ssh
