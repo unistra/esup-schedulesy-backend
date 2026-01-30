@@ -381,7 +381,10 @@ class ADEWebAPI:
         try:
             self._parse_error(element)
         except Exception as e:
-            if element.attrib['name'] == 'java.lang.NullPointerException':
+            if any([
+                element.attrib['name'] == 'java.lang.NullPointerException',
+                element.attrib['name'].startswith("java.lang.NumberFormatException")
+            ]):
                 raise e
             else:
                 logger.error(f"{params}")
