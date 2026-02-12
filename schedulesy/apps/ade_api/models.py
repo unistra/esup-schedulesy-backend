@@ -261,7 +261,9 @@ class LocalCustomization(models.Model):
 
         if self.events_nb > 0:
             with default_storage.open(filename, 'w') as fh:
-                return fh.write(calendar.serialize())
+                return fh.write(str(calendar))
+                # Uncomment with ics 0.8+
+                # return fh.write(calendar.serialize())
 
     @cached_property
     def events_ids(self):
