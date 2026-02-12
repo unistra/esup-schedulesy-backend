@@ -102,7 +102,7 @@ def test():
         'web': ['django-test.di.unistra.fr'],
         'lb': ['django-test.di.unistra.fr'],
         'celery-worker': ['django-test.di.unistra.fr'],
-        'broker': ['django-test2.u-strasbg.fr']
+        'broker': ['rabbitmq-test.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
     env.backends = ['127.0.0.1']
