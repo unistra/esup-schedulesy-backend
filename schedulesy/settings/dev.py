@@ -43,15 +43,13 @@ ALLOWED_HOSTS = [
     '*'
 ]
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'ssl')
-
 
 ######################
 #    CAS SETTINGS    #
 ######################
 
 CAS_SERVER_URL = 'https://cas-dev.unistra.fr/cas/'
-CAS_LOGOUT_REQUEST_ALLOWED = ('cas-dev.unistra.fr',)
+CAS_FORCE_SSL_SERVICE_URL = False
 
 
 #####################
@@ -147,12 +145,7 @@ CACHEOPS_REDIS_DB = int(environ.get('REDIS_DB', 0))
 CACHEOPS_REDIS = f'redis://{CACHEOPS_REDIS_SERVER}:{CACHEOPS_REDIS_PORT}/{CACHEOPS_REDIS_DB}'
 REDIS_URL = CACHEOPS_REDIS
 
-########
-# CAS #
-########
 
-CAS_SERVER_URL = 'https://cas-dev.unistra.fr/cas/'
-CAS_FORCE_SSL_SERVICE_URL = False
 ############
 # LOGSTASH #
 ############

@@ -34,6 +34,16 @@ ALLOWED_HOSTS = [
     '.unistra.fr',
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'ssl')
+
+
+######################
+#    CAS SETTINGS    #
+######################
+
+CAS_SERVER_URL = 'https://cas-dev.unistra.fr/cas/'
+CAS_LOGOUT_REQUEST_ALLOWED = ('cas-dev.unistra.fr',)
+
 
 #############################
 # Application configuration #
