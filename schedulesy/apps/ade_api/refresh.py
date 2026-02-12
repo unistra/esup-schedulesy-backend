@@ -352,7 +352,6 @@ def direct_ade_connection():
     return connection
 
 
-@MemoizeWithTimeout(timeout=30)
 def ade_connection():
     return direct_ade_connection()
 
