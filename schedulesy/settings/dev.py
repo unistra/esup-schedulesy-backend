@@ -140,9 +140,8 @@ REDIS_URL = CACHEOPS_REDIS
 # CAS #
 ########
 
-CAS_SERVER_URL = "https://cas6-dev.unistra.fr:443/cas/login"
+CAS_SERVER_URL = 'https://cas-dev.unistra.fr/cas/'
 CAS_FORCE_SSL_SERVICE_URL = False
-
 ############
 # LOGSTASH #
 ############
