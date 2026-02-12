@@ -346,9 +346,9 @@ def direct_ade_connection():
         login=settings.ADE_WEB_API['USER'],
         password=settings.ADE_WEB_API['PASSWORD'],
     )
-    connection = ADEWebAPI(**config)
-    connection.connect()
-    connection.set_project(settings.ADE_WEB_API['PROJECT_ID'])
+    connection = ADEWebAPI(**config, project_id=settings.ADE_WEB_API['PROJECT_ID'])
+    # connection.connect()
+    # connection.set_project(settings.ADE_WEB_API['PROJECT_ID'])
     return connection
 
 

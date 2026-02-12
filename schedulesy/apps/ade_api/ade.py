@@ -228,10 +228,11 @@ class ObjectFactory:
 class ADEWebAPI:
     """Class to manage ADE Web API (reader only)"""
 
-    def __init__(self, url, login, password):
+    def __init__(self, url, login, password, project_id):
         self.url = url
         self.login = login
         self.password = password
+        self.project_id = project_id
 
         self.session_id = None
 
@@ -365,12 +366,13 @@ class ADEWebAPI:
         params.pop('login', '')
         params.pop('password', '')
 
-        if 'sessionId' not in params.keys() and self.session_id is not None:
-            params['sessionId'] = self.session_id
+        # if 'sessionId' not in params.keys() and self.session_id is not None:
+        #     params['sessionId'] = self.session_id
 
-        auth = {}
-        if func == 'connect':
-            auth = HTTPBasicAuth(self.login, self.password)
+        if func not in ('connect', 'setProject'):
+            params['projectId'] = self.project_id
+
+        auth = HTTPBasicAuth(self.login, self.password)
         response = requests.get(self.url, params=params, auth=auth)
 
         response.encoding = 'UTF-8'
@@ -448,9 +450,10 @@ class ADEWebAPI:
         returned_project_id = element.attrib["projectId"]
         returned_session_id = element.attrib["sessionId"]
 
-        result = returned_session_id == self.session_id and returned_project_id == str(
-            project_id
-        )
+        # result = returned_session_id == self.session_id and returned_project_id == str(
+        #     project_id
+        # )
+        result = returned_project_id == str(project_id)
 
         if result:
             self.project_init()
