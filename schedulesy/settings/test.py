@@ -117,8 +117,8 @@ REFRESH_SCHEDULE = json.loads(REFRESH_SCHEDULE_STR)
 # Weberservices configuration #
 ###############################
 
-INFOCENTREWS_DESCRIPTION = 'https://rest-api-test2.u-strasbg.fr/infocentre/description.json'
-INFOCENTREWS_BASE_URL = 'https://infocentrews-test.u-strasbg.fr'
+INFOCENTREWS_DESCRIPTION = 'https://infocentrews-test.app.unistra.fr/site_media/description.json'
+INFOCENTREWS_BASE_URL = 'https://infocentrews-test.app.unistra.fr'
 INFOCENTREWS_TOKEN = '{{ infocentrews_token }}'
 
 #########
