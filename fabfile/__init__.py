@@ -95,13 +95,11 @@ def dev():
 def test():
     """Define test stage"""
     env.roledefs = {
-        # 'web': ['schedulesy-test.app.unistra.fr'],
-        # 'lb': ['schedulesy-test.app.unistra.fr'],
-        # 'celery-worker': ['schedulesy-test.app.unistra.fr'],
-
         'web': ['django-test.di.unistra.fr'],
+        # 'web': ['django-test3.di.unistra.fr'],
         'lb': ['django-test.di.unistra.fr'],
-        'celery-worker': ['django-test.di.unistra.fr'],
+        # Use django3-test.di.unistra.fr as worker because it is less used
+        'celery-worker': ['django-test3.di.unistra.fr'],
         'broker': ['rabbitmq-test.di.unistra.fr']
     }
     # env.user = 'root'  # user for ssh
@@ -145,7 +143,7 @@ def test():
         'logstash_port': "LOGSTASH_PORT",
         'refresh_schedule': "REFRESH_SCHEDULE_STR",
     }
-    # env.rabbitmq_server = env.socket_host
+    env.rabbitmq_server = env.roledefs['broker'][0]
     execute(build_env)
 
 
@@ -306,6 +304,8 @@ def deploy(update_pkg=False):
 def deploy_backend(update_pkg=False):
     """Deploy code on server"""
     execute(pydiploy.django.deploy_backend, update_pkg)
+    # The celery template must also be deployed on the backend
+    execute(celery.deploy_celery_file)
 
 
 @roles('celery-worker')
